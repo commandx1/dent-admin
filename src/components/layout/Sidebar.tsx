@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, UserRound, Settings, Store, FileText, MoreVertical, Hospital } from 'lucide-react'
+import { LayoutDashboard, UserRound, Settings, Store, FileText, Hospital } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const navItems = [
