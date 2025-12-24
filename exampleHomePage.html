@@ -1,0 +1,785 @@
+<html lang="en">
+
+  <head>
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme:
+        {
+          extend:
+          {
+            colors:
+            {
+              'dark-bg': '#0f172a',
+              'dark-surface': '#1e293b',
+              'dark-elevated': '#334155',
+              'dark-border': '#475569',
+              'accent-primary': '#3b82f6',
+              'accent-secondary': '#8b5cf6',
+              'accent-success': '#10b981',
+              'accent-warning': '#f59e0b',
+              'accent-danger': '#ef4444'
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      window.FontAwesomeConfig = {
+        autoReplaceSvg: 'nest'
+      };
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <style>
+      ::-webkit-scrollbar
+      {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track
+      {
+        background: #1e293b;
+      }
+
+      ::-webkit-scrollbar-thumb
+      {
+        background: #475569;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover
+      {
+        background: #64748b;
+      }
+    </style>
+    <style data-grapesjs-styles="true">
+      *
+      {
+        box-sizing: border-box;
+      }
+
+      body
+      {
+        margin: 0;
+      }
+
+      ::-webkit-scrollbar
+      {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track
+      {
+        background-image: initial;
+        background-position-x: initial;
+        background-position-y: initial;
+        background-size: initial;
+        background-repeat: initial;
+        background-attachment: initial;
+        background-origin: initial;
+        background-clip: initial;
+        background-color: rgb(30, 41, 59);
+      }
+
+      ::-webkit-scrollbar-thumb
+      {
+        background-image: initial;
+        background-position-x: initial;
+        background-position-y: initial;
+        background-size: initial;
+        background-repeat: initial;
+        background-attachment: initial;
+        background-origin: initial;
+        background-clip: initial;
+        background-color: rgb(71, 85, 105);
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover
+      {
+        background-image: initial;
+        background-position-x: initial;
+        background-position-y: initial;
+        background-size: initial;
+        background-repeat: initial;
+        background-attachment: initial;
+        background-origin: initial;
+        background-clip: initial;
+        background-color: rgb(100, 116, 139);
+      }
+
+      *
+      {
+        box-sizing: border-box;
+      }
+
+      body
+      {
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+      }
+
+      #ife8jk
+      {
+        padding-top: 24px;
+        padding-right: 24px;
+        padding-bottom: 24px;
+        padding-left: 24px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-dark-bg text-gray-200">
+    <div class="flex h-screen overflow-hidden">
+      <!-- Sidebar -->
+      <aside id="sidebar"
+        class="w-64 bg-dark-surface border-r border-dark-border flex flex-col">
+        <div class="p-4 border-b border-dark-border">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-linear-to-br from-accent-primary to-accent-secondary rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-tooth text-white text-xl"></i></div>
+            <div>
+              <h1 class="text-lg font-bold text-white">Dental Admin</h1>
+              <p class="text-xs text-gray-400">Management Panel</p>
+            </div>
+          </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-4">
+          <div class="space-y-1"><a href="#dashboard"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg bg-dark-elevated text-white"><i
+                class="fa-solid fa-grid-2 w-5"></i><span
+                class="font-medium">Dashboard</span></a><a href="#dentists"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-dark-elevated hover:text-white transition-all"><i
+                class="fa-solid fa-user-doctor w-5"></i><span>Dentists</span><span
+                class="ml-auto bg-accent-primary/20 text-accent-primary text-xs px-2 py-1 rounded-full">248</span></a><a
+              href="#technicians"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-dark-elevated hover:text-white transition-all"><i
+                class="fa-solid fa-user-gear w-5"></i><span>Technicians</span><span
+                class="ml-auto bg-accent-secondary/20 text-accent-secondary text-xs px-2 py-1 rounded-full">156</span></a><a
+              href="#vendors"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-dark-elevated hover:text-white transition-all"><i
+                class="fa-solid fa-store w-5"></i><span>Vendors</span><span
+                class="ml-auto bg-accent-warning/20 text-accent-warning text-xs px-2 py-1 rounded-full">89</span></a><a
+              href="#invoices"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-dark-elevated hover:text-white transition-all"><i
+                class="fa-solid fa-file-invoice-dollar w-5"></i><span>Invoices</span><span
+                class="ml-auto bg-accent-success/20 text-accent-success text-xs px-2 py-1 rounded-full">342</span></a>
+          </div>
+        </nav>
+        <div class="p-4 border-t border-dark-border">
+          <div class="flex items-center gap-3"><img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
+              alt="Admin" class="w-10 h-10 rounded-full">
+            <div class="flex-1">
+              <p class="text-sm font-medium text-white">Admin User</p>
+              <p class="text-xs text-gray-400">admin@dental.com</p>
+            </div><button class="text-gray-400 hover:text-white"><i
+                class="fa-solid fa-ellipsis-vertical"></i></button>
+          </div>
+        </div>
+      </aside><!-- Main Content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header id="header" class="bg-dark-surface border-b border-dark-border">
+          <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold text-white">Dashboard Overview
+                </h2>
+                <p class="text-sm text-gray-400 mt-1">Welcome back! Here's
+                  what's happening today.</p>
+              </div>
+            </div>
+          </div>
+        </header><!-- Main Dashboard Content -->
+        <main id="ife8jk" class="flex-1 overflow-y-auto p-6">
+          <!-- Stats Overview Section -->
+          <!-- Quick Actions & Recent Activity -->
+          <!-- Service Analytics Overview -->
+          <section id="service-analytics-overview" class="mb-8">
+            <div
+              class="bg-dark-surface border border-dark-border rounded-xl p-6">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Service Analytics
+                    Overview</h3>
+                  <p class="text-sm text-gray-400 mt-1">Current month
+                    performance metrics</p>
+                </div><button
+                  class="text-sm text-accent-primary hover:text-accent-primary/80 flex items-center gap-2">
+                  View Detailed Analytics <i
+                    class="fa-solid fa-arrow-right"></i></button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div
+                  class="bg-dark-elevated rounded-lg p-5 border border-dark-border">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-gray-400 text-sm">Scheduled
+                      Appointments</span>
+                    <div
+                      class="w-10 h-10 bg-accent-primary/20 rounded-lg flex items-center justify-center">
+                      <i
+                        class="fa-solid fa-calendar-check text-accent-primary"></i>
+                    </div>
+                  </div>
+                  <p class="text-3xl font-bold text-white mb-2">342</p>
+                  <div class="flex items-center gap-2 text-sm"><span
+                      class="text-accent-success flex items-center gap-1"><i
+                        class="fa-solid fa-arrow-up text-xs"></i> 18.2%
+                    </span><span class="text-gray-500">vs last month</span>
+                  </div>
+                  <div class="mt-3 pt-3 border-t border-dark-border">
+                    <div class="flex justify-between text-xs"><span
+                        class="text-gray-500">Completed</span><span
+                        class="text-accent-success font-medium">298</span></div>
+                  </div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-5 border border-dark-border">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-gray-400 text-sm">Emergency Calls</span>
+                    <div
+                      class="w-10 h-10 bg-accent-danger/20 rounded-lg flex items-center justify-center">
+                      <i
+                        class="fa-solid fa-phone-volume text-accent-danger"></i>
+                    </div>
+                  </div>
+                  <p class="text-3xl font-bold text-white mb-2">87</p>
+                  <div class="flex items-center gap-2 text-sm"><span
+                      class="text-accent-danger flex items-center gap-1"><i
+                        class="fa-solid fa-arrow-down text-xs"></i> 5.3%
+                    </span><span class="text-gray-500">vs last month</span>
+                  </div>
+                  <div class="mt-3 pt-3 border-t border-dark-border">
+                    <div class="flex justify-between text-xs"><span
+                        class="text-gray-500">Avg Response Time</span><span
+                        class="text-accent-success font-medium">12 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-5 border border-dark-border">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-gray-400 text-sm">Remote Consultations</span>
+                    <div
+                      class="w-10 h-10 bg-accent-secondary/20 rounded-lg flex items-center justify-center">
+                      <i class="fa-solid fa-video text-accent-secondary"></i>
+                    </div>
+                  </div>
+                  <p class="text-3xl font-bold text-white mb-2">156</p>
+                  <div class="flex items-center gap-2 text-sm"><span
+                      class="text-accent-success flex items-center gap-1"><i
+                        class="fa-solid fa-arrow-up text-xs"></i> 24.7%
+                    </span><span class="text-gray-500">vs last month</span>
+                  </div>
+                  <div class="mt-3 pt-3 border-t border-dark-border">
+                    <div class="flex justify-between text-xs"><span
+                        class="text-gray-500">Avg Duration</span><span
+                        class="text-accent-success font-medium">28 min</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section><!-- Top Performers Section -->
+          <!-- Invoice Summary Section -->
+          <section id="invoice-summary" class="mb-8">
+            <div
+              class="bg-dark-surface border border-dark-border rounded-xl p-6">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Invoice Summary
+                  </h3>
+                  <p class="text-sm text-gray-400 mt-1">Current month financial
+                    overview</p>
+                </div><button
+                  class="text-sm text-accent-primary hover:text-accent-primary/80 flex items-center gap-2">
+                  View All Invoices <i
+                    class="fa-solid fa-arrow-right"></i></button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-warning">
+                  <p class="text-gray-400 text-sm mb-2">Pending</p>
+                  <p class="text-2xl font-bold text-white">45</p>
+                  <p class="text-sm text-gray-500 mt-1">$38,450</p>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-success">
+                  <p class="text-gray-400 text-sm mb-2">Completed</p>
+                  <p class="text-2xl font-bold text-white">287</p>
+                  <p class="text-sm text-gray-500 mt-1">$124,560</p>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-danger">
+                  <p class="text-gray-400 text-sm mb-2">Rejected</p>
+                  <p class="text-2xl font-bold text-white">10</p>
+                  <p class="text-sm text-gray-500 mt-1">$8,920</p>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-primary">
+                  <p class="text-gray-400 text-sm mb-2">Remaining 12%</p>
+                  <p class="text-2xl font-bold text-white">$14,947</p>
+                  <p class="text-sm text-gray-500 mt-1">Commission</p>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b border-dark-border">
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Invoice ID</th>
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Dentist</th>
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Technician</th>
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Amount</th>
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Status</th>
+                      <th
+                        class="text-left py-3 px-4 text-sm font-medium text-gray-400">
+                        Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      class="border-b border-dark-border hover:bg-dark-elevated transition-all">
+                      <td class="py-3 px-4 text-sm text-white font-mono">
+                        #INV-2024-1247</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Dr. Sarah
+                        Mitchell</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">John Smith
+                      </td>
+                      <td class="py-3 px-4 text-sm text-white font-semibold">
+                        $3,450</td>
+                      <td class="py-3 px-4"><span
+                          class="px-2 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full">Completed</span>
+                      </td>
+                      <td class="py-3 px-4 text-sm text-gray-400">Dec 8, 2024
+                      </td>
+                    </tr>
+                    <tr
+                      class="border-b border-dark-border hover:bg-dark-elevated transition-all">
+                      <td class="py-3 px-4 text-sm text-white font-mono">
+                        #INV-2024-1246</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Dr. Michael
+                        Chen</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Robert Johnson
+                      </td>
+                      <td class="py-3 px-4 text-sm text-white font-semibold">
+                        $2,890</td>
+                      <td class="py-3 px-4"><span
+                          class="px-2 py-1 bg-accent-warning/20 text-accent-warning text-xs rounded-full">Pending</span>
+                      </td>
+                      <td class="py-3 px-4 text-sm text-gray-400">Dec 8, 2024
+                      </td>
+                    </tr>
+                    <tr
+                      class="border-b border-dark-border hover:bg-dark-elevated transition-all">
+                      <td class="py-3 px-4 text-sm text-white font-mono">
+                        #INV-2024-1245</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Dr. Emily
+                        Rodriguez</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">David Martinez
+                      </td>
+                      <td class="py-3 px-4 text-sm text-white font-semibold">
+                        $4,120</td>
+                      <td class="py-3 px-4"><span
+                          class="px-2 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full">Completed</span>
+                      </td>
+                      <td class="py-3 px-4 text-sm text-gray-400">Dec 7, 2024
+                      </td>
+                    </tr>
+                    <tr
+                      class="border-b border-dark-border hover:bg-dark-elevated transition-all">
+                      <td class="py-3 px-4 text-sm text-white font-mono">
+                        #INV-2024-1244</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Dr. James
+                        Wilson</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Christopher
+                        Lee</td>
+                      <td class="py-3 px-4 text-sm text-white font-semibold">
+                        $1,560</td>
+                      <td class="py-3 px-4"><span
+                          class="px-2 py-1 bg-accent-danger/20 text-accent-danger text-xs rounded-full">Rejected</span>
+                      </td>
+                      <td class="py-3 px-4 text-sm text-gray-400">Dec 7, 2024
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-dark-elevated transition-all">
+                      <td class="py-3 px-4 text-sm text-white font-mono">
+                        #INV-2024-1243</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Dr. Lisa
+                        Thompson</td>
+                      <td class="py-3 px-4 text-sm text-gray-300">Daniel Brown
+                      </td>
+                      <td class="py-3 px-4 text-sm text-white font-semibold">
+                        $2,340</td>
+                      <td class="py-3 px-4"><span
+                          class="px-2 py-1 bg-accent-warning/20 text-accent-warning text-xs rounded-full">Pending</span>
+                      </td>
+                      <td class="py-3 px-4 text-sm text-gray-400">Dec 6, 2024
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section><!-- Vendor Products Overview -->
+          <!-- Location Distribution Map -->
+          <!-- Revenue Trends -->
+          <!-- Pending Actions & Alerts -->
+          <!-- Upcoming Appointments -->
+          <section id="upcoming-appointments" class="mb-8">
+            <div
+              class="bg-dark-surface border border-dark-border rounded-xl p-6">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Upcoming
+                    Scheduled Appointments</h3>
+                  <p class="text-sm text-gray-400 mt-1">Next 7 days overview</p>
+                </div><button
+                  class="text-sm text-accent-primary hover:text-accent-primary/80 flex items-center gap-2">
+                  View Calendar <i class="fa-solid fa-calendar"></i></button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-primary">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Tomorrow, Dec 10</span><span
+                      class="px-2 py-1 bg-accent-primary/20 text-accent-primary text-xs rounded-full">8:00
+                      AM</span></div>
+                  <h4 class="text-white font-medium mb-2">Routine Checkup</h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      Sarah Mitchell</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>John
+                      Smith</span></div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-secondary">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Tomorrow, Dec 10</span><span
+                      class="px-2 py-1 bg-accent-secondary/20 text-accent-secondary text-xs rounded-full">10:30
+                      AM</span></div>
+                  <h4 class="text-white font-medium mb-2">Crown Installation
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      Michael Chen</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>Robert
+                      Johnson</span></div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-success">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Dec 11</span><span
+                      class="px-2 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full">2:00
+                      PM</span></div>
+                  <h4 class="text-white font-medium mb-2">Implant Consultation
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      Emily Rodriguez</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>David
+                      Martinez</span></div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-warning">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Dec 11</span><span
+                      class="px-2 py-1 bg-accent-warning/20 text-accent-warning text-xs rounded-full">4:30
+                      PM</span></div>
+                  <h4 class="text-white font-medium mb-2">Equipment Maintenance
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      James Wilson</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>Christopher
+                      Lee</span></div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-danger">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Dec 12</span><span
+                      class="px-2 py-1 bg-accent-danger/20 text-accent-danger text-xs rounded-full">9:00
+                      AM</span></div>
+                  <h4 class="text-white font-medium mb-2">Emergency Repair</h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      Lisa Thompson</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>Daniel
+                      Brown</span></div>
+                </div>
+                <div
+                  class="bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-primary">
+                  <div class="flex items-center justify-between mb-3"><span
+                      class="text-xs text-gray-400">Dec 12</span><span
+                      class="px-2 py-1 bg-accent-primary/20 text-accent-primary text-xs rounded-full">11:00
+                      AM</span></div>
+                  <h4 class="text-white font-medium mb-2">Orthodontic Adjustment
+                  </h4>
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                    <i class="fa-solid fa-user-doctor text-xs"></i><span>Dr.
+                      Sarah Mitchell</span></div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400"><i
+                      class="fa-solid fa-user-gear text-xs"></i><span>John
+                      Smith</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main><!-- Footer -->
+        <footer id="footer"
+          class="bg-dark-surface border-t border-dark-border px-6 py-3">
+          <div class="flex items-center justify-between text-sm text-gray-400">
+            <div class="flex items-center gap-4"><span>© 2024 Dental Admin
+                Panel</span><span>•</span><span>Version 2.1.4</span></div>
+            <div class="flex items-center gap-4"><span>Last sync: 2 minutes
+                ago</span><button
+                class="text-accent-primary hover:text-accent-primary/80"><i
+                  class="fa-solid fa-arrows-rotate"></i></button></div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script>
+      window.addEventListener('load', function()
+      {
+        try
+        {
+          const serviceData = [
+          {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+              'Sep', 'Oct', 'Nov', 'Dec'
+            ],
+            y: [245, 268, 289, 312, 298, 325, 342, 356, 378, 392, 410,
+              342
+            ],
+            name: 'Scheduled',
+            type: 'scatter',
+            mode: 'lines',
+            line:
+            {
+              color: '#3b82f6',
+              width: 3
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(59, 130, 246, 0.1)'
+          },
+          {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+              'Sep', 'Oct', 'Nov', 'Dec'
+            ],
+            y: [67, 72, 78, 85, 82, 89, 87, 92, 95, 98, 102, 87],
+            name: 'Emergency',
+            type: 'scatter',
+            mode: 'lines',
+            line:
+            {
+              color: '#ef4444',
+              width: 3
+            }
+          },
+          {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+              'Sep', 'Oct', 'Nov', 'Dec'
+            ],
+            y: [112, 125, 134, 142, 138, 148, 156, 162, 169, 175, 182,
+              156
+            ],
+            name: 'Remote',
+            type: 'scatter',
+            mode: 'lines',
+            line:
+            {
+              color: '#8b5cf6',
+              width: 3
+            }
+          }];
+
+          const serviceLayout = {
+            margin:
+            {
+              t: 20,
+              r: 20,
+              b: 40,
+              l: 50
+            },
+            plot_bgcolor: '#1e293b',
+            paper_bgcolor: '#1e293b',
+            font:
+            {
+              color: '#94a3b8'
+            },
+            xaxis:
+            {
+              gridcolor: '#334155',
+              showgrid: true
+            },
+            yaxis:
+            {
+              gridcolor: '#334155',
+              showgrid: true
+            },
+            showlegend: true,
+            legend:
+            {
+              x: 0,
+              y: 1.1,
+              orientation: 'h'
+            }
+          };
+
+          Plotly.newPlot('serviceChart', serviceData, serviceLayout,
+          {
+            responsive: true,
+            displayModeBar: false,
+            displaylogo: false
+          });
+
+          const locationData = [
+          {
+            type: 'bar',
+            x: ['Northeast', 'Southeast', 'Midwest', 'West Coast',
+              'Southwest'
+            ],
+            y: [487, 342, 298, 256, 189],
+            marker:
+            {
+              color: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b',
+                '#ef4444'
+              ]
+            }
+          }];
+
+          const locationLayout = {
+            margin:
+            {
+              t: 20,
+              r: 20,
+              b: 60,
+              l: 60
+            },
+            plot_bgcolor: '#1e293b',
+            paper_bgcolor: '#1e293b',
+            font:
+            {
+              color: '#94a3b8'
+            },
+            xaxis:
+            {
+              gridcolor: '#334155'
+            },
+            yaxis:
+            {
+              gridcolor: '#334155',
+              title: 'Number of Locations'
+            },
+            showlegend: false
+          };
+
+          Plotly.newPlot('locationChart', locationData, locationLayout,
+          {
+            responsive: true,
+            displayModeBar: false,
+            displaylogo: false
+          });
+
+          const revenueData = [
+          {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+              'Sep', 'Oct', 'Nov', 'Dec'
+            ],
+            y: [98500, 105200, 112400, 118900, 115600, 122300, 124500,
+              128700, 132100, 136400, 140200, 124500
+            ],
+            type: 'scatter',
+            mode: 'lines',
+            line:
+            {
+              color: '#10b981',
+              width: 3
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(16, 185, 129, 0.1)',
+            name: 'Revenue'
+          }];
+
+          const revenueLayout = {
+            margin:
+            {
+              t: 20,
+              r: 20,
+              b: 40,
+              l: 60
+            },
+            plot_bgcolor: '#1e293b',
+            paper_bgcolor: '#1e293b',
+            font:
+            {
+              color: '#94a3b8'
+            },
+            xaxis:
+            {
+              gridcolor: '#334155'
+            },
+            yaxis:
+            {
+              gridcolor: '#334155',
+              title: 'Revenue ($)',
+              tickformat: '$,.0f'
+            },
+            showlegend: false
+          };
+
+          Plotly.newPlot('revenueChart', revenueData, revenueLayout,
+          {
+            responsive: true,
+            displayModeBar: false,
+            displaylogo: false
+          });
+
+        }
+        catch (e)
+        {
+          console.error('Chart rendering error:', e);
+        }
+      });
+    </script>
+  </body>
+
+</html>
