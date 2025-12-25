@@ -183,7 +183,7 @@ export const DentistManagement = () => {
           </div>
 
           {/* Pagination */}
-          <div className="border-t border-dark-border px-6 py-4">
+          <div className="px-6 py-4 pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-400">Showing</span>

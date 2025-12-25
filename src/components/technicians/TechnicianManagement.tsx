@@ -225,7 +225,7 @@ export const TechnicianManagement = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-6 pt-6">
+          <div className="flex items-center justify-between pt-6">
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-400">Showing</span>
               <select className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent-primary">
