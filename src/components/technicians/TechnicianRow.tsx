@@ -57,7 +57,6 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
         </td>
         <td className="py-4 px-4">
           <p className="text-white text-sm">{technician.companyName || (isSubTechnician ? '—' : 'Independent')}</p>
-          <p className="text-xs text-gray-400">{technician.ein ? `EIN: ${technician.ein}` : '—'}</p>
         </td>
         <td className="py-4 px-4">
           <p className="text-white text-sm">{technician.email}</p>
