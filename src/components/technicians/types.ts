@@ -1,9 +1,9 @@
+export type TechnicianType = 'Headquarter' | 'Member' | 'Individual';
+
 export interface Technician {
   id: string;
   name: string;
-  type: 'Company' | 'Individual';
-  companyName?: string;
-  ein?: string;
+  type: TechnicianType;
   email: string;
   phone: string;
   jobsCompleted: number;
@@ -12,7 +12,13 @@ export interface Technician {
   reviewsCount: number;
   status: 'Active' | 'Inactive';
   avatar: string;
-  mobileAdded?: boolean;
-  subTechnicians?: Technician[];
 }
 
+export interface Company {
+  id: string;
+  companyName: string;
+  type: 'Company';
+  technicians: Technician[];
+}
+
+export type TableItem = Company | Technician;

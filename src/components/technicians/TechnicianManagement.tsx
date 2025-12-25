@@ -9,28 +9,32 @@ import {
   ChevronRight,
   Download
 } from 'lucide-react';
-import type { Technician } from './types';
+import type { TableItem } from './types';
 import { TechnicianRow } from './TechnicianRow';
 
-const techniciansData: Technician[] = [
+const techniciansData: TableItem[] = [
   {
-    id: 'TCH-2024-1247',
-    name: 'John Smith',
-    type: 'Company',
+    id: 'COMP-001',
     companyName: 'TechCare Solutions',
-    email: 'john.smith@techcare.com',
-    phone: '+1 (555) 123-4567',
-    jobsCompleted: 98,
-    jobsThisMonth: 12,
-    rating: 4.9,
-    reviewsCount: 142,
-    status: 'Active',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg',
-    subTechnicians: [
+    type: 'Company',
+    technicians: [
+      {
+        id: 'TCH-2024-1247',
+        name: 'John Smith',
+        type: 'Headquarter',
+        email: 'john.smith@techcare.com',
+        phone: '+1 (555) 123-4567',
+        jobsCompleted: 98,
+        jobsThisMonth: 12,
+        rating: 4.9,
+        reviewsCount: 142,
+        status: 'Active',
+        avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg'
+      },
       {
         id: 'TCH-2024-1247-1',
         name: 'Alex Rivera',
-        type: 'Individual',
+        type: 'Member',
         email: 'alex.r@techcare.com',
         phone: '+1 (555) 111-2222',
         jobsCompleted: 45,
@@ -43,7 +47,7 @@ const techniciansData: Technician[] = [
       {
         id: 'TCH-2024-1247-2',
         name: 'Sarah Connor',
-        type: 'Individual',
+        type: 'Member',
         email: 'sarah.c@techcare.com',
         phone: '+1 (555) 111-3333',
         jobsCompleted: 38,
@@ -56,23 +60,27 @@ const techniciansData: Technician[] = [
     ]
   },
   {
-    id: 'TCH-2024-1246',
-    name: 'Robert Johnson',
-    type: 'Company',
+    id: 'COMP-002',
     companyName: 'ProTech Services',
-    email: 'robert.j@protech.com',
-    phone: '+1 (555) 234-5678',
-    jobsCompleted: 87,
-    jobsThisMonth: 9,
-    rating: 4.8,
-    reviewsCount: 98,
-    status: 'Active',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg',
-    subTechnicians: [
+    type: 'Company',
+    technicians: [
+      {
+        id: 'TCH-2024-1246',
+        name: 'Robert Johnson',
+        type: 'Headquarter',
+        email: 'robert.j@protech.com',
+        phone: '+1 (555) 234-5678',
+        jobsCompleted: 87,
+        jobsThisMonth: 9,
+        rating: 4.8,
+        reviewsCount: 98,
+        status: 'Active',
+        avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg'
+      },
       {
         id: 'TCH-2024-1246-1',
         name: 'Mike Ross',
-        type: 'Individual',
+        type: 'Member',
         email: 'mike.r@protech.com',
         phone: '+1 (555) 222-1111',
         jobsCompleted: 22,
@@ -95,8 +103,7 @@ const techniciansData: Technician[] = [
     rating: 4.7,
     reviewsCount: 76,
     status: 'Active',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-9.jpg',
-    mobileAdded: true
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-9.jpg'
   },
   {
     id: 'TCH-2024-1244',
@@ -109,36 +116,7 @@ const techniciansData: Technician[] = [
     rating: 4.8,
     reviewsCount: 89,
     status: 'Active',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg',
-    mobileAdded: true
-  },
-  {
-    id: 'TCH-2024-1243',
-    name: 'Daniel Brown',
-    type: 'Company',
-    companyName: 'Swift Tech Solutions',
-    email: 'daniel.b@swifttech.com',
-    phone: '+1 (555) 567-8901',
-    jobsCompleted: 76,
-    jobsThisMonth: 10,
-    rating: 4.6,
-    reviewsCount: 64,
-    status: 'Active',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg'
-  },
-  {
-    id: 'TCH-2024-1242',
-    name: 'Michael Anderson',
-    type: 'Company',
-    companyName: 'Elite Dental Tech',
-    email: 'm.anderson@elitetech.com',
-    phone: '+1 (555) 678-9012',
-    jobsCompleted: 71,
-    jobsThisMonth: 7,
-    rating: 4.5,
-    reviewsCount: 52,
-    status: 'Inactive',
-    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg'
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg'
   }
 ];
 
@@ -219,41 +197,35 @@ export const TechnicianManagement = () => {
                       Name <SortAsc className="h-3 w-3" />
                     </button>
                   </th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">
+                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
                     <button className="flex items-center gap-2 hover:text-white transition-all">
                       Type <SortAsc className="h-3 w-3" />
                     </button>
                   </th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">
-                    <button className="flex items-center gap-2 hover:text-white transition-all">
-                      Company/EIN <SortAsc className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Contact</th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">
+                  <th className="py-4 px-4 text-sm font-medium text-gray-400">Contact</th>
+                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
                     <button className="flex items-center gap-2 hover:text-white transition-all">
                       Jobs Completed <SortAsc className="h-3 w-3" />
                     </button>
                   </th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">
+                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
                     <button className="flex items-center gap-2 hover:text-white transition-all">
                       Rating <SortAsc className="h-3 w-3" />
                     </button>
                   </th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Status</th>
-                  <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Actions</th>
+                  <th className="py-4 px-4 text-sm font-medium text-gray-400">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {techniciansData.map((tech) => (
-                  <TechnicianRow key={tech.id} technician={tech} />
+                {techniciansData.map((item) => (
+                  <TechnicianRow key={item.id} item={item} />
                 ))}
               </tbody>
             </table>
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-6 pt-6 border-t border-dark-border">
+          <div className="flex items-center justify-between mt-6 pt-6">
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-400">Showing</span>
               <select className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent-primary">
