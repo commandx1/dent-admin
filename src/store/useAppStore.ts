@@ -5,6 +5,8 @@ export type Page = 'dashboard' | 'dentists' | 'technicians' | 'vendors' | 'invoi
 interface AppState {
   activePage: Page
   setActivePage: (page: Page) => void
+  searchQuery: string
+  setSearchQuery: (query: string) => void
   
   // Örnek veri (Dashboard için)
   stats: {
@@ -25,6 +27,8 @@ interface AppState {
 export const useAppStore = create<AppState>((set) => ({
   activePage: 'dashboard',
   setActivePage: (activePage) => set({ activePage }),
+  searchQuery: '',
+  setSearchQuery: (searchQuery) => set({ searchQuery }),
   
   stats: {
     scheduled: 342,
