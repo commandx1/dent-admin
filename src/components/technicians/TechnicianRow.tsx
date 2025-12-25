@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
 import type { TableItem, Company, Technician } from './types';
-import { Eye, Edit, MoreVertical, Star, ChevronRight, ChevronDown, Building, Loader2 } from 'lucide-react';
+import { Star, ChevronRight, ChevronDown, Building, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TechnicianRowProps {
