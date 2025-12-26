@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Invoice } from './types';
-import { cn } from '@/lib/utils';
 import { StatusBadge } from '../common/StatusBadge';
 
 interface InvoiceRowProps {

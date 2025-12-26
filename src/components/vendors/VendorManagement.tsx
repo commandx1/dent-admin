@@ -3,13 +3,11 @@ import {
   Box,
   ShoppingCart,
   AlertTriangle,
-  ArrowUp,
   Link as LinkIcon,
   Import,
   Download,
   Eye,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { VendorRow } from './VendorRow'
 import type { Vendor } from './types'
 import { StatsCard } from '../common/StatsCard'
