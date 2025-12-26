@@ -1,16 +1,17 @@
-import { Button } from '@/components/ui/button';
 import { 
   Users, 
   Building, 
   User, 
   Plus, 
-  SortAsc, 
-  ChevronLeft, 
-  ChevronRight,
   Download
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { TableItem } from './types';
 import { TechnicianRow } from './TechnicianRow';
+import { StatsCard } from '../common/StatsCard';
+import { TablePagination } from '../common/TablePagination';
+import { SortButton } from '../common/SortButton';
+import { useState } from 'react';
 
 const techniciansData: TableItem[] = [
   {
@@ -121,47 +122,40 @@ const techniciansData: TableItem[] = [
 ];
 
 export const TechnicianManagement = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
       <section id="technicians-stats">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-accent-secondary transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-accent-secondary/20 rounded-lg flex items-center justify-center">
-                <Users className="text-accent-secondary h-6 w-6" />
-              </div>
-            </div>
-            <h3 className="text-gray-400 text-sm mb-1">Total Technicians</h3>
-            <p className="text-3xl font-bold text-white">156</p>
-            <p className="text-xs text-gray-500 mt-2">Active professionals</p>
-          </div>
-
-          <div className="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-accent-primary transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-accent-primary/20 rounded-lg flex items-center justify-center">
-                <Building className="text-accent-primary h-6 w-6" />
-              </div>
-            </div>
-            <h3 className="text-gray-400 text-sm mb-1">Company Technicians</h3>
-            <p className="text-3xl font-bold text-white">89</p>
-            <p className="text-xs text-gray-500 mt-2">From 24 companies</p>
-          </div>
-
-          <div className="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-accent-warning transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-accent-warning/20 rounded-lg flex items-center justify-center">
-                <User className="text-accent-warning h-6 w-6" />
-              </div>
-            </div>
-            <h3 className="text-gray-400 text-sm mb-1">Individual Technicians</h3>
-            <p className="text-3xl font-bold text-white">67</p>
-            <p className="text-xs text-gray-500 mt-2">Independent workers</p>
-          </div>
+          <StatsCard 
+            title="Total Technicians"
+            value="156"
+            description="Active professionals"
+            icon={Users}
+            accentColor="secondary"
+          />
+          <StatsCard 
+            title="Company Technicians"
+            value="89"
+            description="From 24 companies"
+            icon={Building}
+            accentColor="primary"
+          />
+          <StatsCard 
+            title="Individual Technicians"
+            value="67"
+            description="Independent workers"
+            icon={User}
+            accentColor="warning"
+          />
         </div>
       </section>
 
       {/* Quick Actions */}
+      {/* ... (actions section can stay as is or be refactored too, but let's focus on the repetitive parts) */}
       <section id="technicians-actions">
         <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
           <div className="flex items-center justify-between">
@@ -186,34 +180,26 @@ export const TechnicianManagement = () => {
 
       {/* Table section */}
       <section id="technicians-table">
-        <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden p-6">
+        <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-dark-border text-left">
+                <tr className="bg-dark-elevated border-b border-dark-border">
                   <th className="w-10 py-4 px-4"></th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
-                    <button className="flex items-center gap-2 hover:text-white transition-all">
-                      Name <SortAsc className="h-3 w-3" />
-                    </button>
+                  <th className="py-4 px-4 text-left">
+                    <SortButton label="Name" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
-                    <button className="flex items-center gap-2 hover:text-white transition-all">
-                      Type <SortAsc className="h-3 w-3" />
-                    </button>
+                  <th className="py-4 px-4 text-left">
+                    <SortButton label="Type" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">Contact</th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
-                    <button className="flex items-center gap-2 hover:text-white transition-all">
-                      Jobs Completed <SortAsc className="h-3 w-3" />
-                    </button>
+                  <th className="py-4 px-4 text-sm font-semibold text-gray-300 text-left">Contact</th>
+                  <th className="py-4 px-4 text-left">
+                    <SortButton label="Jobs Completed" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">
-                    <button className="flex items-center gap-2 hover:text-white transition-all">
-                      Rating <SortAsc className="h-3 w-3" />
-                    </button>
+                  <th className="py-4 px-4 text-left">
+                    <SortButton label="Rating" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-medium text-gray-400">Status</th>
+                  <th className="py-4 px-4 text-sm font-semibold text-gray-300 text-left">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -224,32 +210,15 @@ export const TechnicianManagement = () => {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between pt-6">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-400">Showing</span>
-              <select className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accent-primary">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-              </select>
-              <span className="text-sm text-gray-400">of 156 technicians</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button disabled variant="outline" className="px-3 py-2 bg-dark-elevated border-none text-gray-400">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button className="px-4 py-2 bg-accent-primary text-white">1</Button>
-              <Button variant="outline" className="px-4 py-2 bg-dark-elevated border-none text-gray-400">2</Button>
-              <Button variant="outline" className="px-4 py-2 bg-dark-elevated border-none text-gray-400">3</Button>
-              <span className="px-3 py-2 text-gray-500">...</span>
-              <Button variant="outline" className="px-4 py-2 bg-dark-elevated border-none text-gray-400">16</Button>
-              <Button variant="outline" className="px-3 py-2 bg-dark-elevated border-none text-gray-400">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={16}
+            totalItems={156}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+            itemName="technicians"
+          />
         </div>
       </section>
     </div>

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import type { Dentist } from './types';
 import { DentistRow } from './DentistRow';
 import { LocationModal } from './LocationModal';
-import { ArrowUpDown, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
+import { SortButton } from '../common/SortButton';
+import { TablePagination } from '../common/TablePagination';
 
 const dentistsData: Dentist[] = [
   {
@@ -116,6 +117,9 @@ export const DentistManagement = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [activeDentist, setActiveDentist] = useState<Dentist | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const openLocations = (dentist: Dentist) => {
     setActiveDentist(dentist);
     setIsLocationModalOpen(true);
@@ -131,39 +135,25 @@ export const DentistManagement = () => {
               <thead>
                 <tr className="bg-dark-elevated border-b border-dark-border">
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      First Name <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="First Name" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Last Name <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="Last Name" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Company Name <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="Company Name" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Email <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="Email" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Phone <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="Phone" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Locations <ArrowUpDown className="h-4 w-4 text-gray-500" />
-                    </button>
+                    <SortButton label="Locations" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <button className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-white">
-                      Last Login <ArrowDown className="h-4 w-4 text-accent-primary" />
-                    </button>
+                    <SortButton label="Last Login" icon={ArrowDown} isActive />
                   </th>
                   <th className="py-4 px-4 text-left">
                     <span className="text-sm font-semibold text-gray-300">Actions</span>
@@ -182,34 +172,15 @@ export const DentistManagement = () => {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="px-6 py-4 pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400">Showing</span>
-                <select className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-accent-primary">
-                  <option>10</option>
-                  <option>25</option>
-                  <option>50</option>
-                  <option>100</option>
-                </select>
-                <span className="text-sm text-gray-400">of 248 dentists</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button disabled variant="outline" className="px-3 py-1.5 bg-dark-elevated border-none text-gray-400 hover:bg-dark-border">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button className="px-3 py-1.5 bg-accent-primary text-white">1</Button>
-                <Button variant="outline" className="px-3 py-1.5 bg-dark-elevated border-none text-gray-400 hover:bg-dark-border">2</Button>
-                <Button variant="outline" className="px-3 py-1.5 bg-dark-elevated border-none text-gray-400 hover:bg-dark-border">3</Button>
-                <span className="px-2 text-gray-500">...</span>
-                <Button variant="outline" className="px-3 py-1.5 bg-dark-elevated border-none text-gray-400 hover:bg-dark-border">25</Button>
-                <Button variant="outline" className="px-3 py-1.5 bg-dark-elevated border-none text-gray-400 hover:bg-dark-border">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={25}
+            totalItems={248}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+            itemName="dentists"
+          />
         </div>
       </section>
 

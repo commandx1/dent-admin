@@ -11,9 +11,12 @@ export const Header = () => {
   const { searchQuery, setSearchQuery } = useAppStore()
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
+  const isVendorDetails = matchPath('/vendors/:id', pathname)
   const isDentistsPage = pathname === '/dentists' || !!isDentistDetails
   const isTechniciansPage = pathname === '/technicians'
-  const showSearch = isDentistsPage || isTechniciansPage
+  const isVendorsPage = pathname === '/vendors' || !!isVendorDetails
+  const isInvoicesPage = pathname === '/invoices'
+  const showSearch = isDentistsPage || isTechniciansPage || isVendorsPage || isInvoicesPage
 
   const searchInput = (
     <div className="relative group">
@@ -22,7 +25,7 @@ export const Header = () => {
         type="text" 
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={`Search ${isDentistsPage ? 'dentists' : 'technicians'}...`} 
+        placeholder={`Search ${isDentistsPage ? 'dentists' : isTechniciansPage ? 'technicians' : isVendorsPage ? 'vendors' : 'invoices'}...`} 
         className="bg-dark-elevated border border-dark-border rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-accent-primary w-64 transition-all focus:w-80"
       />
     </div>
@@ -46,6 +49,47 @@ export const Header = () => {
             <div>
               <h2 className="text-xl font-bold text-white">Dr. Sarah Mitchell</h2>
               <p className="text-sm text-gray-400 mt-0.5">Smile Dental Clinic • ID: {dentistId}</p>
+            </div>
+          </div>
+        ),
+        right: (
+          <div className="flex items-center gap-4">
+            {searchInput}
+            <div className="flex items-center gap-3 border-l border-dark-border pl-4">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+                Impersonate
+              </Button>
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+                <Mail className="h-4 w-4 mr-2" /> Send Email
+              </Button>
+              <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
+                <Download className="h-4 w-4 mr-2" /> Export
+              </Button>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        )
+      }
+    }
+
+    if (isVendorDetails) {
+      const vendorId = isVendorDetails.params.id
+      return {
+        left: (
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/vendors')}
+              className="text-gray-400 hover:text-white hover:bg-dark-elevated"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h2 className="text-xl font-bold text-white">Enis Atay</h2>
+              <p className="text-sm text-gray-400 mt-0.5">Dental Supply Industry • ID: {vendorId}</p>
             </div>
           </div>
         ),
@@ -100,7 +144,7 @@ export const Header = () => {
       ),
       right: showSearch ? searchInput : null
     }
-  }, [pathname, isDentistDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage])
+  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, isInvoicesPage])
 
   return (
     <header className='h-[88px] bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>

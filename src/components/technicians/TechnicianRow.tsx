@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import type { TableItem, Company, Technician } from './types';
-import { Star, ChevronRight, ChevronDown, Building, Loader2 } from 'lucide-react';
+import { Star, ChevronRight, ChevronDown, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { StatusBadge } from '../common/StatusBadge';
 
 interface TechnicianRowProps {
   item: TableItem;
@@ -13,23 +14,14 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
   isSubItem = false 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const isCompany = item.type === 'Company';
   const company = item as Company;
   const tech = item as Technician;
 
   const [isActive, setIsActive] = useState<boolean>(!isCompany && tech.status === 'Active');
 
-  const handleStatusToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isLoading) return;
-
-    setIsLoading(true);
-    // Simulating API call
-    setTimeout(() => {
-      setIsActive(!isActive);
-      setIsLoading(false);
-    }, 1000);
+  const handleStatusToggle = () => {
+    setIsActive(!isActive);
   };
 
   const hasSubTechs = isCompany && company.technicians && company.technicians.length > 0;
@@ -132,27 +124,11 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
         </td>
         <td className="py-4 px-4">
           {!isCompany && (
-            <button 
-              onClick={handleStatusToggle}
-              disabled={isLoading}
-              className={cn(
-                "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 transition-all w-fit min-w-[85px] justify-center",
-                isLoading ? "bg-dark-elevated text-gray-400 cursor-not-allowed" : 
-                isActive 
-                  ? "bg-accent-success/20 text-accent-success hover:bg-accent-success/30 cursor-pointer" 
-                  : "bg-accent-danger/20 text-accent-danger hover:bg-accent-danger/30 cursor-pointer"
-              )}
-            >
-              {isLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <span className={cn(
-                  "w-1.5 h-1.5 rounded-full shadow-sm",
-                  isActive ? "bg-accent-success" : "bg-accent-danger"
-                )}></span>
-              )}
-              {isLoading ? 'Updating...' : (isActive ? 'Active' : 'Inactive')}
-            </button>
+            <StatusBadge 
+              status={isActive ? 'Active' : 'Inactive'}
+              type={isActive ? 'success' : 'danger'}
+              onToggle={handleStatusToggle}
+            />
           )}
         </td>
       </tr>

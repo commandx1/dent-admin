@@ -4,6 +4,9 @@ import { Dashboard } from "@/components/dashboard/Dashboard"
 import { DentistManagement } from "@/components/dentists/DentistManagement"
 import { DentistDetails } from "@/components/dentists/DentistDetails"
 import { TechnicianManagement } from "@/components/technicians/TechnicianManagement"
+import { VendorManagement } from "@/components/vendors/VendorManagement"
+import { VendorDetails } from "@/components/vendors/VendorDetails"
+import { InvoiceManagement } from "@/components/invoices/InvoiceManagement"
 import { NotFound } from "@/components/common/NotFound"
 
 function App() {
@@ -15,8 +18,9 @@ function App() {
           <Route path="/dentists" element={<DentistManagement />} />
           <Route path="/dentists/:id" element={<DentistDetails />} />
           <Route path="/technicians" element={<TechnicianManagement />} />
-          <Route path="/vendors" element={<div className="text-white">Vendors Page (Coming Soon)</div>} />
-          <Route path="/invoices" element={<div className="text-white">Invoices Page (Coming Soon)</div>} />
+          <Route path="/vendors" element={<VendorManagement />} />
+          <Route path="/vendors/:id" element={<VendorDetails />} />
+          <Route path="/invoices" element={<InvoiceManagement />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
