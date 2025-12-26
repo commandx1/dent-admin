@@ -19,7 +19,7 @@ export const Sidebar = () => {
             <Hospital className='text-white h-6 w-6' />
           </div>
           <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-nowrap'>
-            <h1 className='text-lg font-bold text-white leading-none'>Dental Admin</h1>
+            <h1 className='text-lg font-bold text-white leading-none'>DentyPro Admin</h1>
             <p className='text-[10px] text-gray-400 mt-1 leading-none uppercase tracking-wider'>Management Panel</p>
           </div>
         </div>
