@@ -20,13 +20,13 @@ export const Header = () => {
 
   const searchInput = (
     <div className="relative group">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4 group-focus-within:text-accent-primary transition-colors" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 group-focus-within:text-accent-primary transition-colors" />
       <input 
         type="text" 
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder={`Search ${isDentistsPage ? 'dentists' : isTechniciansPage ? 'technicians' : isVendorsPage ? 'vendors' : 'invoices'}...`} 
-        className="bg-dark-elevated border border-dark-border rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-accent-primary w-64 transition-all focus:w-80"
+        className="bg-dark-elevated border border-dark-border rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-accent-primary w-64 transition-all focus:w-80"
       />
     </div>
   )
@@ -42,13 +42,13 @@ export const Header = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/dentists')}
-              className="text-gray-400 hover:text-white hover:bg-dark-elevated"
+              className="text-slate-500 hover:text-slate-900 hover:bg-dark-elevated"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h2 className="text-xl font-bold text-white">Dr. Sarah Mitchell</h2>
-              <p className="text-sm text-gray-400 mt-0.5">Smile Dental Clinic • ID: {dentistId}</p>
+              <h2 className="text-xl font-bold text-slate-900">Dr. Sarah Mitchell</h2>
+              <p className="text-sm text-slate-500 mt-0.5">Smile Dental Clinic • ID: {dentistId}</p>
             </div>
           </div>
         ),
@@ -56,16 +56,16 @@ export const Header = () => {
           <div className="flex items-center gap-4">
             {searchInput}
             <div className="flex items-center gap-3 border-l border-dark-border pl-4">
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 Impersonate
               </Button>
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 <Mail className="h-4 w-4 mr-2" /> Send Email
               </Button>
               <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
                 <Download className="h-4 w-4 mr-2" /> Export
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </div>
@@ -83,13 +83,13 @@ export const Header = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/vendors')}
-              className="text-gray-400 hover:text-white hover:bg-dark-elevated"
+              className="text-slate-500 hover:text-slate-900 hover:bg-dark-elevated"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h2 className="text-xl font-bold text-white">Enis Atay</h2>
-              <p className="text-sm text-gray-400 mt-0.5">Dental Supply Industry • ID: {vendorId}</p>
+              <h2 className="text-xl font-bold text-slate-900">Enis Atay</h2>
+              <p className="text-sm text-slate-500 mt-0.5">Dental Supply Industry • ID: {vendorId}</p>
             </div>
           </div>
         ),
@@ -97,16 +97,16 @@ export const Header = () => {
           <div className="flex items-center gap-4">
             {searchInput}
             <div className="flex items-center gap-3 border-l border-dark-border pl-4">
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 Impersonate
               </Button>
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 <Mail className="h-4 w-4 mr-2" /> Send Email
               </Button>
               <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
                 <Download className="h-4 w-4 mr-2" /> Export
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </div>
@@ -138,8 +138,8 @@ export const Header = () => {
     return {
       left: (
         <div>
-          <h2 className='text-2xl font-bold text-white'>{title}</h2>
-          <p className='text-sm text-gray-400 mt-1'>{description}</p>
+          <h2 className='text-2xl font-bold text-slate-900'>{title}</h2>
+          <p className='text-sm text-slate-500 mt-1'>{description}</p>
         </div>
       ),
       right: showSearch ? searchInput : null

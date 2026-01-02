@@ -64,12 +64,12 @@ export const StatsCard: React.FC<StatsCardProps> = ({
           </span>
         )}
       </div>
-      <h3 className="text-gray-400 text-sm mb-1">{title}</h3>
-      <p className="text-3xl font-bold text-white">{value}</p>
-      {description && <p className="text-sm text-gray-500 mt-2">{description}</p>}
+      <h3 className="text-slate-500 text-sm mb-1">{title}</h3>
+      <p className="text-3xl font-bold text-slate-900">{value}</p>
+      {description && <p className="text-sm text-slate-500 mt-2">{description}</p>}
       {footer && (
         <div className="mt-3 pt-3 border-t border-dark-border">
-          <p className="text-xs text-gray-400">{footer}</p>
+          <p className="text-xs text-slate-500">{footer}</p>
         </div>
       )}
     </div>

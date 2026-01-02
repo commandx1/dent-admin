@@ -22,21 +22,21 @@ export const InvoiceTable = () => {
       <table className="w-full">
         <thead>
           <tr className="border-b border-dark-border">
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Invoice ID</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Dentist</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Technician</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Amount</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Date</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Invoice ID</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Dentist</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Technician</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Amount</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Status</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-slate-500">Date</th>
           </tr>
         </thead>
         <tbody>
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="border-b border-dark-elevated hover:bg-dark-elevated transition-all">
-              <td className="py-3 px-4 text-sm text-white font-mono">{invoice.id}</td>
-              <td className="py-3 px-4 text-sm text-gray-300">{invoice.dentist}</td>
-              <td className="py-3 px-4 text-sm text-gray-300">{invoice.technician}</td>
-              <td className="py-3 px-4 text-sm text-white font-semibold">{invoice.amount}</td>
+              <td className="py-3 px-4 text-sm text-slate-800 font-mono">{invoice.id}</td>
+              <td className="py-3 px-4 text-sm text-slate-700">{invoice.dentist}</td>
+              <td className="py-3 px-4 text-sm text-slate-700">{invoice.technician}</td>
+              <td className="py-3 px-4 text-sm text-slate-800 font-semibold">{invoice.amount}</td>
               <td className="py-3 px-4">
                 <span className={cn(
                   "px-2 py-1 text-xs rounded-full",
@@ -47,7 +47,7 @@ export const InvoiceTable = () => {
                   {invoice.status}
                 </span>
               </td>
-              <td className="py-3 px-4 text-sm text-gray-400">{invoice.date}</td>
+              <td className="py-3 px-4 text-sm text-slate-500">{invoice.date}</td>
             </tr>
           ))}
         </tbody>

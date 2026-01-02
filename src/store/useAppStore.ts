@@ -8,7 +8,7 @@ interface AppState {
   searchQuery: string
   setSearchQuery: (query: string) => void
   
-  // Örnek veri (Dashboard için)
+  // Example data (for Dashboard)
   stats: {
     scheduled: number
     emergency: number

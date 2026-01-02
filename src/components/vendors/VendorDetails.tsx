@@ -102,13 +102,13 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
             />
           </div>
           <div>
-            <p className="text-white font-medium">{product.productName}</p>
-            <p className="text-xs text-gray-400">ID: {product.productId.substring(0, 8)}...</p>
+            <p className="text-slate-900 font-medium">{product.productName}</p>
+            <p className="text-xs text-slate-500">ID: {product.productId.substring(0, 8)}...</p>
           </div>
         </div>
       </td>
-      <td className="py-4 px-6 text-gray-300 font-mono text-sm">{product.skuCode}</td>
-      <td className="py-4 px-6 text-white font-semibold">${product.price.toFixed(2)}</td>
+      <td className="py-4 px-6 text-slate-700 font-mono text-sm">{product.skuCode}</td>
+      <td className="py-4 px-6 text-slate-900 font-semibold">${product.price.toFixed(2)}</td>
       <td className="py-4 px-6 text-accent-warning">-${product.discount.toFixed(2)}</td>
       <td className="py-4 px-6 text-accent-success font-semibold">
         ${(product.price - product.discount).toFixed(2)}
@@ -116,7 +116,7 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
       <td className="py-4 px-6">
         <span className={cn(
           "font-semibold",
-          product.stock < 10 ? "text-accent-danger" : "text-white"
+          product.stock < 10 ? "text-accent-danger" : "text-slate-900"
         )}>
           {product.stock}
         </span>
@@ -152,25 +152,25 @@ export const VendorDetails = () => {
                 <div className="w-24 h-24 bg-accent-primary/20 rounded-2xl flex items-center justify-center mb-4">
                   <Building className="text-accent-primary h-12 w-12" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">{mockVendorDetail.name} {mockVendorDetail.surname}</h3>
-                <p className="text-sm text-gray-400 mb-4">{mockVendorDetail.businessDescribe}</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-1">{mockVendorDetail.name} {mockVendorDetail.surname}</h3>
+                <p className="text-sm text-slate-500 mb-4">{mockVendorDetail.businessDescribe}</p>
                 
                 <div className="w-full space-y-3 pt-4 border-t border-dark-border">
                   <div className="flex items-center gap-3 text-sm">
-                    <Mail className="text-gray-400 w-4 h-4 shrink-0" />
-                    <span className="text-gray-300 truncate">{mockVendorDetail.email}</span>
+                    <Mail className="text-slate-500 w-4 h-4 shrink-0" />
+                    <span className="text-slate-700 truncate">{mockVendorDetail.email}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Phone className="text-gray-400 w-4 h-4 shrink-0" />
-                    <span className="text-gray-300">{mockVendorDetail.phoneNumber}</span>
+                    <Phone className="text-slate-500 w-4 h-4 shrink-0" />
+                    <span className="text-slate-700">{mockVendorDetail.phoneNumber}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Globe className="text-gray-400 w-4 h-4 shrink-0" />
-                    <span className="text-gray-300">{mockVendorDetail.address.country}</span>
+                    <Globe className="text-slate-500 w-4 h-4 shrink-0" />
+                    <span className="text-slate-700">{mockVendorDetail.address.country}</span>
                   </div>
                   <div className="flex items-start gap-3 text-sm">
-                    <MapPin className="text-gray-400 w-4 h-4 shrink-0 mt-0.5" />
-                    <span className="text-gray-300 leading-relaxed">
+                    <MapPin className="text-slate-500 w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="text-slate-700 leading-relaxed">
                       {mockVendorDetail.address.addressLine}, {mockVendorDetail.address.city}, {mockVendorDetail.address.state} {mockVendorDetail.address.postalCode}
                     </span>
                   </div>
@@ -184,42 +184,42 @@ export const VendorDetails = () => {
             <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Business Information</h3>
-                  <p className="text-sm text-gray-400 mt-1">Vendor account and contact details</p>
+                  <h3 className="text-lg font-semibold text-slate-900">Business Information</h3>
+                  <p className="text-sm text-slate-500 mt-1">Vendor account and contact details</p>
                 </div>
-                <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-white h-10">
+                <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                   <Edit className="h-4 w-4 mr-2" /> Edit Profile
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">First Name</label>
-                  <p className="text-white font-medium">{mockVendorDetail.name}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">First Name</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.name}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Last Name</label>
-                  <p className="text-white font-medium">{mockVendorDetail.surname}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Last Name</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.surname}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Email Address</label>
-                  <p className="text-white font-medium">{mockVendorDetail.email}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Email Address</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.email}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Phone Number</label>
-                  <p className="text-white font-medium">{mockVendorDetail.phoneNumber}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Phone Number</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.phoneNumber}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Business Type</label>
-                  <p className="text-white font-medium">{mockVendorDetail.businessDescribe.replaceAll('_', ' ')}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Business Type</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.businessDescribe.replaceAll('_', ' ')}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">ZIP Code</label>
-                  <p className="text-white font-medium">{mockVendorDetail.address.postalCode}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">ZIP Code</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.address.postalCode}</p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Address</label>
-                  <p className="text-white font-medium">{mockVendorDetail.address.formattedAddress}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Address</label>
+                  <p className="text-slate-900 font-medium">{mockVendorDetail.address.formattedAddress}</p>
                 </div>
               </div>
             </div>
@@ -232,8 +232,8 @@ export const VendorDetails = () => {
         <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden">
           <div className="p-6 border-b border-dark-border flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-white">Product Inventory</h3>
-              <p className="text-sm text-gray-400 mt-1">Manage and track product stock and pricing</p>
+              <h3 className="text-lg font-semibold text-slate-900">Product Inventory</h3>
+              <p className="text-sm text-slate-500 mt-1">Manage and track product stock and pricing</p>
             </div>
             <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white">
               Add New Product
@@ -244,14 +244,14 @@ export const VendorDetails = () => {
             <table className="w-full">
               <thead className="bg-dark-elevated/50">
                 <tr>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Product</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">SKU Code</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Price</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Discount</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Final Price</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Stock</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Status</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-300">Actions</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Product</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">SKU Code</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Price</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Discount</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Final Price</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Stock</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Status</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-dark-border">

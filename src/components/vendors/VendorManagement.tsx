@@ -119,8 +119,8 @@ export const VendorManagement = () => {
         <div className='bg-dark-surface border border-dark-border rounded-xl p-6'>
           <div className='flex items-center justify-between mb-6'>
             <div>
-              <h3 className='text-lg font-semibold text-white'>Quick Actions</h3>
-              <p className='text-sm text-gray-400 mt-1'>Manage vendors and products efficiently</p>
+              <h3 className='text-lg font-semibold text-slate-800'>Quick Actions</h3>
+              <p className='text-sm text-slate-500 mt-1'>Manage vendors and products efficiently</p>
             </div>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
@@ -133,31 +133,31 @@ export const VendorManagement = () => {
                 <p className='text-xs opacity-90'>Generate vendor registration</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-white rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
               <div className='w-12 h-12 bg-accent-secondary/20 rounded-lg flex items-center justify-center'>
                 <Import className='text-accent-secondary h-6 w-6' />
               </div>
               <div className='text-left'>
                 <p className='font-semibold'>Import Products</p>
-                <p className='text-xs text-gray-400'>Upload Excel/CSV</p>
+                <p className='text-xs text-slate-500'>Upload Excel/CSV</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-white rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
               <div className='w-12 h-12 bg-accent-success/20 rounded-lg flex items-center justify-center'>
                 <Download className='text-accent-success h-6 w-6' />
               </div>
               <div className='text-left'>
                 <p className='font-semibold'>Export Data</p>
-                <p className='text-xs text-gray-400'>Download vendor list</p>
+                <p className='text-xs text-slate-500'>Download vendor list</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-white rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
               <div className='w-12 h-12 bg-accent-warning/20 rounded-lg flex items-center justify-center'>
                 <Eye className='text-accent-warning h-6 w-6' />
               </div>
               <div className='text-left'>
                 <p className='font-semibold'>Impersonate Vendor</p>
-                <p className='text-xs text-gray-400'>View as vendor</p>
+                <p className='text-xs text-slate-500'>View as vendor</p>
               </div>
             </button>
           </div>
@@ -175,31 +175,31 @@ export const VendorManagement = () => {
                     <SortButton label="Vendor Name" isActive />
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Contact Person</span>
+                    <span className='text-sm font-semibold text-slate-700'>Contact Person</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Email</span>
+                    <span className='text-sm font-semibold text-slate-700'>Email</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Phone</span>
+                    <span className='text-sm font-semibold text-slate-700'>Phone</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
                     <SortButton label="Total Products" />
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Active Products</span>
+                    <span className='text-sm font-semibold text-slate-700'>Active Products</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
                     <SortButton label="Sold Count" />
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Member Since</span>
+                    <span className='text-sm font-semibold text-slate-700'>Member Since</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Status</span>
+                    <span className='text-sm font-semibold text-slate-700'>Status</span>
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-gray-300'>Actions</span>
+                    <span className='text-sm font-semibold text-slate-700'>Actions</span>
                   </th>
                 </tr>
               </thead>

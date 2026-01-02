@@ -22,14 +22,14 @@ export const DentistRow: React.FC<DentistRowProps> = ({
       <td className="py-4 px-4">
         <div className="flex items-center gap-3">
           <img src={dentist.avatar} alt={dentist.firstName} className="w-10 h-10 rounded-full" />
-          <span className="text-white font-medium">{dentist.firstName}</span>
+          <span className="text-slate-800 font-medium">{dentist.firstName}</span>
         </div>
       </td>
-      <td className="py-4 px-4 text-gray-300">{dentist.lastName}</td>
+      <td className="py-4 px-4 text-slate-700">{dentist.lastName}</td>
       <td className="py-4 px-4">
         <div>
-          <p className="text-white font-medium">{dentist.companyName}</p>
-          <p className="text-xs text-gray-400">{dentist.membership}</p>
+          <p className="text-slate-800 font-medium">{dentist.companyName}</p>
+          <p className="text-xs text-slate-500">{dentist.membership}</p>
         </div>
       </td>
       <td className="py-4 px-4">
@@ -42,7 +42,7 @@ export const DentistRow: React.FC<DentistRowProps> = ({
         </a>
       </td>
       <td className="py-4 px-4">
-        <span className="text-gray-300 text-sm">{dentist.phone}</span>
+        <span className="text-slate-700 text-sm">{dentist.phone}</span>
       </td>
       <td className="py-4 px-4">
         <button
@@ -55,8 +55,8 @@ export const DentistRow: React.FC<DentistRowProps> = ({
       </td>
       <td className="py-4 px-4">
         <div>
-          <p className="text-white text-sm">{dentist.lastLogin}</p>
-          <p className="text-xs text-gray-400">{dentist.lastLoginDate}</p>
+          <p className="text-slate-800 text-sm">{dentist.lastLogin}</p>
+          <p className="text-xs text-slate-500">{dentist.lastLoginDate}</p>
         </div>
       </td>
       <td className="py-4 px-4">
@@ -64,7 +64,7 @@ export const DentistRow: React.FC<DentistRowProps> = ({
           onClick={() => navigate(`/dentists/${dentist.id}`)}
           variant="outline"
           size="sm"
-          className="bg-dark-elevated border-none hover:bg-dark-border text-white text-xs"
+          className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 text-xs"
         >
           <ExternalLink className="h-3 w-3 mr-1" /> View Details
         </Button>

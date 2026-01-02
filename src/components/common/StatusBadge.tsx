@@ -28,7 +28,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     warning: 'bg-accent-warning/20 text-accent-warning hover:bg-accent-warning/30',
     danger: 'bg-accent-danger/20 text-accent-danger hover:bg-accent-danger/30',
     info: 'bg-accent-primary/20 text-accent-primary hover:bg-accent-primary/30',
-    default: 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+    default: 'bg-gray-500/20 text-slate-500 hover:bg-gray-500/30'
   }
 
   const dotColors: Record<StatusType, string> = {
@@ -60,7 +60,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       disabled={isLoading || !onToggle}
       className={cn(
         'px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 transition-all w-fit min-w-[85px] justify-center',
-        !isLoading ? typeStyles[type] : 'bg-dark-elevated text-gray-400 cursor-not-allowed hover:bg-dark-elevated',
+        !isLoading ? typeStyles[type] : 'bg-dark-elevated text-slate-500 cursor-not-allowed hover:bg-dark-elevated',
         !onToggle && !isLoading && 'cursor-default hover:bg-opacity-20',
         className
       )}

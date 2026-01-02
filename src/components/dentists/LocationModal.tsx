@@ -21,11 +21,11 @@ export const LocationModal: React.FC<LocationModalProps> = ({
       <div className="bg-dark-surface border border-dark-border rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-dark-border">
           <div>
-            <h3 className="text-xl font-bold text-white">Locations - Dr. {dentist.firstName} {dentist.lastName}</h3>
-            <p className="text-sm text-gray-400 mt-1">{dentist.companyName} • {dentist.locationsCount} locations</p>
+            <h3 className="text-xl font-bold text-slate-900">Locations - Dr. {dentist.firstName} {dentist.lastName}</h3>
+            <p className="text-sm text-slate-500 mt-1">{dentist.companyName} • {dentist.locationsCount} locations</p>
           </div>
           <Button variant="ghost" onClick={onClose} className="p-2 hover:bg-dark-elevated rounded-lg">
-            <X className="h-6 w-6 text-gray-400 hover:text-white" />
+            <X className="h-6 w-6 text-slate-500 hover:text-slate-900" />
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
@@ -34,10 +34,10 @@ export const LocationModal: React.FC<LocationModalProps> = ({
               <div key={i} className="bg-dark-elevated border border-dark-border rounded-lg p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold mb-1">
+                    <h4 className="text-slate-900 font-semibold mb-1">
                       {i === 0 ? "Main Office - Downtown" : i === 1 ? "Midtown Branch" : "Upper East Side"}
                     </h4>
-                    <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                       <MapPin className="h-4 w-4 text-accent-primary" />
                       <span>123 Main Street, Suite 200, New York, NY 10001</span>
                     </div>
@@ -46,12 +46,12 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-300">{dentist.phone}</span>
+                    <Phone className="h-4 w-4 text-slate-500" />
+                    <span className="text-slate-700">{dentist.phone}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-300">Mon-Fri: 8AM-6PM</span>
+                    <Clock className="h-4 w-4 text-slate-500" />
+                    <span className="text-slate-700">Mon-Fri: 8AM-6PM</span>
                   </div>
                 </div>
               </div>

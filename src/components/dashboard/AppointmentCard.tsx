@@ -32,17 +32,17 @@ export const AppointmentCard = ({
       variants[variant].split(' ')[0]
     )}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-gray-400">{date}</span>
+        <span className="text-xs text-slate-500">{date}</span>
         <span className={cn("px-2 py-1 text-xs rounded-full", variants[variant])}>
           {time}
         </span>
       </div>
-      <h4 className="text-white font-medium mb-2">{title}</h4>
-      <div className="flex items-center gap-2 text-sm text-gray-400 mb-1">
+      <h4 className="text-slate-800 font-medium mb-2">{title}</h4>
+      <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
         <UserRound className="h-3 w-3" />
         <span>{dentist}</span>
       </div>
-      <div className="flex items-center gap-2 text-sm text-gray-400">
+      <div className="flex items-center gap-2 text-sm text-slate-500">
         <Settings className="h-3 w-3" />
         <span>{technician}</span>
       </div>

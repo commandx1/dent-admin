@@ -26,30 +26,30 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
       className="hover:bg-dark-elevated transition-all cursor-pointer border-b border-dark-border"
       onClick={handleViewDetails}
     >
-      <td className="py-4 px-6 text-gray-300">
+      <td className="py-4 px-6 text-slate-700">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-accent-primary/20 rounded-lg flex items-center justify-center">
             <Store className="text-accent-primary h-5 w-5" />
           </div>
           <div>
-            <p className="text-white font-medium">{vendor.name}</p>
-            <p className="text-xs text-gray-400">Vendor ID: {vendor.vendorId}</p>
+            <p className="text-slate-800 font-medium">{vendor.name}</p>
+            <p className="text-xs text-slate-500">Vendor ID: {vendor.vendorId}</p>
           </div>
         </div>
       </td>
-      <td className="py-4 px-6 text-gray-300">{vendor.contactPerson}</td>
-      <td className="py-4 px-6 text-gray-300">{vendor.email}</td>
-      <td className="py-4 px-6 text-gray-300">{vendor.phone}</td>
+      <td className="py-4 px-6 text-slate-700">{vendor.contactPerson}</td>
+      <td className="py-4 px-6 text-slate-700">{vendor.email}</td>
+      <td className="py-4 px-6 text-slate-700">{vendor.phone}</td>
       <td className="py-4 px-6">
-        <span className="text-white font-semibold">{vendor.totalProducts}</span>
+        <span className="text-slate-800 font-semibold">{vendor.totalProducts}</span>
       </td>
       <td className="py-4 px-6">
         <span className="text-accent-success font-semibold">{vendor.activeProducts}</span>
       </td>
       <td className="py-4 px-6">
-        <span className="text-white font-semibold">{vendor.soldCount.toLocaleString()}</span>
+        <span className="text-slate-800 font-semibold">{vendor.soldCount.toLocaleString()}</span>
       </td>
-      <td className="py-4 px-6 text-gray-400 text-sm">{vendor.memberSince}</td>
+      <td className="py-4 px-6 text-slate-500 text-sm">{vendor.memberSince}</td>
       <td className="py-4 px-6">
         <StatusBadge 
           status={status}

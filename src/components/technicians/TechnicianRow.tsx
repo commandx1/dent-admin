@@ -60,7 +60,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
       >
         <td className="py-4 px-4">
           {hasSubTechs && (
-            <button className="text-gray-400 hover:text-white transition-colors">
+            <button className="text-slate-500 hover:text-slate-900 transition-colors">
               {isExpanded ? (
                 <ChevronDown className="h-5 w-5" />
               ) : (
@@ -79,8 +79,8 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
               <img src={tech.avatar} alt={tech.name} className="w-10 h-10 rounded-full border border-dark-border" />
             )}
             <div>
-              <p className="text-white font-medium">{isCompany ? company.companyName : tech.name}</p>
-              <p className="text-xs text-gray-400">ID: {item.id}</p>
+              <p className="text-slate-800 font-medium">{isCompany ? company.companyName : tech.name}</p>
+              <p className="text-xs text-slate-500">ID: {item.id}</p>
             </div>
           </div>
         </td>
@@ -89,35 +89,35 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({
             "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
             isCompany && 'bg-accent-primary/20 text-accent-primary border border-accent-primary/20',
             !isCompany && tech.type === 'Headquarter' && 'bg-accent-secondary/20 text-accent-secondary border border-accent-secondary/20',
-            !isCompany && tech.type === 'Member' && 'bg-dark-elevated text-gray-400 border border-dark-border',
+            !isCompany && tech.type === 'Member' && 'bg-dark-elevated text-slate-500 border border-dark-border',
             !isCompany && tech.type === 'Individual' && 'bg-accent-warning/20 text-accent-warning border border-accent-warning/20',
           )}>
             {item.type}
           </span>
         </td>
         <td className="py-4 px-4">
-          <p className="text-white text-sm">
+          <p className="text-slate-800 text-sm">
             {isCompany ? hqTech?.email : tech.email}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-500">
             {isCompany ? hqTech?.phone : tech.phone}
           </p>
         </td>
         <td className="py-4 px-4">
-          <p className="text-white font-semibold text-lg">
+          <p className="text-slate-800 font-semibold text-lg">
             {isCompany ? aggregateStats?.totalJobs : tech.jobsCompleted}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-500">
             This month: {isCompany ? aggregateStats?.jobsThisMonth : tech.jobsThisMonth}
           </p>
         </td>
         <td className="py-4 px-4">
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-accent-warning fill-accent-warning" />
-            <span className="text-white font-medium">
+            <span className="text-slate-800 font-medium">
               {isCompany ? aggregateStats?.avgRating : tech.rating}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-slate-500">
               ({isCompany ? aggregateStats?.totalReviews : tech.reviewsCount})
             </span>
           </div>

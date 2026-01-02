@@ -1,171 +1,176 @@
 import { useState } from 'react';
-import type { Dentist } from './types';
+import { 
+  Users, 
+  UserCheck, 
+  MapPin, 
+  Search, 
+  Filter, 
+  Plus, 
+  Download 
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { DentistRow } from './DentistRow';
 import { LocationModal } from './LocationModal';
-import { ArrowDown } from 'lucide-react';
-import { SortButton } from '../common/SortButton';
+import type { Dentist } from './types';
+import { StatsCard } from '../common/StatsCard';
 import { TablePagination } from '../common/TablePagination';
+import { SortButton } from '../common/SortButton';
 
 const dentistsData: Dentist[] = [
   {
     id: 1,
-    firstName: "Sarah",
-    lastName: "Mitchell",
-    companyName: "Smile Dental Clinic",
-    membership: "Premium Member",
-    email: "sarah.mitchell@smiledental.com",
-    phone: "+1 (555) 123-4567",
-    locationsCount: 8,
-    lastLogin: "2 hours ago",
-    lastLoginDate: "Dec 9, 2024 12:15 PM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
+    firstName: 'Sarah',
+    lastName: 'Mitchell',
+    companyName: 'Smile Dental Clinic',
+    membership: 'Premium Member',
+    email: 'sarah.mitchell@smileclinic.com',
+    phone: '+1 (555) 123-4567',
+    locationsCount: 3,
+    lastLogin: 'Today, 2:30 PM',
+    lastLoginDate: 'Dec 8, 2024',
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg'
   },
   {
     id: 2,
-    firstName: "Michael",
-    lastName: "Chen",
-    companyName: "Advanced Dental Care",
-    membership: "Standard Member",
-    email: "michael.chen@advanceddental.com",
-    phone: "+1 (555) 234-5678",
-    locationsCount: 6,
-    lastLogin: "5 hours ago",
-    lastLoginDate: "Dec 9, 2024 9:30 AM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
+    firstName: 'Michael',
+    lastName: 'Chen',
+    companyName: 'Advanced Dental Care',
+    membership: 'Standard Member',
+    email: 'm.chen@advanceddental.com',
+    phone: '+1 (555) 234-5678',
+    locationsCount: 2,
+    lastLogin: 'Yesterday, 11:15 AM',
+    lastLoginDate: 'Dec 7, 2024',
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg'
   },
   {
     id: 3,
-    firstName: "Emily",
-    lastName: "Rodriguez",
-    companyName: "Family Dental Group",
-    membership: "Premium Member",
-    email: "emily.rodriguez@familydental.com",
-    phone: "+1 (555) 345-6789",
-    locationsCount: 12,
-    lastLogin: "Yesterday",
-    lastLoginDate: "Dec 8, 2024 4:45 PM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg"
+    firstName: 'Emily',
+    lastName: 'Rodriguez',
+    companyName: 'Family Dental Group',
+    membership: 'Premium Member',
+    email: 'e.rodriguez@familydental.com',
+    phone: '+1 (555) 345-6789',
+    locationsCount: 4,
+    lastLogin: '2 days ago, 4:45 PM',
+    lastLoginDate: 'Dec 6, 2024',
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg'
   },
   {
     id: 4,
-    firstName: "James",
-    lastName: "Wilson",
-    companyName: "Premier Dental Studio",
-    membership: "Standard Member",
-    email: "james.wilson@premierdental.com",
-    phone: "+1 (555) 456-7890",
-    locationsCount: 4,
-    lastLogin: "2 days ago",
-    lastLoginDate: "Dec 7, 2024 11:20 AM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg"
-  },
-  {
-    id: 5,
-    firstName: "Lisa",
-    lastName: "Thompson",
-    companyName: "Bright Smiles Dentistry",
-    membership: "Premium Member",
-    email: "lisa.thompson@brightsmiles.com",
-    phone: "+1 (555) 567-8901",
-    locationsCount: 7,
-    lastLogin: "3 days ago",
-    lastLoginDate: "Dec 6, 2024 3:15 PM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg"
-  },
-  {
-    id: 6,
-    firstName: "Robert",
-    lastName: "Anderson",
-    companyName: "Complete Dental Solutions",
-    membership: "Standard Member",
-    email: "robert.anderson@completedental.com",
-    phone: "+1 (555) 678-9012",
-    locationsCount: 5,
-    lastLogin: "5 days ago",
-    lastLoginDate: "Dec 4, 2024 10:30 AM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg"
-  },
-  {
-    id: 7,
-    firstName: "Jennifer",
-    lastName: "Martinez",
-    companyName: "Elite Dental Practice",
-    membership: "Premium Member",
-    email: "jennifer.martinez@elitedental.com",
-    phone: "+1 (555) 789-0123",
-    locationsCount: 9,
-    lastLogin: "1 week ago",
-    lastLoginDate: "Dec 2, 2024 2:45 PM",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg"
-  },
-  {
-    id: 8,
-    firstName: "David",
-    lastName: "Taylor",
-    companyName: "Modern Dental Center",
-    membership: "Standard Member",
-    email: "david.taylor@moderndental.com",
-    phone: "+1 (555) 890-1234",
-    locationsCount: 3,
-    lastLogin: "No recent login",
-    lastLoginDate: "Last: Nov 28, 2024",
-    avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg"
+    firstName: 'David',
+    lastName: 'Wilson',
+    companyName: 'Wilson Dentistry',
+    membership: 'Standard Member',
+    email: 'd.wilson@wilsondentistry.com',
+    phone: '+1 (555) 456-7890',
+    locationsCount: 1,
+    lastLogin: 'Dec 5, 2024, 10:20 AM',
+    lastLoginDate: 'Dec 5, 2024',
+    avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg'
   }
 ];
 
 export const DentistManagement = () => {
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [activeDentist, setActiveDentist] = useState<Dentist | null>(null);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDentist, setSelectedDentist] = useState<Dentist | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const openLocations = (dentist: Dentist) => {
-    setActiveDentist(dentist);
-    setIsLocationModalOpen(true);
+  const handleOpenLocations = (dentist: Dentist) => {
+    setSelectedDentist(dentist);
+    setIsModalOpen(true);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Dentists Table */}
-      <section id="dentists-table" className="mb-6">
+    <div className="space-y-8">
+      {/* Stats Section */}
+      <section id="dentists-stats">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard 
+            title="Total Dentists"
+            value="248"
+            description="Active accounts"
+            icon={Users}
+            accentColor="primary"
+          />
+          <StatsCard 
+            title="Premium Members"
+            value="156"
+            description="63% of total"
+            icon={UserCheck}
+            accentColor="success"
+          />
+          <StatsCard 
+            title="Service Locations"
+            value="482"
+            description="Across 12 states"
+            icon={MapPin}
+            accentColor="warning"
+          />
+        </div>
+      </section>
+
+      {/* Actions & Filters */}
+      <section id="dentists-actions">
+        <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Search by name, email or clinic..."
+                className="w-full pl-10 pr-4 py-2 bg-dark-elevated border-none rounded-lg focus:ring-2 focus:ring-accent-primary/20 text-slate-800 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 px-4 py-2 h-10">
+                <Filter className="h-4 w-4 mr-2" /> Filters
+              </Button>
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 px-4 py-2 h-10">
+                <Download className="h-4 w-4 mr-2" /> Export
+              </Button>
+              <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white px-6 py-2 h-10">
+                <Plus className="h-4 w-4 mr-2" /> Add Dentist
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Table Section */}
+      <section id="dentists-table">
         <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-dark-elevated border-b border-dark-border">
-                  <th className="py-4 px-4 text-left">
+                <tr className="bg-dark-elevated border-b border-dark-border text-left">
+                  <th className="py-4 px-4">
                     <SortButton label="First Name" />
                   </th>
-                  <th className="py-4 px-4 text-left">
+                  <th className="py-4 px-4">
                     <SortButton label="Last Name" />
                   </th>
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Company Name" />
+                  <th className="py-4 px-4">
+                    <SortButton label="Clinic / Membership" />
                   </th>
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Email" />
-                  </th>
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Phone" />
-                  </th>
-                  <th className="py-4 px-4 text-left">
+                  <th className="py-4 px-4 text-sm font-semibold text-slate-700">Email</th>
+                  <th className="py-4 px-4 text-sm font-semibold text-slate-700">Phone</th>
+                  <th className="py-4 px-4">
                     <SortButton label="Locations" />
                   </th>
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Last Login" icon={ArrowDown} isActive />
+                  <th className="py-4 px-4">
+                    <SortButton label="Last Login" />
                   </th>
-                  <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-gray-300">Actions</span>
-                  </th>
+                  <th className="py-4 px-4 text-sm font-semibold text-slate-700">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-dark-border">
                 {dentistsData.map((dentist) => (
-                  <DentistRow
-                    key={dentist.id}
-                    dentist={dentist}
-                    onOpenLocations={openLocations}
+                  <DentistRow 
+                    key={dentist.id} 
+                    dentist={dentist} 
+                    onOpenLocations={handleOpenLocations}
                   />
                 ))}
               </tbody>
@@ -184,13 +189,14 @@ export const DentistManagement = () => {
         </div>
       </section>
 
-      {activeDentist && (
+      {selectedDentist && (
         <LocationModal 
-          isOpen={isLocationModalOpen} 
-          onClose={() => setIsLocationModalOpen(false)} 
-          dentist={activeDentist} 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          dentist={selectedDentist}
         />
       )}
     </div>
   );
 };
+

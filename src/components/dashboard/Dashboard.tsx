@@ -14,8 +14,8 @@ export const Dashboard = () => {
       <section>
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
           <div className='mb-6'>
-            <h3 className='text-lg font-semibold text-white'>Service Analytics Overview</h3>
-            <p className='text-sm text-gray-400 mt-1'>Current month performance metrics</p>
+            <h3 className='text-lg font-semibold text-slate-800'>Service Analytics Overview</h3>
+            <p className='text-sm text-slate-500 mt-1'>Current month performance metrics</p>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             <StatCard
@@ -54,8 +54,8 @@ export const Dashboard = () => {
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
           <div className='flex items-center justify-between mb-6'>
             <div>
-              <h3 className='text-lg font-semibold text-white'>Invoice Summary</h3>
-              <p className='text-sm text-gray-400 mt-1'>Current month financial overview</p>
+              <h3 className='text-lg font-semibold text-slate-800'>Invoice Summary</h3>
+              <p className='text-sm text-slate-500 mt-1'>Current month financial overview</p>
             </div>
             <Button variant='link' className='text-accent-primary p-0 h-auto flex items-center gap-2'>
               View All Invoices <ArrowRight className='h-4 w-4' />
@@ -64,19 +64,19 @@ export const Dashboard = () => {
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
             <div className='bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-warning'>
-              <p className='text-gray-400 text-sm mb-2'>Pending</p>
-              <p className='text-2xl font-bold text-white'>{stats.pendingInvoices}</p>
-              <p className='text-sm text-gray-500 mt-1'>$38,450</p>
+              <p className='text-slate-500 text-sm mb-2'>Pending</p>
+              <p className='text-2xl font-bold text-slate-900'>{stats.pendingInvoices}</p>
+              <p className='text-sm text-slate-500 mt-1'>$38,450</p>
             </div>
             <div className='bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-success'>
-              <p className='text-gray-400 text-sm mb-2'>Completed</p>
-              <p className='text-2xl font-bold text-white'>{stats.completedInvoices}</p>
-              <p className='text-sm text-gray-500 mt-1'>$124,560</p>
+              <p className='text-slate-500 text-sm mb-2'>Completed</p>
+              <p className='text-2xl font-bold text-slate-900'>{stats.completedInvoices}</p>
+              <p className='text-sm text-slate-500 mt-1'>$124,560</p>
             </div>
             <div className='bg-dark-elevated rounded-lg p-4 border-l-4 border-accent-danger'>
-              <p className='text-gray-400 text-sm mb-2'>Rejected</p>
-              <p className='text-2xl font-bold text-white'>{stats.rejectedInvoices}</p>
-              <p className='text-sm text-gray-500 mt-1'>$8,920</p>
+              <p className='text-slate-500 text-sm mb-2'>Rejected</p>
+              <p className='text-2xl font-bold text-slate-900'>{stats.rejectedInvoices}</p>
+              <p className='text-sm text-slate-500 mt-1'>$8,920</p>
             </div>
           </div>
 
@@ -89,8 +89,8 @@ export const Dashboard = () => {
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
           <div className='flex items-center justify-between mb-6'>
             <div>
-              <h3 className='text-lg font-semibold text-white'>Upcoming Scheduled Appointments</h3>
-              <p className='text-sm text-gray-400 mt-1'>Next 7 days overview</p>
+              <h3 className='text-lg font-semibold text-slate-800'>Upcoming Scheduled Appointments</h3>
+              <p className='text-sm text-slate-500 mt-1'>Next 7 days overview</p>
             </div>
             <Button variant='link' className='text-accent-primary p-0 h-auto flex items-center gap-2'>
               View Calendar <Calendar className='h-4 w-4' />

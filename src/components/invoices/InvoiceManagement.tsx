@@ -132,13 +132,13 @@ export const InvoiceManagement = () => {
                     <SortButton label="Gross Amount" />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-gray-300">Payout (88%)</span>
+                    <span className="text-sm font-semibold text-slate-700">Payout (88%)</span>
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-gray-300">Remaining (12%)</span>
+                    <span className="text-sm font-semibold text-slate-700">Remaining (12%)</span>
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-gray-300">Status</span>
+                    <span className="text-sm font-semibold text-slate-700">Status</span>
                   </th>
                   <th className="py-4 px-4 text-left">
                     <SortButton label="Created" />

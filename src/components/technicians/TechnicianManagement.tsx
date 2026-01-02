@@ -160,8 +160,8 @@ export const TechnicianManagement = () => {
         <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Quick Actions</h3>
-              <p className="text-sm text-gray-400">Create new technician profiles</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Actions</h3>
+              <p className="text-sm text-slate-500">Create new technician profiles</p>
             </div>
             <div className="flex items-center gap-3">
               <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white px-6 py-2 h-11">
@@ -170,7 +170,7 @@ export const TechnicianManagement = () => {
               <Button className="bg-accent-secondary hover:bg-accent-secondary/80 text-white px-6 py-2 h-11">
                 <Plus className="h-4 w-4 mr-2" /> Create Individual Technician
               </Button>
-              <Button variant="outline" className="bg-dark-elevated hover:bg-dark-border text-white border-none px-6 py-2 h-11">
+              <Button variant="outline" className="bg-dark-elevated hover:bg-dark-border text-slate-800 border-none px-6 py-2 h-11">
                 <Download className="h-4 w-4 mr-2" /> Export List
               </Button>
             </div>
@@ -192,14 +192,14 @@ export const TechnicianManagement = () => {
                   <th className="py-4 px-4 text-left">
                     <SortButton label="Type" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-semibold text-gray-300 text-left">Contact</th>
+                  <th className="py-4 px-4 text-sm font-semibold text-slate-700 text-left">Contact</th>
                   <th className="py-4 px-4 text-left">
                     <SortButton label="Jobs Completed" />
                   </th>
                   <th className="py-4 px-4 text-left">
                     <SortButton label="Rating" />
                   </th>
-                  <th className="py-4 px-4 text-sm font-semibold text-gray-300 text-left">Status</th>
+                  <th className="py-4 px-4 text-sm font-semibold text-slate-700 text-left">Status</th>
                 </tr>
               </thead>
               <tbody>
