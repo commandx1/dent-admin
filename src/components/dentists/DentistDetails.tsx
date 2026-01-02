@@ -66,12 +66,6 @@ export const DentistDetails = () => {
                 />
                 <h3 className="text-xl font-bold text-slate-900 mb-1 text-center">Dr. {dentist.firstName} {dentist.lastName}</h3>
                 <p className="text-sm text-slate-500 mb-4 text-center">{dentist.companyName}</p>
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="px-3 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full flex items-center gap-1 font-medium">
-                    <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-                    {dentist.accountStatus || 'ACTIVE'}
-                  </span>
-                </div>
                 <div className="w-full space-y-3">
                   <div className="flex items-center gap-3 text-sm">
                     <Mail className="text-slate-400 w-5 h-5 shrink-0" />
@@ -145,9 +139,6 @@ export const DentistDetails = () => {
                   <h3 className="text-lg font-semibold text-slate-800">Profile Information</h3>
                   <p className="text-sm text-slate-500 mt-1">Detailed contact and location credentials</p>
                 </div>
-                <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                  <Edit className="h-4 w-4 mr-2" /> Edit Profile
-                </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mt-4">
                 <div className="space-y-1">
@@ -193,13 +184,6 @@ export const DentistDetails = () => {
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Registration Date</label>
                   <p className="text-slate-800 font-medium text-base">{new Date(dentist.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Account Status</label>
-                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-success/20 text-accent-success text-sm rounded-full font-medium">
-                    <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-                    {dentist.accountStatus || 'ACTIVE'}
-                  </span>
                 </div>
               </div>
             </div>

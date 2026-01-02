@@ -52,25 +52,7 @@ export const Header = () => {
             </div>
           </div>
         ),
-        right: (
-          <div className="flex items-center gap-4">
-            {searchInput}
-            <div className="flex items-center gap-3 border-l border-dark-border pl-4">
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                Impersonate
-              </Button>
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                <Mail className="h-4 w-4 mr-2" /> Send Email
-              </Button>
-              <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
-                <Download className="h-4 w-4 mr-2" /> Export
-              </Button>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        )
+        right: null
       }
     }
 
