@@ -62,39 +62,39 @@ export const DentistDetails = () => {
                 <img
                   src={avatarSrc}
                   alt={`Dr. ${dentist.firstName} ${dentist.lastName}`}
-                  className="w-32 h-32 rounded-full mb-4 object-cover"
+                  className="w-32 h-32 rounded-full mb-4 object-cover border-2 border-accent-primary/20 shadow-lg"
                 />
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Dr. {dentist.firstName} {dentist.lastName}</h3>
-                <p className="text-sm text-slate-500 mb-4">{dentist.companyName}</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-1 text-center">Dr. {dentist.firstName} {dentist.lastName}</h3>
+                <p className="text-sm text-slate-500 mb-4 text-center">{dentist.companyName}</p>
                 <div className="flex items-center gap-2 mb-6">
-                  <span className="px-3 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full flex items-center gap-1">
+                  <span className="px-3 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full flex items-center gap-1 font-medium">
                     <span className="w-2 h-2 bg-accent-success rounded-full"></span>
                     {dentist.accountStatus || 'ACTIVE'}
                   </span>
                 </div>
                 <div className="w-full space-y-3">
                   <div className="flex items-center gap-3 text-sm">
-                    <Mail className="text-slate-500 w-5 h-5 shrink-0" />
+                    <Mail className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700 truncate">{dentist.email}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Phone className="text-slate-500 w-5 h-5 shrink-0" />
+                    <Phone className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700">{dentist.phone}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Building className="text-slate-500 w-5 h-5 shrink-0" />
+                    <Building className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700">{dentist.companyName}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <MapPin className="text-slate-500 w-5 h-5 shrink-0" />
+                    <MapPin className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700">{dentist.locationCount} Locations</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <Clock className="text-slate-500 w-5 h-5 shrink-0" />
+                    <Clock className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700">Last login: {new Date(dentist.lastLogin).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
-                    <CalendarPlus className="text-slate-500 w-5 h-5 shrink-0" />
+                    <CalendarPlus className="text-slate-400 w-5 h-5 shrink-0" />
                     <span className="text-slate-700">Member since: {new Date(dentist.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -104,7 +104,7 @@ export const DentistDetails = () => {
 
           {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Stats Cards - Mocked since API doesn't provide these specifically for details */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -113,8 +113,8 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Scheduled Appointments</h4>
-                <p className="text-3xl font-bold text-slate-900">--</p>
-                <p className="text-xs text-slate-500 mt-2">This month</p>
+                <p className="text-3xl font-bold text-slate-900">{dentist.appointmentStats?.scheduleCount || 0}</p>
+                <p className="text-xs text-slate-500 mt-2">Total appointments</p>
               </div>
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -123,8 +123,8 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Emergency Calls</h4>
-                <p className="text-3xl font-bold text-slate-900">--</p>
-                <p className="text-xs text-slate-500 mt-2">This month</p>
+                <p className="text-3xl font-bold text-slate-900">{dentist.appointmentStats?.emergencyCallCount || 0}</p>
+                <p className="text-xs text-slate-500 mt-2">Urgent requests</p>
               </div>
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -133,62 +133,70 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Remote Consultations</h4>
-                <p className="text-3xl font-bold text-slate-900">--</p>
-                <p className="text-xs text-slate-500 mt-2">This month</p>
+                <p className="text-3xl font-bold text-slate-900">{dentist.appointmentStats?.remoteAssistanceCount || 0}</p>
+                <p className="text-xs text-slate-500 mt-2">Video assistance</p>
               </div>
             </div>
 
             {/* Profile Information */}
             <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6 border-b border-dark-border pb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-800">Profile Information</h3>
-                  <p className="text-sm text-slate-500 mt-1">Complete dentist details and credentials</p>
+                  <p className="text-sm text-slate-500 mt-1">Detailed contact and location credentials</p>
                 </div>
                 <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                  <Edit className="h-4 w-4 mr-2" /> Edit
+                  <Edit className="h-4 w-4 mr-2" /> Edit Profile
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">First Name</label>
-                  <p className="text-slate-800 font-medium">{dentist.firstName}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mt-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">First Name</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.firstName}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Last Name</label>
-                  <p className="text-slate-800 font-medium">{dentist.lastName}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Last Name</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.lastName}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Company Name</label>
-                  <p className="text-slate-800 font-medium">{dentist.companyName}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Company Name</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.companyName}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Email Address</label>
-                  <p className="text-slate-800 font-medium">{dentist.email}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Email Address</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.email}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Phone Number</label>
-                  <p className="text-slate-800 font-medium">{dentist.phone}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Phone Number</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.phone}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Primary Address</label>
-                  <p className="text-slate-800 font-medium">{dentist.address || '--'}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Primary Address</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.address || '--'}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">City</label>
-                  <p className="text-slate-800 font-medium">{dentist.city || '--'}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">City</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.city || '--'}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">State</label>
-                  <p className="text-slate-800 font-medium">{dentist.state || '--'}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">State</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.state || '--'}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Registration Date</label>
-                  <p className="text-slate-800 font-medium">{new Date(dentist.createdAt).toLocaleDateString()}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">ZIP Code</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.zipCode || '--'}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Account Status</label>
-                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-success/20 text-accent-success text-sm rounded-full">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Country</label>
+                  <p className="text-slate-800 font-medium text-base">{dentist.country || '--'}</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Registration Date</label>
+                  <p className="text-slate-800 font-medium text-base">{new Date(dentist.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Account Status</label>
+                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-success/20 text-accent-success text-sm rounded-full font-medium">
                     <span className="w-2 h-2 bg-accent-success rounded-full"></span>
                     {dentist.accountStatus || 'ACTIVE'}
                   </span>

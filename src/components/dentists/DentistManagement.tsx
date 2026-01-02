@@ -1,45 +1,42 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Users, UserCheck, MapPin } from 'lucide-react'
+import { Users, UserCheck, MapPin, Search, Filter, Download, Plus } from 'lucide-react'
 import { DentistRow } from './DentistRow'
-import { LocationModal } from './LocationModal'
 import type { Dentist } from './types'
 import { StatsCard } from '../common/StatsCard'
 import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
 import { dentistService } from '@/services/dentistService'
+import { Button } from '@/components/ui/button'
 
 export const DentistManagement = () => {
   const [dentists, setDentists] = useState<Dentist[]>([])
   const [loading, setLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedDentist, setSelectedDentist] = useState<Dentist | null>(null)
   const [currentPage, setCurrentPage] = useState(0) // API is 0-indexed
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalElements, setTotalElements] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const fetchDentists = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await dentistService.getAll(currentPage, itemsPerPage)
-      setDentists(data.content)
-      setTotalElements(data.totalElements)
-      setTotalPages(data.totalPages)
+      const data = await dentistService.getAll(currentPage, itemsPerPage, 'lastLogin', 'DESC', searchTerm)
+      setDentists(data.content || [])
+      setTotalElements(data.totalElements || 0)
+      setTotalPages(data.totalPages || 0)
     } catch (error) {
       console.error('Failed to fetch dentists:', error)
     } finally {
       setLoading(false)
     }
-  }, [currentPage, itemsPerPage])
+  }, [currentPage, itemsPerPage, searchTerm])
 
   useEffect(() => {
-    fetchDentists()
+    const timer = setTimeout(() => {
+      fetchDentists()
+    }, 500)
+    return () => clearTimeout(timer)
   }, [fetchDentists])
-
-  const handleOpenLocations = (dentist: Dentist) => {
-    setSelectedDentist(dentist)
-    setIsModalOpen(true)
-  }
 
   return (
     <div className='space-y-8'>
@@ -67,6 +64,38 @@ export const DentistManagement = () => {
             icon={MapPin}
             accentColor='warning'
           />
+        </div>
+      </section>
+
+      {/* Actions & Filters */}
+      <section id="dentists-actions">
+        <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Search by name, email or clinic..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(0);
+                }}
+                className="w-full pl-10 pr-4 py-2 bg-dark-elevated border-none rounded-lg focus:ring-2 focus:ring-accent-primary/20 text-slate-800 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 px-4 py-2 h-10">
+                <Filter className="h-4 w-4 mr-2" /> Filters
+              </Button>
+              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 px-4 py-2 h-10">
+                <Download className="h-4 w-4 mr-2" /> Export
+              </Button>
+              <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white px-6 py-2 h-10">
+                <Plus className="h-4 w-4 mr-2" /> Add Dentist
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -112,7 +141,7 @@ export const DentistManagement = () => {
                   </tr>
                 ) : (
                   dentists.map(dentist => (
-                    <DentistRow key={dentist.userId} dentist={dentist} onOpenLocations={handleOpenLocations} />
+                    <DentistRow key={dentist.userId} dentist={dentist} />
                   ))
                 )}
               </tbody>
@@ -132,10 +161,6 @@ export const DentistManagement = () => {
           )}
         </div>
       </section>
-
-      {selectedDentist && (
-        <LocationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} dentist={selectedDentist} />
-      )}
     </div>
   )
 }

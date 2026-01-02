@@ -1,23 +1,5 @@
 import api from '@/lib/api';
-
-export interface Dentist {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  email: string;
-  phone: string;
-  locationCount: number;
-  lastLogin: string;
-  createdAt: string;
-  profilePhotoData: string | null;
-  accountStatus?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
-}
+import type { Dentist } from '@/components/dentists/types';
 
 interface DentistListResponse {
   content: Dentist[];
@@ -30,9 +12,15 @@ interface DentistListResponse {
 }
 
 export const dentistService = {
-  getAll: async (page = 0, size = 10, sortBy = 'lastLogin', sortDirection = 'DESC') => {
+  getAll: async (page = 0, size = 10, sortBy = 'lastLogin', sortDirection = 'DESC', searchTerm = '') => {
     const response = await api.get<DentistListResponse>('/api/v1/dentists', {
-      params: { page, size, sortBy, sortDirection }
+      params: { 
+        page, 
+        size, 
+        sortBy, 
+        sortDirection,
+        ...(searchTerm ? { searchTerm } : {})
+      }
     });
     return response.data;
   },
@@ -42,4 +30,3 @@ export const dentistService = {
     return response.data;
   }
 };
-
