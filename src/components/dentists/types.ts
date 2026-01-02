@@ -1,14 +1,19 @@
 export interface Dentist {
-  id: number;
+  userId: string;
   firstName: string;
   lastName: string;
   companyName: string;
-  membership: 'Premium Member' | 'Standard Member';
   email: string;
   phone: string;
-  locationsCount: number;
+  locationCount: number;
   lastLogin: string;
-  lastLoginDate: string;
-  avatar: string;
+  createdAt: string;
+  profilePhotoData: string | null;
+  accountStatus?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
 }
 

@@ -22,7 +22,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
         <div className="flex items-center justify-between p-6 border-b border-dark-border">
           <div>
             <h3 className="text-xl font-bold text-slate-900">Locations - Dr. {dentist.firstName} {dentist.lastName}</h3>
-            <p className="text-sm text-slate-500 mt-1">{dentist.companyName} • {dentist.locationsCount} locations</p>
+            <p className="text-sm text-slate-500 mt-1">{dentist.companyName} • {dentist.locationCount} locations</p>
           </div>
           <Button variant="ghost" onClick={onClose} className="p-2 hover:bg-dark-elevated rounded-lg">
             <X className="h-6 w-6 text-slate-500 hover:text-slate-900" />

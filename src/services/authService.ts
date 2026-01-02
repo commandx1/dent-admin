@@ -47,10 +47,12 @@ export const authService = {
       device: credentials.device || 'web'
     });
 
-    // Extract token from header if not in body
-    const authHeader = response.headers['Authorization'];
-    if (authHeader && !response.data.accessToken) {
-      response.data.accessToken = authHeader.replace('Bearer ', '');
+    const headers = response.headers;
+    const authHeader = headers['authorization'] || headers['Authorization'];
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '').trim();
+      response.data.accessToken = token;
     }
 
     return response.data;
@@ -62,10 +64,12 @@ export const authService = {
       device: data.device || 'web'
     });
 
-    // Extract token from header if not in body
-    const authHeader = response.headers['Authorization'];
-    if (authHeader && !response.data.accessToken) {
-      response.data.accessToken = authHeader.replace('Bearer ', '');
+    const headers = response.headers;
+    const authHeader = headers['authorization'] || headers['Authorization'];
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '').trim();
+      response.data.accessToken = token;
     }
 
     return response.data;
@@ -75,4 +79,3 @@ export const authService = {
     await api.post('/api/auth/logout', { refreshToken });
   }
 };
-

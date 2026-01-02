@@ -15,13 +15,21 @@ export const DentistRow: React.FC<DentistRowProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  const formattedLastLogin = dentist.lastLogin 
+    ? new Date(dentist.lastLogin).toLocaleString()
+    : 'Never';
+
+  const avatarSrc = dentist.profilePhotoData 
+    ? `data:image/png;base64,${dentist.profilePhotoData}`
+    : `https://ui-avatars.com/api/?name=${dentist.firstName}+${dentist.lastName}&background=random`;
+
   return (
     <tr
       className="border-b border-dark-border hover:bg-dark-elevated/50 transition-all"
     >
       <td className="py-4 px-4">
         <div className="flex items-center gap-3">
-          <img src={dentist.avatar} alt={dentist.firstName} className="w-10 h-10 rounded-full" />
+          <img src={avatarSrc} alt={dentist.firstName} className="w-10 h-10 rounded-full object-cover" />
           <span className="text-slate-800 font-medium">{dentist.firstName}</span>
         </div>
       </td>
@@ -29,7 +37,7 @@ export const DentistRow: React.FC<DentistRowProps> = ({
       <td className="py-4 px-4">
         <div>
           <p className="text-slate-800 font-medium">{dentist.companyName}</p>
-          <p className="text-xs text-slate-500">{dentist.membership}</p>
+          <p className="text-xs text-slate-500">{dentist.accountStatus || 'Active'}</p>
         </div>
       </td>
       <td className="py-4 px-4">
@@ -49,19 +57,18 @@ export const DentistRow: React.FC<DentistRowProps> = ({
           onClick={(e) => { e.stopPropagation(); onOpenLocations(dentist); }}
           className="flex items-center gap-2 text-accent-primary hover:text-accent-primary/80"
         >
-          <span className="font-semibold">{dentist.locationsCount}</span>
+          <span className="font-semibold">{dentist.locationCount}</span>
           <ChevronDown className="h-4 w-4" />
         </button>
       </td>
       <td className="py-4 px-4">
         <div>
-          <p className="text-slate-800 text-sm">{dentist.lastLogin}</p>
-          <p className="text-xs text-slate-500">{dentist.lastLoginDate}</p>
+          <p className="text-slate-800 text-sm">{formattedLastLogin}</p>
         </div>
       </td>
       <td className="py-4 px-4">
         <Button
-          onClick={() => navigate(`/dentists/${dentist.id}`)}
+          onClick={() => navigate(`/dentists/${dentist.userId}`)}
           variant="outline"
           size="sm"
           className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 text-xs"

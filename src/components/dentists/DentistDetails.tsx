@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Mail, 
@@ -12,36 +13,43 @@ import {
   Video, 
   Edit
 } from 'lucide-react';
+import { dentistService } from '@/services/dentistService';
+import type { Dentist } from './types';
 
 export const DentistDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const [dentist, setDentist] = useState<Dentist | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - in a real app this would be fetched based on id
-  const dentist = {
-    // ... same mock data ...
-    id: id || 'DNT-2024-0847',
-    firstName: "Sarah",
-    lastName: "Mitchell",
-    specialization: "General Dentistry",
-    clinic: "Smile Dental Clinic",
-    status: "Active",
-    verified: true,
-    email: "sarah.mitchell@smiledental.com",
-    phone: "+1 (555) 123-4567",
-    locationsCount: 3,
-    lastLogin: "2 hours ago",
-    memberSince: "Jan 15, 2023",
-    licenseNumber: "DDS-NY-847562",
-    address: "789 Dental Avenue, Suite 200",
-    cityStateZip: "New York, NY 10001",
-    specializations: "General Dentistry, Cosmetic",
-    experience: "12 years",
-    stats: {
-      scheduled: 89,
-      emergency: 24,
-      remote: 43
+  useEffect(() => {
+    if (id) {
+      fetchDentistDetails(id);
+    }
+  }, [id]);
+
+  const fetchDentistDetails = async (dentistId: string) => {
+    setLoading(true);
+    try {
+      const data = await dentistService.getById(dentistId);
+      setDentist(data);
+    } catch (error) {
+      console.error('Failed to fetch dentist details:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-500 text-lg">Loading dentist details...</div>;
+  }
+
+  if (!dentist) {
+    return <div className="p-8 text-center text-red-500 text-lg">Dentist not found.</div>;
+  }
+
+  const avatarSrc = dentist.profilePhotoData 
+    ? `data:image/png;base64,${dentist.profilePhotoData}`
+    : `https://ui-avatars.com/api/?name=${dentist.firstName}+${dentist.lastName}&background=random`;
 
   return (
     <div className="space-y-6">
@@ -52,20 +60,17 @@ export const DentistDetails = () => {
             <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
               <div className="flex flex-col items-center">
                 <img
-                  src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
+                  src={avatarSrc}
                   alt={`Dr. ${dentist.firstName} ${dentist.lastName}`}
-                  className="w-32 h-32 rounded-full mb-4"
+                  className="w-32 h-32 rounded-full mb-4 object-cover"
                 />
                 <h3 className="text-xl font-bold text-slate-900 mb-1">Dr. {dentist.firstName} {dentist.lastName}</h3>
-                <p className="text-sm text-slate-500 mb-4">{dentist.specialization}</p>
+                <p className="text-sm text-slate-500 mb-4">{dentist.companyName}</p>
                 <div className="flex items-center gap-2 mb-6">
                   <span className="px-3 py-1 bg-accent-success/20 text-accent-success text-xs rounded-full flex items-center gap-1">
                     <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-                    {dentist.status}
+                    {dentist.accountStatus || 'ACTIVE'}
                   </span>
-                  {dentist.verified && (
-                    <span className="px-3 py-1 bg-accent-primary/20 text-accent-primary text-xs rounded-full">Verified</span>
-                  )}
                 </div>
                 <div className="w-full space-y-3">
                   <div className="flex items-center gap-3 text-sm">
@@ -78,19 +83,19 @@ export const DentistDetails = () => {
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <Building className="text-slate-500 w-5 h-5 shrink-0" />
-                    <span className="text-slate-700">{dentist.clinic}</span>
+                    <span className="text-slate-700">{dentist.companyName}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <MapPin className="text-slate-500 w-5 h-5 shrink-0" />
-                    <span className="text-slate-700">{dentist.locationsCount} Locations</span>
+                    <span className="text-slate-700">{dentist.locationCount} Locations</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <Clock className="text-slate-500 w-5 h-5 shrink-0" />
-                    <span className="text-slate-700">Last login: {dentist.lastLogin}</span>
+                    <span className="text-slate-700">Last login: {new Date(dentist.lastLogin).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <CalendarPlus className="text-slate-500 w-5 h-5 shrink-0" />
-                    <span className="text-slate-700">Member since: {dentist.memberSince}</span>
+                    <span className="text-slate-700">Member since: {new Date(dentist.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -99,7 +104,7 @@ export const DentistDetails = () => {
 
           {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Stats Cards */}
+            {/* Stats Cards - Mocked since API doesn't provide these specifically for details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -108,7 +113,7 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Scheduled Appointments</h4>
-                <p className="text-3xl font-bold text-slate-900">{dentist.stats.scheduled}</p>
+                <p className="text-3xl font-bold text-slate-900">--</p>
                 <p className="text-xs text-slate-500 mt-2">This month</p>
               </div>
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
@@ -118,7 +123,7 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Emergency Calls</h4>
-                <p className="text-3xl font-bold text-slate-900">{dentist.stats.emergency}</p>
+                <p className="text-3xl font-bold text-slate-900">--</p>
                 <p className="text-xs text-slate-500 mt-2">This month</p>
               </div>
               <div className="bg-dark-surface border border-dark-border rounded-xl p-5">
@@ -128,7 +133,7 @@ export const DentistDetails = () => {
                   </div>
                 </div>
                 <h4 className="text-slate-500 text-sm mb-1">Remote Consultations</h4>
-                <p className="text-3xl font-bold text-slate-900">{dentist.stats.remote}</p>
+                <p className="text-3xl font-bold text-slate-900">--</p>
                 <p className="text-xs text-slate-500 mt-2">This month</p>
               </div>
             </div>
@@ -155,11 +160,7 @@ export const DentistDetails = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Company Name</label>
-                  <p className="text-slate-800 font-medium">{dentist.clinic}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">License Number</label>
-                  <p className="text-slate-800 font-medium">{dentist.licenseNumber}</p>
+                  <p className="text-slate-800 font-medium">{dentist.companyName}</p>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Email Address</label>
@@ -171,29 +172,25 @@ export const DentistDetails = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Primary Address</label>
-                  <p className="text-slate-800 font-medium">{dentist.address}</p>
+                  <p className="text-slate-800 font-medium">{dentist.address || '--'}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">City, State, ZIP</label>
-                  <p className="text-slate-800 font-medium">{dentist.cityStateZip}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">City</label>
+                  <p className="text-slate-800 font-medium">{dentist.city || '--'}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Specialization</label>
-                  <p className="text-slate-800 font-medium">{dentist.specializations}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Years of Experience</label>
-                  <p className="text-slate-800 font-medium">{dentist.experience}</p>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">State</label>
+                  <p className="text-slate-800 font-medium">{dentist.state || '--'}</p>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Registration Date</label>
-                  <p className="text-slate-800 font-medium">{dentist.memberSince}</p>
+                  <p className="text-slate-800 font-medium">{new Date(dentist.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Account Status</label>
                   <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-success/20 text-accent-success text-sm rounded-full">
                     <span className="w-2 h-2 bg-accent-success rounded-full"></span>
-                    Active & Verified
+                    {dentist.accountStatus || 'ACTIVE'}
                   </span>
                 </div>
               </div>
@@ -204,4 +201,3 @@ export const DentistDetails = () => {
     </div>
   );
 };
-

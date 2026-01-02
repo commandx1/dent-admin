@@ -5,11 +5,11 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { authService } from '@/services/authService'
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, count: null, path: '/' },
-  { id: 'dentists', label: 'Dentists', icon: UserRound, count: 248, path: '/dentists' },
-  { id: 'technicians', label: 'Technicians', icon: Settings, count: 156, path: '/technicians' },
-  { id: 'vendors', label: 'Vendors', icon: Store, count: 89, path: '/vendors' },
-  { id: 'invoices', label: 'Invoices', icon: FileText, count: 342, path: '/invoices' }
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+  { id: 'dentists', label: 'Dentists', icon: UserRound, path: '/dentists' },
+  { id: 'technicians', label: 'Technicians', icon: Settings, path: '/technicians' },
+  { id: 'vendors', label: 'Vendors', icon: Store, path: '/vendors' },
+  { id: 'invoices', label: 'Invoices', icon: FileText, path: '/invoices' }
 ] as const
 
 export const Sidebar = () => {
@@ -63,19 +63,6 @@ export const Sidebar = () => {
                 <span className='font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100'>
                   {item.label}
                 </span>
-                {item.count && (
-                  <span
-                    className={cn(
-                      'ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150',
-                      item.id === 'dentists' && 'bg-white/20 text-white',
-                      item.id === 'technicians' && 'bg-white/20 text-white',
-                      item.id === 'vendors' && 'bg-white/20 text-white',
-                      item.id === 'invoices' && 'bg-white/20 text-white'
-                    )}
-                  >
-                    {item.count}
-                  </span>
-                )}
               </NavLink>
             )
           })}
