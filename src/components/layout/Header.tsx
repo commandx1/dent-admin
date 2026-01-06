@@ -97,6 +97,28 @@ export const Header = () => {
       }
     }
 
+    if (pathname === '/technicians/new') {
+      return {
+        left: (
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/technicians')}
+              className="text-slate-500 hover:text-slate-900 hover:bg-dark-elevated"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Create New Technician</h2>
+              <p className="text-sm text-slate-500 mt-0.5">Add a new company or individual technician to the system</p>
+            </div>
+          </div>
+        ),
+        right: null
+      }
+    }
+
     let title = 'Page Not Found'
     let description = 'The page you are looking for does not exist.'
 
@@ -109,6 +131,9 @@ export const Header = () => {
     } else if (pathname === '/technicians') {
       title = 'Technicians Management'
       description = 'Manage company and individual technicians'
+    } else if (pathname === '/technicians/new') {
+      title = 'Create New Technician'
+      description = 'Add a new company or individual technician to the system'
     } else if (pathname === '/vendors') {
       title = 'Vendors Management'
       description = 'Manage vendors, products, and inventory'

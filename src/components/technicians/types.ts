@@ -1,24 +1,73 @@
-export type TechnicianType = 'Headquarter' | 'Member' | 'Individual';
+export interface Rating {
+  averageRating: number;
+  totalRatingCount: number;
+}
 
-export interface Technician {
-  id: string;
-  name: string;
-  type: TechnicianType;
+export interface JobStats {
+  totalCompletedJobs: number;
+  last30DaysCompletedJobs: number;
+}
+
+export interface Employee {
+  technicianId: number;
+  userId: string;
+  technicianCode: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
   email: string;
-  phone: string;
-  jobsCompleted: number;
-  jobsThisMonth: number;
-  rating: number;
-  reviewsCount: number;
-  status: 'Active' | 'Inactive';
-  avatar: string;
+  telephoneNumber: string;
+  isHeadquarters: boolean;
+  deleted: boolean;
+  createdAt: string;
+  rating: Rating;
+  jobStats: JobStats;
+  status: string;
 }
 
 export interface Company {
-  id: string;
+  companyId: string;
+  companyCode: string;
   companyName: string;
-  type: 'Company';
-  technicians: Technician[];
+  companyType: 'corporate' | 'individual';
+  companyCreatedAt: string;
+  ownerUserId: string | null;
+  ownerFirstName: string | null;
+  ownerLastName: string | null;
+  ownerFullName: string | null;
+  ownerEmail: string | null;
+  ownerTelephoneNumber: string | null;
+  companyRating: Rating;
+  companyJobStats: JobStats;
+  status: string;
+  employees: Employee[];
 }
 
-export type TableItem = Company | Technician;
+export interface TechnicianResponse {
+  content: Company[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface CompanyMember {
+  company_id?: string
+  user_first_name: string
+  user_last_name: string
+  email: string
+  address: string
+  city: string
+  state: string
+  zip_code: string
+  country: string
+  latitude: number
+  longitude: number
+  is_headquarters: boolean
+}
+
+// For compatibility with existing components if needed, 
+// though it might be better to update them.
+export type TableItem = Company;

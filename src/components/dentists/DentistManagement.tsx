@@ -64,21 +64,21 @@ export const DentistManagement = () => {
       {/* Stats Section */}
       <section id='dentists-stats'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-          <StatsCard
+          <StatsCard 
             title='Total Dentists'
             value={totalElements.toString()}
             description='Active accounts'
             icon={Users}
             accentColor='primary'
           />
-          <StatsCard
+          <StatsCard 
             title='Active Members'
             value={totalElements.toString()}
             description='Total verified members'
             icon={UserCheck}
             accentColor='success'
           />
-          <StatsCard
+          <StatsCard 
             title='Service Locations'
             value='--'
             description='Across all dentists'
@@ -144,15 +144,15 @@ export const DentistManagement = () => {
           </div>
 
           {!loading && (
-            <TablePagination
+          <TablePagination
               currentPage={currentPage + 1}
               totalPages={totalPages}
               totalItems={totalElements}
-              itemsPerPage={itemsPerPage}
+            itemsPerPage={itemsPerPage}
               onPageChange={page => setCurrentPage(page - 1)}
-              onItemsPerPageChange={setItemsPerPage}
+            onItemsPerPageChange={setItemsPerPage}
               itemName='dentists'
-            />
+          />
           )}
         </div>
       </section>

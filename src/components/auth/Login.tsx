@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authService } from '@/services/authService';
 import { Button } from '@/components/ui/button';
-import { Hospital, Mail, Lock, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -88,8 +88,8 @@ export const Login = () => {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-accent-primary rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
-            <Hospital className="text-white h-7 w-7" />
+          <div className="w-12 h-12 bg-linear-to-br from-gray-300 to-white rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
+            <img src="/DentyProLogo.png" alt="DentyPro Logo" className="text-white h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">DentyPro Admin</h1>
           <p className="text-slate-500 mt-1">Welcome to the management panel</p>

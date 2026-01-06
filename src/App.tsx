@@ -10,6 +10,7 @@ import { NotFound } from "@/components/common/NotFound"
 import { Login } from "@/components/auth/Login"
 import { ProtectedRoute } from "@/components/common/ProtectedRoute"
 import { useAuthStore } from "@/store/useAuthStore"
+import NewTechnician from './components/technicians/NewTechnician'
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -33,6 +34,7 @@ function App() {
           <Route path="/dentists" element={<DentistManagement />} />
           <Route path="/dentists/:id" element={<DentistDetails />} />
           <Route path="/technicians" element={<TechnicianManagement />} />
+          <Route path="/technicians/new" element={<NewTechnician />} />
           <Route path="/vendors" element={<VendorManagement />} />
           <Route path="/vendors/:id" element={<VendorDetails />} />
           <Route path="/invoices" element={<InvoiceManagement />} />
