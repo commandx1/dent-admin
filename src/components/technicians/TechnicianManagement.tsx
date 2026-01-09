@@ -43,7 +43,14 @@ export const TechnicianManagement = () => {
   }, [currentPage, itemsPerPage, sortBy, sortDirection, searchQuery])
 
   useEffect(() => {
-    fetchTechnicians()
+    setCurrentPage(0) // Reset to first page on search
+  }, [searchQuery])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchTechnicians()
+    }, 500)
+    return () => clearTimeout(timer)
   }, [fetchTechnicians])
 
   const handleSort = (field: string) => {

@@ -283,7 +283,7 @@ const NewTechnician: React.FC = () => {
         // If it's a corporate account, we need to find the companyId from the list
         if (technicianType === 'technician_company_admin' && userId) {
           try {
-            const techList = await technicianService.getAll(0, 5)
+            const techList = await technicianService.getAll(0, 5, '', '', formData.companyName)
             const matchingCompany = techList.content.find(c => c.ownerUserId === userId)
             if (matchingCompany) {
               finalCompanyId = matchingCompany.companyId
