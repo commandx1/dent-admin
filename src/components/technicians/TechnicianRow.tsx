@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { Company, Employee } from './types'
 import { Star, ChevronRight, ChevronDown, Building, User, UserPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { StatusBadge } from '../common/StatusBadge'
 import { AddEmployeeModal } from './AddEmployeeModal'
+import { technicianService } from '@/services/technicianService'
 
 interface TechnicianRowProps {
   item: Company | Employee
@@ -14,25 +15,68 @@ interface TechnicianRowProps {
 export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = false, onRefresh }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [photo, setPhoto] = useState<string | null>(null)
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
   // Type guards
-  const isCompany = (obj: unknown): obj is Company => 
-    !!obj && typeof obj === 'object' && 'companyType' in obj
-  
+  const isCompany = (obj: unknown): obj is Company => !!obj && typeof obj === 'object' && 'companyType' in obj
+
   const company = isCompany(item) ? (item as Company) : null
   const employee = !isCompany(item) ? (item as Employee) : null
 
+  const userId = company ? company.ownerUserId : employee?.userId
+
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      if (!userId || (company && company.companyType === 'corporate' && !isSubItem)) return
+
+      try {
+        setIsPhotoLoading(true)
+        const photoBlob = await technicianService.getProfilePhoto(userId)
+        if (photoBlob && photoBlob.size > 0) {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const base64String = reader.result as string
+            // Remove the "data:application/octet-stream;base64," or similar prefix if present,
+            // but for <img> src we can use the whole thing if it's already a data URL.
+            // FileReader.readAsDataURL returns a string starting with "data:..."
+            setPhoto(base64String)
+          }
+          reader.readAsDataURL(photoBlob)
+        }
+      } catch (error) {
+        console.error('Error fetching profile photo:', error)
+      } finally {
+        setIsPhotoLoading(false)
+      }
+    }
+
+    fetchPhoto()
+  }, [userId, company, isSubItem])
+
   const [isActive, setIsActive] = useState<boolean>(item.status === 'Active')
 
-  const handleStatusToggle = () => {
-    setIsActive(!isActive)
+  const handleStatusToggle = async () => {
+    const id = employee ? employee.technicianId : (company?.ownerUserId || company?.companyId)
+    if (!id) return
+
+    try {
+      const nextStatus = !isActive
+      await technicianService.updateStatus(id, nextStatus)
+      setIsActive(nextStatus)
+    } catch (error) {
+      console.error('Failed to update status:', error)
+      throw error // Re-throw to let StatusBadge handle loading state correctly
+    }
   }
 
   const hasEmployees = company && company.employees && company.employees.length > 0
   const isCorporate = company?.companyType === 'corporate'
+  const ownerFullName =
+    company?.ownerFullName || [company?.ownerFirstName, company?.ownerLastName].filter(Boolean).join(' ')
 
   // Formatting for display
-  const name = company ? company.companyName || company.ownerFullName || 'N/A' : employee?.fullName
+  const name = company ? company.companyName || ownerFullName || '' : employee?.fullName
   const type = company
     ? company.companyType === 'corporate'
       ? 'Company'
@@ -68,9 +112,15 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
         </td>
         <td className='py-4 px-4'>
           <div className={cn('flex items-center gap-3', isSubItem && 'pl-4')}>
-            {isCorporate ? (
+            {isCorporate && !isSubItem ? (
               <div className='w-10 h-10 rounded-lg bg-accent-primary/20 flex items-center justify-center border border-accent-primary/30'>
                 <Building className='h-5 w-5 text-accent-primary' />
+              </div>
+            ) : isPhotoLoading ? (
+              <div className='w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
+            ) : photo ? (
+              <div className='w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
+                <img src={photo} alt={name || ''} className='w-full h-full object-cover' />
               </div>
             ) : (
               <div
@@ -113,7 +163,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
           </span>
         </td>
         <td className='py-4 px-4'>
-          <p className='text-slate-800 text-sm'>{email || 'N/A'}</p>
+          <p className='text-slate-800 text-sm'>{email}</p>
           {phone && <p className='text-xs text-slate-500'>{phone}</p>}
         </td>
         <td className='py-4 px-4'>
@@ -121,10 +171,38 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
           <p className='text-xs text-slate-500'>This month: {jobsThisMonth}</p>
         </td>
         <td className='py-4 px-4'>
-          <div className='flex items-center gap-1'>
-            <Star className='h-4 w-4 text-accent-warning fill-accent-warning' />
-            <span className='text-slate-800 font-medium'>{rating?.toFixed(1)}</span>
-            <span className='text-xs text-slate-500'>({ratingCount})</span>
+          <div className='flex flex-col gap-1'>
+            <div className='flex items-center gap-0.5'>
+              {[...Array(5)].map((_, i) => {
+                const isFull = i + 1 <= Math.floor(rating || 0)
+                const isPartial = !isFull && i < (rating || 0)
+                const partialWidth = isPartial ? `${((rating || 0) % 1) * 100}%` : '0%'
+
+                return (
+                  <div key={i} className='relative'>
+                    {/* Alttaki boş/gri yıldız */}
+                    <Star className='h-3.5 w-3.5 text-slate-300 fill-slate-300' />
+                    {/* Üstteki dolan sarı yıldız */}
+                    {(isFull || isPartial) && (
+                      <div
+                        className='absolute inset-0 overflow-hidden'
+                        style={{ width: isFull ? '100%' : partialWidth }}
+                      >
+                        <Star className='h-3.5 w-3.5 text-accent-warning fill-accent-warning' />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div className='flex items-center gap-1.5'>
+              <span className='text-slate-800 font-semibold text-sm'>
+                {rating?.toFixed(1) || '0.0'}
+              </span>
+              <span className='text-[11px] text-slate-500 font-medium'>
+                ({ratingCount || 0} reviews)
+              </span>
+            </div>
           </div>
         </td>
         <td className='py-4 px-4'>

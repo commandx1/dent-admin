@@ -1,10 +1,35 @@
 import api from '@/lib/api';
-import type { TechnicianResponse } from '@/components/technicians/types';
+import type { TechnicianResponse, TechnicianStatistics } from '@/components/technicians/types';
 
 export const technicianService = {
-  getAll: async (page = 0, size = 10) => {
+  getAll: async (page = 0, size = 10, sortBy = 'companyName', sortDirection = 'ASC', searchTerm = '') => {
     const response = await api.get<TechnicianResponse>(`/api/v1/technicians`, {
-      params: { page, size }
+      params: { 
+        page, 
+        size, 
+        sortBy, 
+        sortDirection,
+        ...(searchTerm ? { searchTerm } : {})
+      }
+    });
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await api.get<TechnicianStatistics>(`/api/v1/technicians/statistics`);
+    return response.data;
+  },
+
+  getProfilePhoto: async (userId: string) => {
+    const response = await api.get(`/api/v1/dentists/${userId}/profile-photo`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  updateStatus: async (technicianId: number | string, isActive: boolean) => {
+    const response = await api.patch(`/api/v1/technicians/${technicianId}/status`, null, {
+      params: { isActive: isActive ? 1 : 0 }
     });
     return response.data;
   }

@@ -1,6 +1,6 @@
 import { Users, Building, User, Plus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { Company } from './types'
+import type { Company, TechnicianStatistics } from './types'
 import { TechnicianRow } from './TechnicianRow'
 import { StatsCard } from '../common/StatsCard'
 import { TablePagination } from '../common/TablePagination'
@@ -8,38 +8,52 @@ import { SortButton } from '../common/SortButton'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { technicianService } from '@/services/technicianService'
+import { useAppStore } from '@/store/useAppStore'
+import { useCallback } from 'react'
 
 export const TechnicianManagement = () => {
   const [technicians, setTechnicians] = useState<Company[]>([])
+  const [stats, setStats] = useState<TechnicianStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalElements, setTotalElements] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
+  const [sortBy, setSortBy] = useState('companyName')
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('ASC')
   const navigate = useNavigate()
+  const { searchQuery } = useAppStore()
 
-  const fetchTechnicians = async () => {
+  const fetchTechnicians = useCallback(async () => {
     try {
       setIsLoading(true)
-      const data = await technicianService.getAll(currentPage, itemsPerPage)
+      const [data, statistics] = await Promise.all([
+        technicianService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, searchQuery),
+        technicianService.getStatistics()
+      ])
       setTechnicians(data.content)
       setTotalElements(data.totalElements)
       setTotalPages(data.totalPages)
+      setStats(statistics)
     } catch (error) {
       console.error('Failed to fetch technicians:', error)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, searchQuery])
 
   useEffect(() => {
     fetchTechnicians()
-  }, [currentPage, itemsPerPage])
+  }, [fetchTechnicians])
 
-  const stats = {
-    total: totalElements,
-    corporate: technicians.filter(t => t.companyType === 'corporate').length,
-    individual: technicians.filter(t => t.companyType === 'individual').length
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(prev => prev === 'ASC' ? 'DESC' : 'ASC')
+    } else {
+      setSortBy(field)
+      setSortDirection('ASC')
+    }
+    setCurrentPage(0)
   }
 
   return (
@@ -49,21 +63,21 @@ export const TechnicianManagement = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
           <StatsCard
             title='Total Technicians'
-            value={stats.total.toString()}
+            value={stats?.totalTechnicians.toString() || '0'}
             description='Registered companies/individuals'
             icon={Users}
             accentColor='secondary'
           />
           <StatsCard
             title='Corporate'
-            value={stats.corporate.toString()}
+            value={stats?.totalCorporateCompanies.toString() || '0'}
             description='Multi-member companies'
             icon={Building}
             accentColor='primary'
           />
           <StatsCard
             title='Individual'
-            value={stats.individual.toString()}
+            value={stats?.totalIndividualCompanies.toString() || '0'}
             description='Single-member providers'
             icon={User}
             accentColor='warning'
@@ -105,17 +119,37 @@ export const TechnicianManagement = () => {
                 <tr className='bg-dark-elevated border-b border-dark-border'>
                   <th className='w-10 py-4 px-4'></th>
                   <th className='py-4 px-4 text-left'>
-                    <SortButton label='Name' />
+                    <SortButton 
+                      label='Name' 
+                      isActive={sortBy === 'companyName'}
+                      direction={sortBy === 'companyName' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('companyName')}
+                    />
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <SortButton label='Type' />
+                    <SortButton 
+                      label='Type' 
+                      isActive={sortBy === 'type'}
+                      direction={sortBy === 'type' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('type')}
+                    />
                   </th>
                   <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Contact</th>
                   <th className='py-4 px-4 text-left'>
-                    <SortButton label='Jobs Completed' />
+                    <SortButton 
+                      label='Jobs Completed' 
+                      isActive={sortBy === 'totalCompletedJobs'}
+                      direction={sortBy === 'totalCompletedJobs' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('totalCompletedJobs')}
+                    />
                   </th>
                   <th className='py-4 px-4 text-left'>
-                    <SortButton label='Rating' />
+                    <SortButton 
+                      label='Rating' 
+                      isActive={sortBy === 'averageRating'}
+                      direction={sortBy === 'averageRating' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('averageRating')}
+                    />
                   </th>
                   <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Status</th>
                 </tr>

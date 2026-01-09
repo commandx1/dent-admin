@@ -71,3 +71,9 @@ export interface CompanyMember {
 // For compatibility with existing components if needed, 
 // though it might be better to update them.
 export type TableItem = Company;
+
+export interface TechnicianStatistics {
+  totalCorporateCompanies: number;
+  totalIndividualCompanies: number;
+  totalTechnicians: number;
+}

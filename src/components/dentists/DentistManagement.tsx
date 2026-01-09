@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Users, UserCheck, MapPin, ArrowUp, ArrowDown } from 'lucide-react'
+import { Users, UserCheck, MapPin } from 'lucide-react'
 import { DentistRow } from './DentistRow'
 import type { Dentist } from './types'
 import { StatsCard } from '../common/StatsCard'
@@ -54,11 +54,6 @@ export const DentistManagement = () => {
     setCurrentPage(0)
   }
 
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return undefined
-    return sortDirection === 'ASC' ? ArrowUp : ArrowDown
-  }
-
   return (
     <div className='space-y-8'>
       {/* Stats Section */}
@@ -107,7 +102,7 @@ export const DentistManagement = () => {
                       label='Last Login' 
                       onClick={() => handleSort('lastLogin')}
                       isActive={sortBy === 'lastLogin'}
-                      icon={getSortIcon('lastLogin')}
+                      direction={sortBy === 'lastLogin' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
                     />
                   </th>
                   <th className='py-4 px-4'>
@@ -115,7 +110,7 @@ export const DentistManagement = () => {
                       label='Created At' 
                       onClick={() => handleSort('createdAt')}
                       isActive={sortBy === 'createdAt'}
-                      icon={getSortIcon('createdAt')}
+                      direction={sortBy === 'createdAt' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
                     />
                   </th>
                   <th className='py-4 px-4 text-sm font-semibold text-slate-700'>Actions</th>
