@@ -30,7 +30,11 @@ import api from '@/lib/api'
 
 const CAPABILITIES = [
   { id: 1, label: 'Panoramic 2D/3D CBCT' },
-  { id: 2, label: 'General Equipment (Chair, Delivery System, Autoclave, Pump, Compressor, Cavitron, Ultrasonic, Wall Mount X-Ray, Dental Light)' },
+  {
+    id: 2,
+    label:
+      'General Equipment (Chair, Delivery System, Autoclave, Pump, Compressor, Cavitron, Ultrasonic, Wall Mount X-Ray, Dental Light)'
+  },
   { id: 3, label: 'Hand Pieces' }
 ]
 
@@ -203,9 +207,7 @@ const NewTechnician: React.FC = () => {
   }
 
   const toggleCapability = (id: number) => {
-    setSelectedCapabilities(prev => 
-      prev.includes(id) ? prev.filter(capId => capId !== id) : [...prev, id]
-    )
+    setSelectedCapabilities(prev => (prev.includes(id) ? prev.filter(capId => capId !== id) : [...prev, id]))
   }
 
   const addMember = (member: CompanyMember) => {
@@ -295,15 +297,19 @@ const NewTechnician: React.FC = () => {
         if (finalCompanyId && members.length > 0) {
           for (const member of members) {
             try {
-              await api.post('/api/dentypro/technician/technician', {
-                ...member,
-                company_id: finalCompanyId
-              }, {
-                headers: {
-                  'Authorization': `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-                  'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+              await api.post(
+                '/api/dentypro/technician/technician',
+                {
+                  ...member,
+                  company_id: finalCompanyId
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
+                    'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                  }
                 }
-              })
+              )
             } catch (memberError) {
               console.error('Error creating member:', memberError)
             }
@@ -313,10 +319,19 @@ const NewTechnician: React.FC = () => {
         // Send capabilities if any are selected and we have a userId
         if (userId && selectedCapabilities.length > 0) {
           try {
-            await api.post('/api/dentypro/technician/capabilities', {
-              capability_ids: selectedCapabilities,
-              user_id: userId
-            })
+            await api.post(
+              '/api/dentypro/technician/technician/capabilities',
+              {
+                capability_ids: selectedCapabilities,
+                user_id: userId
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
+                  'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                }
+              }
+            )
           } catch (capError) {
             console.error('Error saving capabilities:', capError)
           }
@@ -629,17 +644,24 @@ const NewTechnician: React.FC = () => {
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   {members.length === 0 ? (
                     <div className='md:col-span-2 py-8 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl'>
-                      <p className='text-slate-400 font-medium'>No members added yet. Click "Add Member" to include team members.</p>
+                      <p className='text-slate-400 font-medium'>
+                        No members added yet. Click "Add Member" to include team members.
+                      </p>
                     </div>
                   ) : (
                     members.map((member, index) => (
-                      <div key={index} className='bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm group hover:border-accent-secondary transition-all'>
+                      <div
+                        key={index}
+                        className='bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm group hover:border-accent-secondary transition-all'
+                      >
                         <div className='flex items-center gap-4'>
                           <div className='w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center'>
                             <User size={20} className='text-slate-400' />
                           </div>
                           <div>
-                            <p className='text-slate-900 font-bold'>{member.user_first_name} {member.user_last_name}</p>
+                            <p className='text-slate-900 font-bold'>
+                              {member.user_first_name} {member.user_last_name}
+                            </p>
                             <p className='text-slate-500 text-xs'>{member.email}</p>
                           </div>
                         </div>
@@ -724,9 +746,11 @@ const NewTechnician: React.FC = () => {
                 Technician Capabilities
               </h3>
               <div className='grid grid-cols-1 gap-4'>
-                <p className='text-sm text-slate-500 mb-2'>Select the equipment types the technician is capable of servicing:</p>
+                <p className='text-sm text-slate-500 mb-2'>
+                  Select the equipment types the technician is capable of servicing:
+                </p>
                 <div className='flex flex-wrap gap-3'>
-                  {CAPABILITIES.map((cap) => (
+                  {CAPABILITIES.map(cap => (
                     <button
                       key={cap.id}
                       type='button'
@@ -737,11 +761,13 @@ const NewTechnician: React.FC = () => {
                           : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200'
                       }`}
                     >
-                      <div className={`min-w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${
-                        selectedCapabilities.includes(cap.id)
-                          ? 'bg-accent-primary border-accent-primary text-white'
-                          : 'bg-white border-slate-200'
-                      }`}>
+                      <div
+                        className={`min-w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${
+                          selectedCapabilities.includes(cap.id)
+                            ? 'bg-accent-primary border-accent-primary text-white'
+                            : 'bg-white border-slate-200'
+                        }`}
+                      >
                         {selectedCapabilities.includes(cap.id) && <Check size={14} strokeWidth={4} />}
                       </div>
                       <span className='font-bold text-sm'>{cap.label}</span>
