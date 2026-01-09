@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Mail, MapPin, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, User, Mail, MapPin, Loader2, CheckCircle2, AlertCircle, Wrench, Check } from 'lucide-react';
 import api from '@/lib/api';
 import AddressAutocomplete from './AddressAutocomplete';
 import type { ParsedAddress } from '@/lib/utils';
-import type { CompanyMember } from './types';
+import { type CompanyMember, CAPABILITIES } from './types';
+import { cn } from '@/lib/utils';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -35,16 +36,23 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     latitude: 0,
     longitude: 0,
   });
+  const [selectedCapabilities, setSelectedCapabilities] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<'success' | 'error' | null>(null);
   const [message, setMessage] = useState('');
 
   if (!isOpen) return null;
 
+  const toggleCapability = (id: number) => {
+    setSelectedCapabilities(prev => 
+      prev.includes(id) ? prev.filter(capId => capId !== id) : [...prev, id]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const payload = {
+    const payload: CompanyMember = {
       company_id: companyId,
       user_first_name: formData.firstName,
       user_last_name: formData.lastName,
@@ -56,7 +64,8 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       country: formData.country,
       latitude: formData.latitude,
       longitude: formData.longitude,
-      is_headquarters: false
+      is_headquarters: false,
+      capability_ids: selectedCapabilities
     };
 
     if (onAdd) {
@@ -73,6 +82,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
         latitude: 0,
         longitude: 0,
       });
+      setSelectedCapabilities([]);
       onClose();
       return;
     }
@@ -89,6 +99,24 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       });
 
       if (response.status === 200 || response.status === 201) {
+        // Send capabilities if any
+        const userId = response.data?.user_id || response.data?.id;
+        if (userId && selectedCapabilities.length > 0) {
+          try {
+            await api.post('/api/dentypro/technician/technician/capabilities', {
+              capability_ids: selectedCapabilities,
+              user_id: userId
+            }, {
+              headers: {
+                'Authorization': `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
+                'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+              }
+            });
+          } catch (capError) {
+            console.error('Error saving member capabilities:', capError);
+          }
+        }
+
         setStatus('success');
         setMessage('Member added successfully!');
         if (onSuccess) onSuccess();
@@ -107,6 +135,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             latitude: 0,
             longitude: 0,
           });
+          setSelectedCapabilities([]);
         }, 2000);
       }
     } catch (error: unknown) {
@@ -205,6 +234,38 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
               </div>
             </div>
           )}
+
+          <div className="space-y-4">
+            <label className="text-sm font-bold text-slate-700 uppercase tracking-wider ml-1 flex items-center gap-2">
+              <Wrench size={16} className="text-accent-primary" />
+              Capabilities
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {CAPABILITIES.map((cap) => (
+                <button
+                  key={cap.id}
+                  type="button"
+                  onClick={() => toggleCapability(cap.id)}
+                  className={cn(
+                    "px-4 py-3 rounded-xl border-2 transition-all text-left flex items-start gap-3 group relative",
+                    selectedCapabilities.includes(cap.id)
+                      ? "bg-accent-primary/5 border-accent-primary text-slate-900 shadow-sm"
+                      : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
+                  )}
+                >
+                  <div className={cn(
+                    "min-w-[18px] h-[18px] rounded border-2 mt-0.5 flex items-center justify-center transition-all",
+                    selectedCapabilities.includes(cap.id)
+                      ? "bg-accent-primary border-accent-primary text-white"
+                      : "bg-white border-slate-300 group-hover:border-slate-400"
+                  )}>
+                    {selectedCapabilities.includes(cap.id) && <Check size={12} strokeWidth={4} />}
+                  </div>
+                  <span className="font-bold text-xs leading-tight">{cap.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {status && (
             <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${

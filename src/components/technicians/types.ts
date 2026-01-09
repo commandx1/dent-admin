@@ -66,7 +66,18 @@ export interface CompanyMember {
   latitude: number
   longitude: number
   is_headquarters: boolean
+  capability_ids?: number[]
 }
+
+export const CAPABILITIES = [
+  { id: 1, label: 'Panoramic 2D/3D CBCT' },
+  {
+    id: 2,
+    label:
+      'General Equipment (Chair, Delivery System, Autoclave, Pump, Compressor, Cavitron, Ultrasonic, Wall Mount X-Ray, Dental Light)'
+  },
+  { id: 3, label: 'Hand Pieces' }
+]
 
 // For compatibility with existing components if needed, 
 // though it might be better to update them.

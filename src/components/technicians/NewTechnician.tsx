@@ -24,19 +24,9 @@ import type { LucideIcon } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import type { ParsedAddress } from '@/lib/utils'
-import type { CompanyMember } from './types'
+import { type CompanyMember, CAPABILITIES } from './types'
 import { technicianService } from '@/services/technicianService'
 import api from '@/lib/api'
-
-const CAPABILITIES = [
-  { id: 1, label: 'Panoramic 2D/3D CBCT' },
-  {
-    id: 2,
-    label:
-      'General Equipment (Chair, Delivery System, Autoclave, Pump, Compressor, Cavitron, Ultrasonic, Wall Mount X-Ray, Dental Light)'
-  },
-  { id: 3, label: 'Hand Pieces' }
-]
 
 type TechnicianType = 'technician_company_admin' | 'technician_individual'
 
@@ -297,7 +287,7 @@ const NewTechnician: React.FC = () => {
         if (finalCompanyId && members.length > 0) {
           for (const member of members) {
             try {
-              await api.post(
+              const memberResponse = await api.post(
                 '/api/dentypro/technician/technician',
                 {
                   ...member,
@@ -310,6 +300,28 @@ const NewTechnician: React.FC = () => {
                   }
                 }
               )
+
+              // Send capabilities for each member if any
+              const memberUserId = memberResponse.data?.user_id || memberResponse.data?.id
+              if (memberUserId && member.capability_ids && member.capability_ids.length > 0) {
+                try {
+                  await api.post(
+                    '/api/dentypro/technician/technician/capabilities',
+                    {
+                      capability_ids: member.capability_ids,
+                      user_id: memberUserId
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
+                        'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                      }
+                    }
+                  )
+                } catch (memberCapError) {
+                  console.error('Error saving member capabilities:', memberCapError)
+                }
+              }
             } catch (memberError) {
               console.error('Error creating member:', memberError)
             }
@@ -755,22 +767,22 @@ const NewTechnician: React.FC = () => {
                       key={cap.id}
                       type='button'
                       onClick={() => toggleCapability(cap.id)}
-                      className={`flex items-center gap-3 px-6 py-4 rounded-2xl border-2 transition-all text-left max-w-2xl ${
+                      className={`flex items-start gap-4 px-6 py-5 rounded-2xl border-2 transition-all text-left max-w-2xl group ${
                         selectedCapabilities.includes(cap.id)
                           ? 'border-accent-primary bg-accent-primary/5 text-slate-900 shadow-sm'
                           : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200'
                       }`}
                     >
                       <div
-                        className={`min-w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${
+                        className={`min-w-[22px] h-[22px] rounded-md mt-0.5 flex items-center justify-center border-2 transition-all ${
                           selectedCapabilities.includes(cap.id)
                             ? 'bg-accent-primary border-accent-primary text-white'
-                            : 'bg-white border-slate-200'
+                            : 'bg-white border-slate-300 group-hover:border-slate-400'
                         }`}
                       >
                         {selectedCapabilities.includes(cap.id) && <Check size={14} strokeWidth={4} />}
                       </div>
-                      <span className='font-bold text-sm'>{cap.label}</span>
+                      <span className='font-bold text-sm leading-snug'>{cap.label}</span>
                     </button>
                   ))}
                 </div>
