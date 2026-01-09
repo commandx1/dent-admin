@@ -76,7 +76,9 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
     company?.ownerFullName || [company?.ownerFirstName, company?.ownerLastName].filter(Boolean).join(' ')
 
   // Formatting for display
-  const name = company ? company.companyName || ownerFullName || '' : employee?.fullName
+  const name = company
+    ? company.companyName || ownerFullName
+    : employee?.fullName || [employee?.firstName, employee?.lastName].filter(Boolean).join(' ')
   const type = company
     ? company.companyType === 'corporate'
       ? 'Company'
