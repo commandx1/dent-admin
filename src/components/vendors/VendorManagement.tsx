@@ -7,72 +7,93 @@ import {
   Import,
   Download,
   Eye,
+  Loader2,
 } from 'lucide-react'
 import { VendorRow } from './VendorRow'
-import type { Vendor } from './types'
+import type { VendorAPIItem, VendorStatistics } from './types'
 import { StatsCard } from '../common/StatsCard'
 import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
-import { useState } from 'react'
-
-const vendorsData: Vendor[] = [
-  {
-    id: '1',
-    name: 'DentalSupply Co.',
-    vendorId: 'VEN-1001',
-    contactPerson: 'Michael Anderson',
-    email: 'm.anderson@dentalsupply.com',
-    phone: '+1 (555) 123-4567',
-    totalProducts: 247,
-    activeProducts: 234,
-    soldCount: 1847,
-    memberSince: 'Jan 15, 2023',
-    status: 'Approved'
-  },
-  {
-    id: '2',
-    name: 'ProDental Supplies',
-    vendorId: 'VEN-1002',
-    contactPerson: 'Sarah Martinez',
-    email: 'sarah.m@prodental.com',
-    phone: '+1 (555) 234-5678',
-    totalProducts: 189,
-    activeProducts: 176,
-    soldCount: 1523,
-    memberSince: 'Mar 22, 2023',
-    status: 'Approved'
-  },
-  {
-    id: '3',
-    name: 'Elite Dental Tech',
-    vendorId: 'VEN-1003',
-    contactPerson: 'James Wilson',
-    email: 'j.wilson@elitedental.com',
-    phone: '+1 (555) 345-6789',
-    totalProducts: 156,
-    activeProducts: 142,
-    soldCount: 987,
-    memberSince: 'May 8, 2023',
-    status: 'Pending'
-  },
-  {
-    id: '4',
-    name: 'MediDental Supply',
-    vendorId: 'VEN-1004',
-    contactPerson: 'Emily Rodriguez',
-    email: 'e.rodriguez@medidental.com',
-    phone: '+1 (555) 456-7890',
-    totalProducts: 203,
-    activeProducts: 198,
-    soldCount: 1342,
-    memberSince: 'Jul 12, 2023',
-    status: 'Approved'
-  }
-]
+import { useState, useEffect, useCallback } from 'react'
+import { vendorService } from '@/services/vendorService'
+import { useAppStore } from '@/store/useAppStore'
+import { CreateSignupLinkModal } from './CreateSignupLinkModal'
 
 export const VendorManagement = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [vendors, setVendors] = useState<VendorAPIItem[]>([])
+  const [stats, setStats] = useState<VendorStatistics | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [sortBy, setSortBy] = useState('createddate')
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
+  const { searchQuery } = useAppStore()
+
+  const fetchVendors = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const data = await vendorService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, searchQuery)
+      setVendors(data.content)
+      setTotalElements(data.totalElements)
+      setTotalPages(data.totalPages)
+    } catch (error) {
+      console.error('Failed to fetch vendors:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, searchQuery])
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await vendorService.getStatistics()
+      setStats(data)
+    } catch (error) {
+      console.error('Failed to fetch vendor statistics:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [searchQuery])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchVendors()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [fetchVendors])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(prev => prev === 'ASC' ? 'DESC' : 'ASC')
+    } else {
+      setSortBy(field)
+      setSortDirection('ASC')
+    }
+    setCurrentPage(0)
+  }
+
+  const handleExport = async () => {
+    try {
+      const blob = await vendorService.export(sortBy, sortDirection, searchQuery);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `vendors_export_${new Date().getTime()}.xlsx`); // Assuming it's an excel file based on common practices
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      console.error('Failed to export vendors:', error);
+    }
+  }
 
   return (
     <div className='space-y-8'>
@@ -81,34 +102,30 @@ export const VendorManagement = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           <StatsCard 
             title="Total Vendors"
-            value="89"
-            description="67 approved, 15 pending, 7 rejected"
+            value={stats?.totalVendors.toString() || '0'}
+            description={`${stats?.lockedVendors || 0} locked vendors`}
             icon={Store}
-            trend={{ value: '15.8%', isUp: true }}
             accentColor="warning"
           />
           <StatsCard 
             title="Total Products"
-            value="1,456"
-            description="1,289 active, 167 inactive"
+            value={stats?.totalProducts.toLocaleString() || '0'}
+            description={`${stats?.activeProducts || 0} active, ${stats?.inactiveProducts || 0} inactive`}
             icon={Box}
-            trend={{ value: '22.4%', isUp: true }}
             accentColor="primary"
           />
           <StatsCard 
             title="Total Sales"
-            value="8,942"
-            description="This month: 1,247 orders"
+            value={stats?.totalSales.toLocaleString() || '0'}
+            description="Total sales count"
             icon={ShoppingCart}
-            trend={{ value: '18.7%', isUp: true }}
             accentColor="success"
           />
           <StatsCard 
             title="Low Stock Alert"
-            value="23"
+            value={stats?.lowStockProducts.toString() || '0'}
             description="Products below threshold"
             icon={AlertTriangle}
-            trend={{ value: '5 items', isUp: true, color: 'danger' }}
             accentColor="danger"
           />
         </div>
@@ -124,7 +141,10 @@ export const VendorManagement = () => {
             </div>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-            <button className='bg-linear-to-br from-accent-primary to-accent-primary/80 hover:from-accent-primary/90 hover:to-accent-primary/70 text-white rounded-lg p-4 flex items-center gap-3 transition-all group'>
+            <button 
+              onClick={() => setIsSignupModalOpen(true)}
+              className='bg-linear-to-br from-accent-primary to-accent-primary/80 hover:from-accent-primary/90 hover:to-accent-primary/70 text-white rounded-lg p-4 flex items-center gap-3 transition-all group'
+            >
               <div className='w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center'>
                 <LinkIcon className='h-6 w-6' />
               </div>
@@ -142,7 +162,10 @@ export const VendorManagement = () => {
                 <p className='text-xs text-slate-500'>Upload Excel/CSV</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button 
+              onClick={handleExport}
+              className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'
+            >
               <div className='w-12 h-12 bg-accent-success/20 rounded-lg flex items-center justify-center'>
                 <Download className='text-accent-success h-6 w-6' />
               </div>
@@ -166,62 +189,105 @@ export const VendorManagement = () => {
 
       {/* Vendor List */}
       <section id='vendor-list'>
-        <div className='bg-dark-surface border border-dark-border rounded-xl overflow-hidden'>
+        <div className='bg-dark-surface border border-dark-border rounded-xl overflow-hidden min-h-[400px] relative'>
+          {isLoading && (
+            <div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center'>
+              <Loader2 className='w-8 h-8 text-accent-primary animate-spin' />
+            </div>
+          )}
           <div className='overflow-x-auto'>
             <table className='w-full'>
               <thead>
                 <tr className='bg-dark-elevated border-b border-dark-border'>
-                  <th className='py-4 px-4 text-left'>
-                    <SortButton label="Vendor Name" isActive />
+                  <th className='py-4 px-6 text-left'>
+                    <SortButton 
+                      label="Vendor Name" 
+                      isActive={sortBy === 'fullname'} 
+                      direction={sortBy === 'fullname' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('fullname')}
+                    />
                   </th>
-                  <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-slate-700'>Contact Person</span>
+                  <th className='py-4 px-6 text-left'>
+                    <span className='text-sm font-semibold text-slate-700'>Full Name</span>
                   </th>
-                  <th className='py-4 px-4 text-left'>
+                  <th className='py-4 px-6 text-left'>
                     <span className='text-sm font-semibold text-slate-700'>Email</span>
                   </th>
-                  <th className='py-4 px-4 text-left'>
+                  <th className='py-4 px-6 text-left'>
                     <span className='text-sm font-semibold text-slate-700'>Phone</span>
                   </th>
-                  <th className='py-4 px-4 text-left'>
-                    <SortButton label="Total Products" />
+                  <th className='py-4 px-6 text-center'>
+                    <SortButton 
+                      label="Total Products" 
+                      isActive={sortBy === 'totalproducts'} 
+                      direction={sortBy === 'totalproducts' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('totalproducts')}
+                    />
                   </th>
-                  <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-slate-700'>Active Products</span>
+                  <th className='py-4 px-6 text-center'>
+                    <SortButton 
+                      label="Active Products" 
+                      isActive={sortBy === 'activeproducts'} 
+                      direction={sortBy === 'activeproducts' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('activeproducts')}
+                    />
                   </th>
-                  <th className='py-4 px-4 text-left'>
-                    <SortButton label="Sold Count" />
+                  <th className='py-4 px-6 text-center'>
+                    <SortButton 
+                      label="Sold Count" 
+                      isActive={sortBy === 'totalsoldcount'} 
+                      direction={sortBy === 'totalsoldcount' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('totalsoldcount')}
+                    />
                   </th>
-                  <th className='py-4 px-4 text-left'>
-                    <span className='text-sm font-semibold text-slate-700'>Member Since</span>
+                  <th className='py-4 px-6 text-left'>
+                    <SortButton 
+                      label="Member Since" 
+                      isActive={sortBy === 'createddate'} 
+                      direction={sortBy === 'createddate' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('createddate')}
+                    />
                   </th>
-                  <th className='py-4 px-4 text-left'>
+                  <th className='py-4 px-6 text-left'>
                     <span className='text-sm font-semibold text-slate-700'>Status</span>
                   </th>
-                  <th className='py-4 px-4 text-left'>
+                  <th className='py-4 px-6 text-left'>
                     <span className='text-sm font-semibold text-slate-700'>Actions</span>
                   </th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-dark-border'>
-                {vendorsData.map(vendor => (
-                  <VendorRow key={vendor.id} vendor={vendor} />
-                ))}
+                {!isLoading && vendors.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className='py-20 text-center text-slate-500'>
+                      No vendors found
+                    </td>
+                  </tr>
+                ) : (
+                  vendors.map(vendor => (
+                    <VendorRow key={vendor.id} vendor={vendor} />
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          <TablePagination
-            currentPage={currentPage}
-            totalPages={12}
-            totalItems={89}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={setItemsPerPage}
-            itemName="vendors"
-          />
-        </div>
-      </section>
-    </div>
-  )
+        <TablePagination
+          currentPage={currentPage + 1}
+          totalPages={totalPages}
+          totalItems={totalElements}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => setCurrentPage(page - 1)}
+          onItemsPerPageChange={setItemsPerPage}
+          itemName="vendors"
+        />
+      </div>
+    </section>
+
+    <CreateSignupLinkModal 
+      isOpen={isSignupModalOpen} 
+      onClose={() => setIsSignupModalOpen(false)} 
+    />
+  </div>
+)
 }

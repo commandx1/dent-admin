@@ -29,26 +29,67 @@ export interface Address {
   formattedAddress: string;
 }
 
-export interface VendorDetail {
-  name: string;
-  surname: string;
-  email: string;
-  password?: string;
-  phoneNumber: string;
-  businessDescribe: string;
-  address: Address;
-}
-
 export interface Product {
   id: string;
-  userId: string;
   productId: string;
   productName: string;
   price: number;
+  oldPrice: number;
   discount: number;
   stock: number;
   active: boolean;
-  coverPhotoPath: string;
+  coverPhotoPath: string | null;
   skuCode: string;
-  subCategoriesId: string;
+  sellCount: number;
+  barcode: string | null;
+  barcodeFormats: string | null;
+  manufacturerCode: string | null;
+}
+
+export interface VendorProductResponse {
+  content: Product[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface VendorStatistics {
+  totalProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
+  totalSales: number;
+  lowStockProducts: number;
+  totalVendors: number;
+  lockedVendors: number;
+}
+
+export interface VendorAPIItem {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+  emailConfirmed: boolean;
+  phoneNumber: string;
+  phoneNumberConfirmed: boolean;
+  twoFactorEnabled: boolean;
+  lockoutEnabled: boolean;
+  lockoutEnd: string | null;
+  accessFailedCount: number;
+  createdDate: string;
+  totalProducts: number;
+  activeProducts: number;
+  fullName: string;
+}
+
+export interface VendorListResponse {
+  content: VendorAPIItem[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }

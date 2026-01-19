@@ -1,105 +1,43 @@
-import React, { useState } from 'react';
-import { 
-  Mail, 
-  Phone, 
-  Building, 
-  MapPin, 
-  Globe, 
+import React, { useState, useEffect, useCallback } from 'react'
+import {
   Edit,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import type { VendorDetail, Product } from './types';
-import { StatusBadge } from '../common/StatusBadge';
-
-const mockVendorDetail: VendorDetail = {
-  name: "Enis",
-  surname: "Atay",
-  email: "ataymustafaenis@gmail.com",
-  password: "Password1234!!",
-  phoneNumber: "5551234567",
-  businessDescribe: "Dental_Service_Industry",
-  address: {
-    title: "Home",
-    fullName: "Enis Atay",
-    phoneNumber: "5551234567",
-    country: "United States",
-    state: "California",
-    city: "New York",
-    district: "Manhattan",
-    postalCode: "10001",
-    addressLine: "350 5th Ave, Apt 12B",
-    defaultAddress: true,
-    latitude: 34.102871, 
-    longitude: -118.337581, 
-    placeId: "ChIJb_kY-XfIwoARh5vV8oJtD7w", 
-    formattedAddress: "6925 Hollywood Blvd, Los Angeles, CA 90028, USA"
-  }
-};
-
-const mockProducts: Product[] = [
-  {
-    id: "68a59fea-e466-4969-8811-1ea0833bb5a3",
-    userId: "81441531-af03-49b0-8b6f-f6103e51bfc1",
-    productId: "f9e79c1e-411f-454e-8f36-543ff4374c8c",
-    productName: "Premium Dental Crown",
-    price: 120.5,
-    discount: 10,
-    stock: 50,
-    active: true,
-    coverPhotoPath: "https://storage.googleapis.com/uxpilot-auth.appspot.com/5d889bf8dc-d29a23cb1ac828ed9751.png",
-    skuCode: "123",
-    subCategoriesId: "12345"
-  },
-  {
-    id: "68a59fea-e466-4969-8811-1ea0833bb5a4",
-    userId: "81441531-af03-49b0-8b6f-f6103e51bfc1",
-    productId: "f9e79c1e-411f-454e-8f36-543ff4374c8c",
-    productName: "Implant Starter Kit",
-    price: 589.0,
-    discount: 25,
-    stock: 89,
-    active: true,
-    coverPhotoPath: "https://storage.googleapis.com/uxpilot-auth.appspot.com/5d889bf8dc-d29a23cb1ac828ed9751.png",
-    skuCode: "SKU-994",
-    subCategoriesId: "12345"
-  },
-  {
-    id: "68a59fea-e466-4969-8811-1ea0833bb5a5",
-    userId: "81441531-af03-49b0-8b6f-f6103e51bfc1",
-    productId: "f9e79c1e-411f-454e-8f36-543ff4374c8c",
-    productName: "Orthodontic Brackets",
-    price: 125.0,
-    discount: 0,
-    stock: 7,
-    active: false,
-    coverPhotoPath: "https://storage.googleapis.com/uxpilot-auth.appspot.com/5d889bf8dc-d29a23cb1ac828ed9751.png",
-    skuCode: "SKU-995",
-    subCategoriesId: "12345"
-  }
-];
+  Loader2,
+  Package,
+} from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import type { Product } from './types'
+import { StatusBadge } from '../common/StatusBadge'
+import { vendorService } from '@/services/vendorService'
+import { TablePagination } from '../common/TablePagination'
+import { SortButton } from '../common/SortButton'
 
 interface ProductRowProps {
-  product: Product;
+  product: Product
 }
 
 const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
-  const [isActive, setIsActive] = useState(product.active);
+  const [isActive, setIsActive] = useState(product.active)
 
   const handleToggle = () => {
-    setIsActive(!isActive);
-  };
+    setIsActive(!isActive)
+  }
 
   return (
     <tr key={product.id} className="hover:bg-dark-elevated/30 transition-all">
       <td className="py-4 px-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-dark-border rounded-lg overflow-hidden shrink-0">
-            <img 
-              src={product.coverPhotoPath} 
-              alt={product.productName}
-              className="w-full h-full object-cover"
-            />
+          <div className="min-w-12 h-12 bg-dark-border rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+            {product.coverPhotoPath ? (
+              <img
+                src={product.coverPhotoPath}
+                alt={product.productName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Package className="text-slate-400 h-6 w-6" />
+            )}
           </div>
           <div>
             <p className="text-slate-900 font-medium">{product.productName}</p>
@@ -122,7 +60,7 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
         </span>
       </td>
       <td className="py-4 px-6">
-        <StatusBadge 
+        <StatusBadge
           status={isActive ? 'Active' : 'Inactive'}
           type={isActive ? 'success' : 'default'}
           onToggle={handleToggle}
@@ -136,134 +74,124 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
         </div>
       </td>
     </tr>
-  );
-};
+  )
+}
 
 export const VendorDetails = () => {
+  const { id } = useParams<{ id: string }>()
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [sortBy, setSortBy] = useState('sellcount')
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
+
+  const fetchProducts = useCallback(async () => {
+    if (!id) return
+    try {
+      setIsLoading(true)
+      const data = await vendorService.getVendorProducts(id, currentPage, itemsPerPage, sortBy, sortDirection)
+      setProducts(data.content)
+      setTotalElements(data.totalElements)
+      setTotalPages(data.totalPages)
+    } catch (error) {
+      console.error('Failed to fetch vendor products:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [id, currentPage, itemsPerPage, sortBy, sortDirection])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(prev => prev === 'ASC' ? 'DESC' : 'ASC')
+    } else {
+      setSortBy(field)
+      setSortDirection('ASC')
+    }
+    setCurrentPage(0)
+  }
+
   return (
-    <div className="space-y-8">
-      {/* Vendor Profile Section */}
-      <section id="vendor-profile">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Info */}
-          <div className="lg:col-span-1">
-            <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 bg-accent-primary/20 rounded-2xl flex items-center justify-center mb-4">
-                  <Building className="text-accent-primary h-12 w-12" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1">{mockVendorDetail.name} {mockVendorDetail.surname}</h3>
-                <p className="text-sm text-slate-500 mb-4">{mockVendorDetail.businessDescribe}</p>
-                
-                <div className="w-full space-y-3 pt-4 border-t border-dark-border">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Mail className="text-slate-500 w-4 h-4 shrink-0" />
-                    <span className="text-slate-700 truncate">{mockVendorDetail.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Phone className="text-slate-500 w-4 h-4 shrink-0" />
-                    <span className="text-slate-700">{mockVendorDetail.phoneNumber}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Globe className="text-slate-500 w-4 h-4 shrink-0" />
-                    <span className="text-slate-700">{mockVendorDetail.address.country}</span>
-                  </div>
-                  <div className="flex items-start gap-3 text-sm">
-                    <MapPin className="text-slate-500 w-4 h-4 shrink-0 mt-0.5" />
-                    <span className="text-slate-700 leading-relaxed">
-                      {mockVendorDetail.address.addressLine}, {mockVendorDetail.address.city}, {mockVendorDetail.address.state} {mockVendorDetail.address.postalCode}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <section id="product-inventory">
+      <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden min-h-[400px] relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-accent-primary animate-spin" />
           </div>
-
-          {/* Detailed Info */}
-          <div className="lg:col-span-3">
-            <div className="bg-dark-surface border border-dark-border rounded-xl p-6">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Business Information</h3>
-                  <p className="text-sm text-slate-500 mt-1">Vendor account and contact details</p>
-                </div>
-                <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                  <Edit className="h-4 w-4 mr-2" /> Edit Profile
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">First Name</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.name}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Last Name</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.surname}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Email Address</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.email}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Phone Number</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.phoneNumber}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Business Type</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.businessDescribe.replaceAll('_', ' ')}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">ZIP Code</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.address.postalCode}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Address</label>
-                  <p className="text-slate-900 font-medium">{mockVendorDetail.address.formattedAddress}</p>
-                </div>
-              </div>
-            </div>
+        )}
+        <div className="p-6 border-b border-dark-border flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">Product Inventory</h3>
+            <p className="text-sm text-slate-500 mt-1">Manage and track product stock and pricing</p>
           </div>
+          <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white">
+            Add New Product
+          </Button>
         </div>
-      </section>
 
-      {/* Product Inventory Section */}
-      <section id="product-inventory">
-        <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-dark-border flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900">Product Inventory</h3>
-              <p className="text-sm text-slate-500 mt-1">Manage and track product stock and pricing</p>
-            </div>
-            <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white">
-              Add New Product
-            </Button>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-dark-elevated/50">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-dark-elevated/50">
+              <tr>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Product</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">
+                  <SortButton 
+                    label="SKU Code" 
+                    isActive={sortBy === 'skucode'} 
+                    direction={sortBy === 'skucode' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                    onClick={() => handleSort('skucode')}
+                  />
+                </th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">
+                  <SortButton 
+                    label="Price" 
+                    isActive={sortBy === 'oldprice'} 
+                    direction={sortBy === 'oldprice' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                    onClick={() => handleSort('oldprice')}
+                  />
+                </th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Discount</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Final Price</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Stock</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Status</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-dark-border">
+              {!isLoading && products.length === 0 ? (
                 <tr>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Product</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">SKU Code</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Price</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Discount</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Final Price</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Stock</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Status</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Actions</th>
+                  <td colSpan={8} className="py-20 text-center text-slate-500">
+                    No products found for this vendor.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-dark-border">
-                {mockProducts.map((product) => (
+              ) : (
+                products.map((product) => (
                   <ProductRow key={product.id} product={product} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      </section>
-    </div>
-  );
-};
+
+        {!isLoading && totalElements > 0 && (
+          <TablePagination
+            currentPage={currentPage + 1}
+            totalPages={totalPages}
+            totalItems={totalElements}
+            itemsPerPage={itemsPerPage}
+            onPageChange={(page) => setCurrentPage(page - 1)}
+            onItemsPerPageChange={setItemsPerPage}
+            itemName="products"
+          />
+        )}
+      </div>
+    </section>
+  )
+}
 
