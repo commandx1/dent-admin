@@ -1,81 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Clock, 
   CheckCircle2, 
   XCircle, 
 } from 'lucide-react';
 import { InvoiceRow } from './InvoiceRow';
-import type { Invoice } from './types';
+import type { Invoice, InvoiceStatistics } from './types';
 import { StatsCard } from '../common/StatsCard';
 import { TablePagination } from '../common/TablePagination';
 import { SortButton } from '../common/SortButton';
-
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    invoiceId: '#INV-2024-1247',
-    dentist: {
-      name: 'Dr. Sarah Mitchell',
-      clinic: 'Smile Dental Clinic',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg'
-    },
-    technician: {
-      name: 'John Smith',
-      company: 'TechCare Solutions',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg'
-    },
-    grossAmount: 3450.00,
-    payoutAmount: 3036.00,
-    remainingAmount: 414.00,
-    status: 'Pending',
-    createdAt: 'Dec 8, 2024',
-    createdTime: '2:30 PM'
-  },
-  {
-    id: '2',
-    invoiceId: '#INV-2024-1246',
-    dentist: {
-      name: 'Dr. Michael Chen',
-      clinic: 'Advanced Dental Care',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg'
-    },
-    technician: {
-      name: 'Robert Johnson',
-      company: 'ProTech Services',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg'
-    },
-    grossAmount: 2890.00,
-    payoutAmount: 2543.20,
-    remainingAmount: 346.80,
-    status: 'Pending',
-    createdAt: 'Dec 8, 2024',
-    createdTime: '11:15 AM'
-  },
-  {
-    id: '3',
-    invoiceId: '#INV-2024-1245',
-    dentist: {
-      name: 'Dr. Emily Rodriguez',
-      clinic: 'Family Dental Group',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg'
-    },
-    technician: {
-      name: 'David Martinez',
-      company: 'Elite Dental Tech',
-      avatar: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-9.jpg'
-    },
-    grossAmount: 1240.00,
-    payoutAmount: 1091.20,
-    remainingAmount: 148.80,
-    status: 'Completed',
-    createdAt: 'Dec 7, 2024',
-    createdTime: '4:45 PM'
-  }
-];
+import { invoiceService } from '@/services/invoiceService';
+import { useAppStore } from '@/store/useAppStore';
+import { formatCurrency } from '@/lib/utils'
 
 export const InvoiceManagement = () => {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [statistics, setStatistics] = useState<InvoiceStatistics | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState('updated_at');
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC');
+  const { searchQuery } = useAppStore();
+
+  const fetchInvoices = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await invoiceService.getAll(currentPage - 1, itemsPerPage, sortBy, sortDirection, searchQuery);
+      setInvoices(data.content);
+      setTotalElements(data.totalElements);
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      console.error('Failed to fetch invoices:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, searchQuery]);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(prev => prev === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSortBy(field);
+      setSortDirection('ASC');
+    }
+    setCurrentPage(1);
+  };
+
+  const fetchStatistics = useCallback(async () => {
+    try {
+      const data = await invoiceService.getStatistics();
+      setStatistics(data);
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchInvoices();
+    }, 500); // Add debounce like in technicians
+    return () => clearTimeout(timer);
+  }, [fetchInvoices]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page on search
+  }, [searchQuery]);
+
+  useEffect(() => {
+    fetchStatistics();
+  }, [fetchStatistics]);
 
   return (
     <div className="space-y-8">
@@ -84,30 +80,27 @@ export const InvoiceManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatsCard 
             title="Pending Invoices"
-            value="45"
-            description="Total: $38,450.00"
+            value={statistics?.pendingCount || 0}
+            description={`Total: ${formatCurrency(statistics?.pendingTotalAmount || 0)}`}
             icon={Clock}
-            trend={{ value: '12.3%', isUp: true }}
             accentColor="warning"
-            footer="Avg per invoice: $854.44"
+            footer={statistics ? `Avg: ${formatCurrency((statistics.pendingTotalAmount || 0) / (statistics.pendingCount || 1))}` : ""}
           />
           <StatsCard 
             title="Completed Invoices"
-            value="287"
-            description="Total: $124,560.00"
+            value={statistics?.approvedCount || 0}
+            description={`Total: ${formatCurrency(statistics?.approvedTotalAmount || 0)}`}
             icon={CheckCircle2}
-            trend={{ value: '18.7%', isUp: true }}
             accentColor="success"
-            footer="Avg per invoice: $434.01"
+            footer={statistics ? `Avg: $${((statistics.approvedTotalAmount || 0) / (statistics.approvedCount || 1)).toFixed(2)}` : ""}
           />
           <StatsCard 
             title="Rejected Invoices"
-            value="10"
-            description="Total: $8,920.00"
+            value={statistics?.rejectedCount || 0}
+            description={`Total: ${formatCurrency(statistics?.rejectedTotalAmount || 0)}`}
             icon={XCircle}
-            trend={{ value: '5.2%', isUp: false, color: 'danger' }}
             accentColor="danger"
-            footer="Avg per invoice: $892.00"
+            footer={statistics ? `Avg: $${((statistics.rejectedTotalAmount || 0) / (statistics.rejectedCount || 1)).toFixed(2)}` : ""}
           />
         </div>
       </section>
@@ -117,46 +110,100 @@ export const InvoiceManagement = () => {
         <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
+              <thead className='truncate'>
                 <tr className="bg-dark-elevated border-b border-dark-border">
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Invoice ID" />
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Invoice ID
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Dentist
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Technician
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Type
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <SortButton label="Dentist" />
+                    <SortButton 
+                      label="Duration (Min)" 
+                      isActive={sortBy === 'duration_minutes'} 
+                      direction={sortBy === 'duration_minutes' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('duration_minutes')}
+                    />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <SortButton label="Technician" />
+                    <SortButton 
+                      label="Service Fee" 
+                      isActive={sortBy === 'service_fee'} 
+                      direction={sortBy === 'service_fee' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('service_fee')}
+                    />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <SortButton label="Gross Amount" />
+                    <SortButton 
+                      label="Gross Amount" 
+                      isActive={sortBy === 'total_amount'} 
+                      direction={sortBy === 'total_amount' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('total_amount')}
+                    />
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-slate-700">Payout (88%)</span>
+                    <SortButton 
+                      label="Payout" 
+                      isActive={sortBy === 'transferred_amount'} 
+                      direction={sortBy === 'transferred_amount' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('transferred_amount')}
+                    />
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Remaining
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Status
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Rejected Reason
+                  </th>
+                  <th className="py-4 px-4 text-left text-sm font-semibold text-slate-700">
+                    Created
                   </th>
                   <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-slate-700">Remaining (12%)</span>
-                  </th>
-                  <th className="py-4 px-4 text-left">
-                    <span className="text-sm font-semibold text-slate-700">Status</span>
-                  </th>
-                  <th className="py-4 px-4 text-left">
-                    <SortButton label="Created" />
+                    <SortButton 
+                      label="Updated At" 
+                      isActive={sortBy === 'updated_at'} 
+                      direction={sortBy === 'updated_at' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
+                      onClick={() => handleSort('updated_at')}
+                    />
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-dark-border">
-                {mockInvoices.map((invoice) => (
-                  <InvoiceRow key={invoice.id} invoice={invoice} />
-                ))}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={13} className="py-10 text-center text-slate-500">
+                      Loading invoices...
+                    </td>
+                  </tr>
+                ) : invoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={13} className="py-10 text-center text-slate-500">
+                      No invoices found.
+                    </td>
+                  </tr>
+                ) : (
+                  invoices.map((invoice) => (
+                    <InvoiceRow key={invoice.id} invoice={invoice} />
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <TablePagination
             currentPage={currentPage}
-            totalPages={35}
-            totalItems={342}
+            totalPages={totalPages}
+            totalItems={totalElements}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             onItemsPerPageChange={setItemsPerPage}
@@ -167,4 +214,3 @@ export const InvoiceManagement = () => {
     </div>
   );
 };
-
