@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { toast } from 'sonner';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/',
@@ -30,7 +31,8 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
-      alert('Unauthorized. Please login again.');
+      toast.error('Unauthorized. Please login again.');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       useAuthStore.getState().logout();
       window.location.href = '/login';
     }
