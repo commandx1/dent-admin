@@ -22,6 +22,8 @@ interface AppState {
     status: 'Completed' | 'Pending' | 'Rejected'
     date: string
   }>
+  selectedDentist: { name: string; companyName: string } | null
+  setSelectedDentist: (dentist: { name: string; companyName: string } | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -29,6 +31,8 @@ export const useAppStore = create<AppState>((set) => ({
   setActivePage: (activePage) => set({ activePage }),
   searchQuery: '',
   setSearchQuery: (searchQuery) => set({ searchQuery }),
+  selectedDentist: null,
+  setSelectedDentist: (selectedDentist) => set({ selectedDentist }),
   
   stats: {
     scheduled: 342,
