@@ -8,7 +8,7 @@ export const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const pathname = location.pathname
-  const { searchQuery, setSearchQuery } = useAppStore()
+  const { searchQuery, setSearchQuery, selectedDentist } = useAppStore()
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
   const isVendorDetails = matchPath('/vendors/:id', pathname)
@@ -18,23 +18,21 @@ export const Header = () => {
   const isInvoicesPage = pathname === '/invoices'
   const showSearch = isDentistsPage || isTechniciansPage || isVendorsPage || isInvoicesPage
 
-  const searchInput = (
-    <div className="relative group">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 group-focus-within:text-accent-primary transition-colors" />
-      <input 
-        type="text" 
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={`Search ${isDentistsPage ? 'dentists' : isTechniciansPage ? 'technicians' : isVendorsPage ? 'vendors' : 'invoices'}...`} 
-        className="bg-dark-elevated border border-dark-border rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-accent-primary w-64 transition-all focus:w-80"
-      />
-    </div>
-  )
-
   const headerContent = useMemo(() => {
+    const searchInput = (
+      <div className="relative group">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 group-focus-within:text-accent-primary transition-colors" />
+        <input 
+          type="text" 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={`Search ${isDentistsPage ? 'dentists' : isTechniciansPage ? 'technicians' : isVendorsPage ? 'vendors' : 'invoices'}...`} 
+          className="bg-dark-elevated border border-dark-border rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-accent-primary w-64 transition-all focus:w-80"
+        />
+      </div>
+    )
+
     if (isDentistDetails) {
-      // Mock data matching the details page
-      const dentistId = isDentistDetails.params.id
       return {
         left: (
           <div className="flex items-center gap-4">
@@ -47,8 +45,9 @@ export const Header = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Dr. Sarah Mitchell</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Smile Dental Clinic • ID: {dentistId}</p>
+              <h2 className="text-xl font-bold text-slate-900">
+                {selectedDentist?.name || 'Loading...'}
+              </h2>
             </div>
           </div>
         ),
@@ -151,7 +150,7 @@ export const Header = () => {
       ),
       right: showSearch ? searchInput : null
     }
-  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, isInvoicesPage])
+  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist])
 
   return (
     <header className='h-[88px] bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>
