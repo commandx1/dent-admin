@@ -13,9 +13,9 @@ import {
   AlertCircle,
   LucideIcon
 } from 'lucide-react'
-import AddressAutocomplete from '@/components/AddressAutocomplete'
-import type { ParsedAddress } from '@/lib/utils/google-maps'
-
+import AddressAutocomplete from './src/components/technicians/AddressAutocomplete'
+import type { ParsedAddress } from './src/lib/utils'
+  
 const API_URL = 'http://qa-92rf.dentypro.com'
 
 type TechnicianType = 'technician_company_admin' | 'technician_individual'
@@ -252,7 +252,7 @@ const TechnicianCreateForm: React.FC = () => {
           message: result.message || 'Failed to create technician'
         })
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus({ type: 'error', message: 'Network error. Please try again.' })
     } finally {
       setIsSubmitting(false)
@@ -260,11 +260,11 @@ const TechnicianCreateForm: React.FC = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-8'>
+    <div className='min-h-screen bg-linear-to-br from-slate-50 to-blue-50 p-4 md:p-8'>
       <div className='max-w-4xl mx-auto'>
         <div className='bg-white rounded-2xl shadow-xl overflow-hidden'>
           {/* Header */}
-          <div className='bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8'>
+          <div className='bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-8'>
             <h1 className='text-2xl font-bold text-white'>Create New Technician</h1>
             <p className='text-blue-100 mt-1'>Fill in the details to register a new technician</p>
           </div>
@@ -542,7 +542,7 @@ const TechnicianCreateForm: React.FC = () => {
               type='button'
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className='w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl
+              className='w-full py-3 px-6 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl
                 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200
                 flex items-center justify-center gap-2'
