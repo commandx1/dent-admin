@@ -28,5 +28,10 @@ export const dentistService = {
   getById: async (id: string) => {
     const response = await api.get<Dentist>(`/api/v1/dentists/${id}`);
     return response.data;
+  },
+
+  getRoleStatistics: async () => {
+    const response = await api.get<{ dentistAdminCount: number; dentistManagerCount: number }>('/api/v1/dentists/role-statistics');
+    return response.data;
   }
 };
