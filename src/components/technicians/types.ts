@@ -16,6 +16,7 @@ export interface Employee {
   lastName: string;
   fullName: string;
   email: string;
+  ownerCapabilityIds: number[];
   telephoneNumber: string;
   isHeadquarters: boolean;
   deleted: boolean;
@@ -31,12 +32,14 @@ export interface Company {
   companyName: string;
   companyType: 'corporate' | 'individual';
   companyCreatedAt: string;
+  ownerCapabilityIds: number[];
   ownerUserId: string | null;
   ownerFirstName: string | null;
   ownerLastName: string | null;
   ownerFullName: string | null;
   ownerEmail: string | null;
   ownerTelephoneNumber: string | null;
+  ownerTechnicianId?: number | null;
   companyRating: Rating;
   companyJobStats: JobStats;
   status: string;
@@ -62,6 +65,7 @@ export interface CompanyMember {
   city: string
   state: string
   zip_code: string
+  capabilityIds?: number[]
   country: string
   latitude: number
   longitude: number

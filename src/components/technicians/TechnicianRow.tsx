@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import type { Company, Employee } from './types'
-import { Star, ChevronRight, ChevronDown, Building, User, UserPlus } from 'lucide-react'
+import React,{ useState,useEffect } from 'react'
+import { CAPABILITIES,type Company,type Employee } from './types'
+import { Star,ChevronRight,ChevronDown,Building,User,UserPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { StatusBadge } from '../common/StatusBadge'
 import { AddEmployeeModal } from './AddEmployeeModal'
@@ -12,11 +12,11 @@ interface TechnicianRowProps {
   onRefresh?: () => void
 }
 
-export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = false, onRefresh }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [photo, setPhoto] = useState<string | null>(null)
-  const [isPhotoLoading, setIsPhotoLoading] = useState(false)
+export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false,onRefresh }) => {
+  const [isExpanded,setIsExpanded] = useState(false)
+  const [isModalOpen,setIsModalOpen] = useState(false)
+  const [photo,setPhoto] = useState<string | null>(null)
+  const [isPhotoLoading,setIsPhotoLoading] = useState(false)
 
   // Type guards
   const isCompany = (obj: unknown): obj is Company => !!obj && typeof obj === 'object' && 'companyType' in obj
@@ -45,27 +45,39 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
           reader.readAsDataURL(photoBlob)
         }
       } catch (error) {
-        console.error('Error fetching profile photo:', error)
+        console.error('Error fetching profile photo:',error)
       } finally {
         setIsPhotoLoading(false)
       }
     }
 
     fetchPhoto()
-  }, [userId, company, isSubItem])
+  },[userId,company,isSubItem])
 
-  const [isActive, setIsActive] = useState<boolean>(item.status === 'Active')
+  const [isActive,setIsActive] = useState<boolean>(item.status === 'Active')
 
   const handleStatusToggle = async () => {
-    const id = employee ? employee.technicianId : (company?.ownerUserId || company?.companyId)
-    if (!id) return
-
     try {
       const nextStatus = !isActive
-      await technicianService.updateStatus(id, nextStatus)
+
+      if (company) {
+        if (company.companyType === 'corporate') {
+          await technicianService.updateCompanyStatus(company.companyId,nextStatus)
+        } else {
+          // individual
+          const techId = company.ownerTechnicianId || company.ownerUserId
+          if (!techId) return
+          await technicianService.updateTechnicianStatus(techId,nextStatus)
+        }
+      } else if (employee) {
+        await technicianService.updateTechnicianStatus(employee.technicianId,nextStatus)
+      } else {
+        return
+      }
+
       setIsActive(nextStatus)
     } catch (error) {
-      console.error('Failed to update status:', error)
+      console.error('Failed to update status:',error)
       throw error // Re-throw to let StatusBadge handle loading state correctly
     }
   }
@@ -73,12 +85,12 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
   const hasEmployees = company && company.employees && company.employees.length > 0
   const isCorporate = company?.companyType === 'corporate'
   const ownerFullName =
-    company?.ownerFullName || [company?.ownerFirstName, company?.ownerLastName].filter(Boolean).join(' ')
+    company?.ownerFullName || [company?.ownerFirstName,company?.ownerLastName].filter(Boolean).join(' ')
 
   // Formatting for display
   const name = company
     ? company.companyName || ownerFullName
-    : employee?.fullName || [employee?.firstName, employee?.lastName].filter(Boolean).join(' ')
+    : employee?.fullName || [employee?.firstName,employee?.lastName].filter(Boolean).join(' ')
   const type = company
     ? company.companyType === 'corporate'
       ? 'Company'
@@ -86,6 +98,12 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
     : employee?.isHeadquarters
       ? 'Admin'
       : 'User'
+  const capabilities = company
+    ? company.ownerCapabilityIds
+    : employee?.ownerCapabilityIds || (employee as Employee & { capabilityIds?: number[] })?.capabilityIds || 0
+  const capabilitiesNames = (capabilities || [])
+    ?.map((capability: number) => CAPABILITIES.find(c => c.id === capability)?.label)
+    .join(', ')
   const email = company ? company.ownerEmail : employee?.email
   const phone = company ? company.ownerTelephoneNumber : employee?.telephoneNumber
   const totalJobs = company ? company.companyJobStats.totalCompletedJobs : employee?.jobStats.totalCompletedJobs
@@ -113,7 +131,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
           )}
         </td>
         <td className='py-4 px-4'>
-          <div className={cn('flex items-center gap-3', isSubItem && 'pl-4')}>
+          <div className={cn('flex items-center gap-3',isSubItem && 'pl-4')}>
             {isCorporate && !isSubItem ? (
               <div className='w-10 h-10 rounded-lg bg-accent-primary/20 flex items-center justify-center border border-accent-primary/30'>
                 <Building className='h-5 w-5 text-accent-primary' />
@@ -122,7 +140,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
               <div className='w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
             ) : photo ? (
               <div className='w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
-                <img src={photo} alt={name || ''} className='w-full h-full object-cover' />
+                <img src={photo} alt={name || ''} className='w-full h-full object-contain' />
               </div>
             ) : (
               <div
@@ -150,14 +168,14 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
             className={cn(
               'px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
               company &&
-                company.companyType === 'corporate' &&
-                'bg-accent-primary/20 text-accent-primary border border-accent-primary/20',
+              company.companyType === 'corporate' &&
+              'bg-accent-primary/20 text-accent-primary border border-accent-primary/20',
               company &&
-                company.companyType === 'individual' &&
-                'bg-accent-warning/20 text-accent-warning border border-accent-warning/20',
+              company.companyType === 'individual' &&
+              'bg-accent-warning/20 text-accent-warning border border-accent-warning/20',
               employee &&
-                employee.isHeadquarters &&
-                'bg-accent-secondary/20 text-accent-secondary border border-accent-secondary/20',
+              employee.isHeadquarters &&
+              'bg-accent-secondary/20 text-accent-secondary border border-accent-secondary/20',
               employee && !employee.isHeadquarters && 'bg-dark-elevated text-slate-500 border border-dark-border'
             )}
           >
@@ -169,13 +187,16 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
           {phone && <p className='text-xs text-slate-500'>{phone}</p>}
         </td>
         <td className='py-4 px-4'>
+          <p className='text-slate-800 text-sm'>{capabilitiesNames}</p>
+        </td>
+        <td className='py-4 px-4'>
           <p className='text-slate-800 font-semibold text-lg'>{totalJobs}</p>
           <p className='text-xs text-slate-500'>This month: {jobsThisMonth}</p>
         </td>
         <td className='py-4 px-4'>
           <div className='flex flex-col gap-1'>
             <div className='flex items-center gap-0.5'>
-              {[...Array(5)].map((_, i) => {
+              {[...Array(5)].map((_,i) => {
                 const isFull = i + 1 <= Math.floor(rating || 0)
                 const isPartial = !isFull && i < (rating || 0)
                 const partialWidth = isPartial ? `${((rating || 0) % 1) * 100}%` : '0%'
@@ -198,12 +219,8 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item, isSubItem = 
               })}
             </div>
             <div className='flex items-center gap-1.5'>
-              <span className='text-slate-800 font-semibold text-sm'>
-                {rating?.toFixed(1) || '0.0'}
-              </span>
-              <span className='text-[11px] text-slate-500 font-medium'>
-                ({ratingCount || 0} reviews)
-              </span>
+              <span className='text-slate-800 font-semibold text-sm'>{rating?.toFixed(1) || '0.0'}</span>
+              <span className='text-[11px] text-slate-500 font-medium'>({ratingCount || 0} reviews)</span>
             </div>
           </div>
         </td>

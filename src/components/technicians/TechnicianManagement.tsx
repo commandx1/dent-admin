@@ -142,6 +142,7 @@ export const TechnicianManagement = () => {
                     />
                   </th>
                   <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Contact</th>
+                  <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Capability</th>
                   <th className='py-4 px-4 text-left'>
                     <SortButton 
                       label='Jobs Completed' 

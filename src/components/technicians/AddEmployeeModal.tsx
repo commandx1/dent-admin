@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Mail, MapPin, Loader2, CheckCircle2, AlertCircle, Wrench, Check } from 'lucide-react';
+import { X, User, Mail, MapPin, Loader2, CheckCircle2, AlertCircle, Wrench } from 'lucide-react';
 import api from '@/lib/api';
 import AddressAutocomplete from './AddressAutocomplete';
 import type { ParsedAddress } from '@/lib/utils';
@@ -44,9 +44,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   if (!isOpen) return null;
 
   const toggleCapability = (id: number) => {
-    setSelectedCapabilities(prev => 
-      prev.includes(id) ? prev.filter(capId => capId !== id) : [...prev, id]
-    );
+    setSelectedCapabilities([id]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -254,12 +252,12 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                   )}
                 >
                   <div className={cn(
-                    "min-w-[18px] h-[18px] rounded border-2 mt-0.5 flex items-center justify-center transition-all",
+                    "min-w-[18px] h-[18px] rounded-full border-2 mt-0.5 flex items-center justify-center transition-all",
                     selectedCapabilities.includes(cap.id)
                       ? "bg-accent-primary border-accent-primary text-white"
                       : "bg-white border-slate-300 group-hover:border-slate-400"
                   )}>
-                    {selectedCapabilities.includes(cap.id) && <Check size={12} strokeWidth={4} />}
+                    {selectedCapabilities.includes(cap.id) && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
                   <span className="font-bold text-xs leading-tight">{cap.label}</span>
                 </button>

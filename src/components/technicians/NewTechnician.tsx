@@ -16,7 +16,6 @@ import {
   Briefcase,
   Trash2,
   Wrench,
-  Check,
   UserPlus,
   Users
 } from 'lucide-react'
@@ -197,7 +196,7 @@ const NewTechnician: React.FC = () => {
   }
 
   const toggleCapability = (id: number) => {
-    setSelectedCapabilities(prev => (prev.includes(id) ? prev.filter(capId => capId !== id) : [...prev, id]))
+    setSelectedCapabilities([id])
   }
 
   const addMember = (member: CompanyMember) => {
@@ -495,7 +494,7 @@ const NewTechnician: React.FC = () => {
               </h3>
               <div className='flex flex-col md:flex-row items-center md:items-start gap-10'>
                 <div className='relative'>
-                  <div className='w-40 h-40 rounded-full bg-slate-100 border-4 border-white shadow-xl flex items-center justify-center overflow-hidden ring-1 ring-slate-200'>
+                  <div className='min-w-40 h-40 rounded-full bg-slate-100 border-4 border-white shadow-xl flex items-center justify-center overflow-hidden ring-1 ring-slate-200'>
                     {photoPreview ? (
                       <img src={photoPreview} alt='Preview' className='w-full h-full object-cover' />
                     ) : (
@@ -774,13 +773,13 @@ const NewTechnician: React.FC = () => {
                       }`}
                     >
                       <div
-                        className={`min-w-[22px] h-[22px] rounded-md mt-0.5 flex items-center justify-center border-2 transition-all ${
+                        className={`min-w-[22px] h-[22px] rounded-full mt-0.5 flex items-center justify-center border-2 transition-all ${
                           selectedCapabilities.includes(cap.id)
                             ? 'bg-accent-primary border-accent-primary text-white'
                             : 'bg-white border-slate-300 group-hover:border-slate-400'
                         }`}
                       >
-                        {selectedCapabilities.includes(cap.id) && <Check size={14} strokeWidth={4} />}
+                        {selectedCapabilities.includes(cap.id) && <div className='w-2 h-2 rounded-full bg-white' />}
                       </div>
                       <span className='font-bold text-sm leading-snug'>{cap.label}</span>
                     </button>
