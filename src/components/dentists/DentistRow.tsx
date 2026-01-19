@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import type { Dentist, SubDentist } from './types'
 import { ChevronRight, ChevronDown, ExternalLink, Mail, Phone, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { technicianService } from '@/services/technicianService'
 
 interface DentistRowProps {
   dentist: Dentist | SubDentist
@@ -13,6 +14,39 @@ interface DentistRowProps {
 export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = false }) => {
   const navigate = useNavigate()
   const [isExpanded, setIsExpanded] = useState(false)
+  const [photo, setPhoto] = useState<string | null>(null)
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      if (!dentist.userId) return
+
+      try {
+        setIsPhotoLoading(true)
+        const photoData = await technicianService.getProfilePhoto(dentist.userId)
+        if (photoData) {
+          if (typeof photoData === 'string') {
+            const finalSrc = photoData.startsWith('data:') 
+              ? photoData 
+              : `data:image/jpeg;base64,${photoData}`
+            setPhoto(finalSrc)
+          } else if (photoData instanceof Blob) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+              setPhoto(reader.result as string)
+            }
+            reader.readAsDataURL(photoData)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching dentist profile photo:', error)
+      } finally {
+        setIsPhotoLoading(false)
+      }
+    }
+
+    fetchPhoto()
+  }, [dentist.userId])
 
   // Type guard to check if it's a main Dentist or SubDentist
   const isMainDentist = 'companyName' in dentist
@@ -21,9 +55,41 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
 
   const formattedLastLogin = dentist.lastLogin ? new Date(dentist.lastLogin).toLocaleString() : 'Never'
 
-  const avatarSrc = dentist.profilePhotoData
-    ? `data:image/png;base64,${dentist.profilePhotoData}`
-    : `https://ui-avatars.com/api/?name=${dentist.firstName}+${dentist.lastName}&background=random`
+  const renderAvatar = () => {
+    if (isPhotoLoading) {
+      return (
+        <div className='w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
+      )
+    }
+
+    if (photo) {
+      return (
+        <div className='min-w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
+          <img src={photo} alt={`${dentist.firstName} ${dentist.lastName}`} className='w-full h-full object-cover' />
+        </div>
+      )
+    }
+
+    if (dentist.profilePhotoData) {
+      return (
+        <div className='w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
+          <img 
+            src={`data:image/png;base64,${dentist.profilePhotoData}`} 
+            alt={`${dentist.firstName} ${dentist.lastName}`} 
+            className='w-full h-full object-cover' 
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className='w-10 h-10 rounded-full bg-dark-elevated flex items-center justify-center border border-dark-border'>
+        <span className='text-xs text-slate-400 font-bold'>
+          {dentist.firstName[0]}{dentist.lastName[0]}
+        </span>
+      </div>
+    )
+  }
 
   const handleRowClick = () => {
     if (hasSubDentists) {
@@ -49,12 +115,8 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
           )}
         </td>
         <td className='py-4 px-4'>
-          <div className='flex items-center gap-3'>
-            <img
-              src={avatarSrc}
-              alt={dentist.firstName}
-              className='min-w-10 h-10 rounded-full object-cover border border-dark-border'
-            />
+          <div className={cn('flex items-center gap-3', isSubItem && 'pl-4')}>
+            {renderAvatar()}
             <span className='text-slate-800 font-medium'>{dentist.firstName}</span>
           </div>
         </td>

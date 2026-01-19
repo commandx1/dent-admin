@@ -1,25 +1,63 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Mail, Phone, Building, MapPin, Clock, CalendarPlus, CalendarCheck, PhoneCall, Video } from 'lucide-react'
+import { Mail, Phone, Building, MapPin, Clock, CalendarPlus, CalendarCheck, PhoneCall, Video, User } from 'lucide-react'
 import { dentistService } from '@/services/dentistService'
 import type { Dentist } from './types'
+import { useAppStore } from '@/store/useAppStore'
+import { technicianService } from '@/services/technicianService'
 
 export const DentistDetails = () => {
   const { id } = useParams<{ id: string }>()
   const [dentist, setDentist] = useState<Dentist | null>(null)
   const [loading, setLoading] = useState(true)
+  const [photo, setPhoto] = useState<string | null>(null)
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false)
+  const { setSelectedDentist } = useAppStore()
 
   useEffect(() => {
     if (id) {
       fetchDentistDetails(id)
     }
-  }, [id])
+    return () => setSelectedDentist(null)
+  }, [id, setSelectedDentist])
+
+  const fetchPhoto = async (userId: string) => {
+    try {
+      setIsPhotoLoading(true)
+      const photoData = await technicianService.getProfilePhoto(userId)
+      if (photoData) {
+        if (typeof photoData === 'string') {
+          const finalSrc = photoData.startsWith('data:') 
+            ? photoData 
+            : `data:image/jpeg;base64,${photoData}`
+          setPhoto(finalSrc)
+        } else if (photoData instanceof Blob) {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setPhoto(reader.result as string)
+          }
+          reader.readAsDataURL(photoData)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching dentist profile photo:', error)
+    } finally {
+      setIsPhotoLoading(false)
+    }
+  }
 
   const fetchDentistDetails = async (dentistId: string) => {
     setLoading(true)
     try {
       const data = await dentistService.getById(dentistId)
       setDentist(data)
+      setSelectedDentist({
+        name: `Dr. ${data.firstName} ${data.lastName}`,
+        companyName: data.companyName
+      })
+      if (data.userId) {
+        fetchPhoto(data.userId)
+      }
     } catch (error) {
       console.error('Failed to fetch dentist details:', error)
     } finally {
@@ -95,9 +133,39 @@ export const DentistDetails = () => {
     return <div className='p-8 text-center text-red-500 text-lg'>Dentist not found.</div>
   }
 
-  const avatarSrc = dentist.profilePhotoData
-    ? `data:image/png;base64,${dentist.profilePhotoData}`
-    : `https://ui-avatars.com/api/?name=${dentist.firstName}+${dentist.lastName}&background=random`
+  const renderAvatar = () => {
+    if (isPhotoLoading) {
+      return (
+        <div className='w-32 h-32 rounded-full bg-slate-200 animate-pulse border-2 border-accent-primary/20 mb-4' />
+      )
+    }
+
+    if (photo) {
+      return (
+        <img
+          src={photo}
+          alt={`Dr. ${dentist!.firstName} ${dentist!.lastName}`}
+          className='min-w-32 h-32 rounded-full mb-4 object-cover border-2 border-accent-primary/20 shadow-lg'
+        />
+      )
+    }
+
+    if (dentist!.profilePhotoData) {
+      return (
+        <img
+          src={`data:image/png;base64,${dentist!.profilePhotoData}`}
+          alt={`Dr. ${dentist!.firstName} ${dentist!.lastName}`}
+          className='min-w-32 h-32 rounded-full mb-4 object-cover border-2 border-accent-primary/20 shadow-lg'
+        />
+      )
+    }
+
+    return (
+      <div className='w-32 h-32 rounded-full bg-dark-elevated flex items-center justify-center border-2 border-accent-primary/20 shadow-lg mb-4'>
+        <User className='h-16 w-16 text-slate-400' />
+      </div>
+    )
+  }
 
   return (
     <div className='space-y-6'>
@@ -107,11 +175,7 @@ export const DentistDetails = () => {
           <div className='lg:col-span-1'>
             <div className='bg-dark-surface border border-dark-border rounded-xl p-6'>
               <div className='flex flex-col items-center'>
-                <img
-                  src={avatarSrc}
-                  alt={`Dr. ${dentist.firstName} ${dentist.lastName}`}
-                  className='w-32 h-32 rounded-full mb-4 object-cover border-2 border-accent-primary/20 shadow-lg'
-                />
+                {renderAvatar()}
                 <h3 className='text-xl font-bold text-slate-900 mb-1 text-center'>
                   Dr. {dentist.firstName} {dentist.lastName}
                 </h3>

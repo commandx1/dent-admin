@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Users, UserCheck, MapPin } from 'lucide-react'
+import { Users, UserCheck } from 'lucide-react'
 import { DentistRow } from './DentistRow'
 import type { Dentist } from './types'
 import { StatsCard } from '../common/StatsCard'
@@ -11,6 +11,7 @@ import { useAppStore } from '@/store/useAppStore'
 export const DentistManagement = () => {
   const [dentists, setDentists] = useState<Dentist[]>([])
   const [loading, setLoading] = useState(true)
+  const [roleStats, setRoleStats] = useState<{ dentistAdminCount: number; dentistManagerCount: number } | null>(null)
   const [currentPage, setCurrentPage] = useState(0) // API is 0-indexed
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalElements, setTotalElements] = useState(0)
@@ -38,6 +39,18 @@ export const DentistManagement = () => {
   }, [searchQuery])
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await dentistService.getRoleStatistics()
+        setRoleStats(stats)
+      } catch (error) {
+        console.error('Failed to fetch role statistics:', error)
+      }
+    }
+    fetchStats()
+  }, [])
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fetchDentists()
     }, 500)
@@ -58,27 +71,20 @@ export const DentistManagement = () => {
     <div className='space-y-8'>
       {/* Stats Section */}
       <section id='dentists-stats'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <StatsCard 
             title='Total Dentists'
-            value={totalElements.toString()}
-            description='Active accounts'
+            value={roleStats?.dentistAdminCount.toString() || '0'}
+            description='Dentist Administrators'
             icon={Users}
             accentColor='primary'
           />
           <StatsCard 
-            title='Active Members'
-            value={totalElements.toString()}
-            description='Total verified members'
+            title='Total Managers'
+            value={roleStats?.dentistManagerCount.toString() || '0'}
+            description='Dentist Managers'
             icon={UserCheck}
             accentColor='success'
-          />
-          <StatsCard 
-            title='Service Locations'
-            value='--'
-            description='Across all dentists'
-            icon={MapPin}
-            accentColor='warning'
           />
         </div>
       </section>
