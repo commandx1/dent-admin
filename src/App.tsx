@@ -11,12 +11,14 @@ import { Login } from "@/components/auth/Login"
 import { ProtectedRoute } from "@/components/common/ProtectedRoute"
 import { useAuthStore } from "@/store/useAuthStore"
 import NewTechnician from './components/technicians/NewTechnician'
+import { Toaster } from 'sonner'
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" richColors />
       <Routes>
         <Route 
           path="/login" 
