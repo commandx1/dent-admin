@@ -78,7 +78,7 @@ export const CAPABILITIES = [
   {
     id: 2,
     label:
-      'General Equipment (Chair, Delivery System, Autoclave, Pump, Compressor, Cavitron, Ultrasonic, Wall Mount X-Ray, Dental Light)'
+      'General Equipment'
   },
   { id: 3, label: 'Hand Pieces' }
 ]
