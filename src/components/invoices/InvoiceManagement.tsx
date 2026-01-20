@@ -13,6 +13,24 @@ import { invoiceService } from '@/services/invoiceService';
 import { useAppStore } from '@/store/useAppStore';
 import { formatCurrency } from '@/lib/utils'
 
+const InvoiceRowSkeleton = () => (
+  <tr className='border-b border-dark-border animate-pulse'>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-32 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-32 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-20 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-12 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-16 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-16 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-16 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-16 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-6 w-20 bg-slate-200 rounded-full' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-20 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-20 bg-slate-200 rounded' /></td>
+  </tr>
+)
+
 export const InvoiceManagement = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [statistics, setStatistics] = useState<InvoiceStatistics | null>(null);
@@ -180,11 +198,7 @@ export const InvoiceManagement = () => {
               </thead>
               <tbody className="divide-y divide-dark-border">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={13} className="py-10 text-center text-slate-500">
-                      Loading invoices...
-                    </td>
-                  </tr>
+                  [...Array(itemsPerPage)].map((_, i) => <InvoiceRowSkeleton key={i} />)
                 ) : invoices.length === 0 ? (
                   <tr>
                     <td colSpan={13} className="py-10 text-center text-slate-500">

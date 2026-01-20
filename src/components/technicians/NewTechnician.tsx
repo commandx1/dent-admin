@@ -9,7 +9,6 @@ import {
   Phone,
   Mail,
   FileText,
-  Loader2,
   CheckCircle2,
   AlertCircle,
   Camera,
@@ -826,7 +825,7 @@ const NewTechnician: React.FC = () => {
                     disabled={isSubmitting}
                     className='w-full sm:w-auto px-8 py-3 bg-linear-to-r from-accent-primary to-indigo-600 text-white font-black rounded-2xl hover:opacity-95 hover:scale-[1.02] hover:shadow-2xl disabled:opacity-60 disabled:scale-100 transition-all flex items-center justify-center gap-4 shadow-xl shadow-blue-500/30 text-sm uppercase tracking-widest'
                   >
-                    {isSubmitting ? <Loader2 size={28} className='animate-spin' /> : <CheckCircle2 size={28} />}
+                    {isSubmitting ? <div className='w-7 h-7 bg-white/20 rounded-lg animate-pulse' /> : <CheckCircle2 size={28} />}
                     {isSubmitting ? 'Creating...' : 'Create Technician'}
                   </button>
                 </div>

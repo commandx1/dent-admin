@@ -1,4 +1,4 @@
-import { Users, Building, User, Plus, Loader2 } from 'lucide-react'
+import { Users, Building, User, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { Company, TechnicianStatistics } from './types'
 import { TechnicianRow } from './TechnicianRow'
@@ -10,6 +10,39 @@ import { useNavigate } from 'react-router-dom'
 import { technicianService } from '@/services/technicianService'
 import { useAppStore } from '@/store/useAppStore'
 import { useCallback } from 'react'
+
+const TechnicianRowSkeleton = () => (
+  <tr className='border-b border-dark-border animate-pulse'>
+    <td className='py-4 px-4'><div className='h-5 w-5 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-4'>
+      <div className='flex items-center gap-3'>
+        <div className='w-10 h-10 rounded-full bg-slate-200' />
+        <div className='h-4 w-32 bg-slate-200 rounded' />
+      </div>
+    </td>
+    <td className='py-4 px-4'><div className='h-6 w-20 bg-slate-200 rounded-full' /></td>
+    <td className='py-4 px-4'>
+      <div className='space-y-2'>
+        <div className='h-4 w-40 bg-slate-200 rounded' />
+        <div className='h-3 w-24 bg-slate-200 rounded' />
+      </div>
+    </td>
+    <td className='py-4 px-4'><div className='h-4 w-48 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'>
+      <div className='space-y-2'>
+        <div className='h-6 w-8 bg-slate-200 rounded' />
+        <div className='h-3 w-16 bg-slate-200 rounded' />
+      </div>
+    </td>
+    <td className='py-4 px-4'>
+      <div className='space-y-2'>
+        <div className='flex gap-1'><div className='w-3 h-3 bg-slate-200 rounded-full' /></div>
+        <div className='h-4 w-20 bg-slate-200 rounded' />
+      </div>
+    </td>
+    <td className='py-4 px-4'><div className='h-8 w-24 bg-slate-200 rounded-full' /></td>
+  </tr>
+)
 
 export const TechnicianManagement = () => {
   const [technicians, setTechnicians] = useState<Company[]>([])
@@ -115,11 +148,6 @@ export const TechnicianManagement = () => {
       {/* Table section */}
       <section id='technicians-table'>
         <div className='bg-dark-surface border border-dark-border rounded-xl overflow-hidden min-h-[400px] relative'>
-          {isLoading && (
-            <div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center'>
-              <Loader2 className='w-8 h-8 text-accent-primary animate-spin' />
-            </div>
-          )}
           <div className='overflow-x-auto'>
             <table className='w-full'>
               <thead>
@@ -163,9 +191,11 @@ export const TechnicianManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {!isLoading && technicians.length === 0 ? (
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => <TechnicianRowSkeleton key={i} />)
+                ) : technicians.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className='py-20 text-center text-slate-500'>
+                    <td colSpan={8} className='py-20 text-center text-slate-500'>
                       No technicians found
                     </td>
                   </tr>

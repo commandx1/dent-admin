@@ -137,19 +137,19 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         <td className='py-4 px-4'>
           <div className={cn('flex items-center gap-3',isSubItem && 'pl-4')}>
             {isCorporate && !isSubItem ? (
-              <div className='w-10 h-10 rounded-lg bg-accent-primary/20 flex items-center justify-center border border-accent-primary/30'>
+              <div className='min-w-10 max-w-10 h-10 rounded-lg bg-accent-primary/20 flex items-center justify-center border border-accent-primary/30'>
                 <Building className='h-5 w-5 text-accent-primary' />
               </div>
             ) : isPhotoLoading ? (
-              <div className='w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
+              <div className='min-w-10 max-w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
             ) : photo ? (
-              <div className='w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
+              <div className='min-w-10 max-w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
                 <img src={photo} alt={name || ''} className='w-full h-full object-contain' />
               </div>
             ) : (
               <div
                 className={cn(
-                  'w-10 h-10 rounded-full bg-dark-elevated flex items-center justify-center border border-dark-border overflow-hidden',
+                  'min-w-10 max-w-10 h-10 rounded-full bg-dark-elevated flex items-center justify-center border border-dark-border overflow-hidden',
                   type === 'Admin'
                     ? 'border-accent-secondary/20 bg-accent-secondary/20'
                     : type === 'Individual'

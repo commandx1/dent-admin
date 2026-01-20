@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Edit,
-  Loader2,
   Package,
 } from 'lucide-react'
 import { useParams } from 'react-router-dom'
@@ -77,6 +76,27 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
   )
 }
 
+const ProductRowSkeleton = () => (
+  <tr className="animate-pulse border-b border-dark-border">
+    <td className="py-4 px-6">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 bg-slate-200 rounded-lg" />
+        <div className="space-y-2">
+          <div className="h-4 w-32 bg-slate-200 rounded" />
+          <div className="h-3 w-20 bg-slate-200 rounded" />
+        </div>
+      </div>
+    </td>
+    <td className="py-4 px-6"><div className="h-4 w-24 bg-slate-200 rounded" /></td>
+    <td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
+    <td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
+    <td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
+    <td className="py-4 px-6"><div className="h-4 w-8 bg-slate-200 rounded" /></td>
+    <td className="py-4 px-6"><div className="h-8 w-24 bg-slate-200 rounded-full" /></td>
+    <td className="py-4 px-6"><div className="h-8 w-8 bg-slate-200 rounded" /></td>
+  </tr>
+)
+
 export const VendorDetails = () => {
   const { id } = useParams<{ id: string }>()
   const [products, setProducts] = useState<Product[]>([])
@@ -120,11 +140,6 @@ export const VendorDetails = () => {
   return (
     <section id="product-inventory">
       <div className="bg-dark-surface border border-dark-border rounded-xl overflow-hidden min-h-[400px] relative">
-        {isLoading && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-accent-primary animate-spin" />
-          </div>
-        )}
         <div className="p-6 border-b border-dark-border flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Product Inventory</h3>
@@ -164,7 +179,9 @@ export const VendorDetails = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-dark-border">
-              {!isLoading && products.length === 0 ? (
+              {isLoading ? (
+                [...Array(5)].map((_, i) => <ProductRowSkeleton key={i} />)
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-20 text-center text-slate-500">
                     No products found for this vendor.

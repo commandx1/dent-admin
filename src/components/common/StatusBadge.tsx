@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Loader2, type LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type StatusType = 'success' | 'warning' | 'danger' | 'info' | 'default'
@@ -60,17 +60,17 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       disabled={isLoading || !onToggle}
       className={cn(
         'px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 transition-all w-fit min-w-[85px] justify-center',
-        !isLoading ? typeStyles[type] : 'bg-dark-elevated text-slate-500 cursor-not-allowed hover:bg-dark-elevated',
+        !isLoading ? typeStyles[type] : 'bg-dark-elevated text-slate-400 cursor-not-allowed animate-pulse',
         !onToggle && !isLoading && 'cursor-default hover:bg-opacity-20',
         className
       )}
     >
-      {isLoading ? (
-        <Loader2 className='h-3 w-3 animate-spin' />
-      ) : Icon ? (
-        <Icon className='h-3 w-3' />
-      ) : (
-        <span className={cn('w-1.5 h-1.5 rounded-full shadow-sm', dotColors[type])}></span>
+      {!isLoading && (
+        Icon ? (
+          <Icon className='h-3 w-3' />
+        ) : (
+          <span className={cn('w-1.5 h-1.5 rounded-full shadow-sm', dotColors[type])}></span>
+        )
       )}
       {isLoading ? 'Updating...' : status}
     </button>

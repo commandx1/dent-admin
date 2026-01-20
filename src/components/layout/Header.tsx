@@ -45,9 +45,13 @@ export const Header = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                {selectedDentist?.name || 'Loading...'}
-              </h2>
+              {selectedDentist?.name ? (
+                <h2 className="text-xl font-bold text-slate-900">
+                  {selectedDentist.name}
+                </h2>
+              ) : (
+                <div className="h-7 w-48 bg-slate-200 rounded animate-pulse" />
+              )}
             </div>
           </div>
         ),

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Mail, Link as LinkIcon, CheckCircle2, AlertCircle, Copy, Loader2 } from 'lucide-react';
+import { X, Mail, Link as LinkIcon, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import { vendorService } from '@/services/vendorService';
 
 interface CreateSignupLinkModalProps {
@@ -28,8 +28,9 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
     try {
       const data = await vendorService.createSignupLink(email);
       setResult(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create signup link');
+    } catch (err: unknown) {
+      const errorData = err as { response?: { data?: { message?: string } } };
+      setError(errorData.response?.data?.message || 'Failed to create signup link');
     } finally {
       setIsLoading(false);
     }
@@ -90,8 +91,14 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
                 disabled={isLoading}
                 className="w-full py-4 bg-accent-primary hover:opacity-90 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-accent-primary/25 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isLoading ? <Loader2 className="animate-spin" size={20} /> : <LinkIcon size={20} />}
-                Create Link
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-75" />
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-150" />
+                  </div>
+                ) : <LinkIcon size={20} />}
+                {isLoading ? 'Creating...' : 'Create Link'}
               </button>
             </form>
           ) : (

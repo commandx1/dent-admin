@@ -8,6 +8,26 @@ import { SortButton } from '../common/SortButton'
 import { dentistService } from '@/services/dentistService'
 import { useAppStore } from '@/store/useAppStore'
 
+const DentistRowSkeleton = () => (
+  <tr className='border-b border-dark-border animate-pulse'>
+    <td className='py-4 px-4'><div className='h-5 w-5 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-4'>
+      <div className='flex items-center gap-3'>
+        <div className='w-10 h-10 rounded-full bg-slate-200' />
+        <div className='h-4 w-32 bg-slate-200 rounded' />
+      </div>
+    </td>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-40 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-48 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-12 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-4'><div className='h-8 w-24 bg-slate-200 rounded-full' /></td>
+  </tr>
+)
+
 export const DentistManagement = () => {
   const [dentists, setDentists] = useState<Dentist[]>([])
   const [loading, setLoading] = useState(true)
@@ -124,11 +144,7 @@ export const DentistManagement = () => {
               </thead>
               <tbody className='divide-y divide-dark-border'>
                 {loading ? (
-                  <tr>
-                    <td colSpan={10} className='py-10 text-center text-slate-500'>
-                      Loading dentists...
-                    </td>
-                  </tr>
+                  [...Array(itemsPerPage)].map((_, i) => <DentistRowSkeleton key={i} />)
                 ) : dentists.length === 0 ? (
                   <tr>
                     <td colSpan={10} className='py-10 text-center text-slate-500'>

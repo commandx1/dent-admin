@@ -7,7 +7,6 @@ import {
   Import,
   Download,
   Eye,
-  Loader2,
 } from 'lucide-react'
 import { VendorRow } from './VendorRow'
 import type { VendorAPIItem, VendorStatistics } from './types'
@@ -18,6 +17,21 @@ import { useState, useEffect, useCallback } from 'react'
 import { vendorService } from '@/services/vendorService'
 import { useAppStore } from '@/store/useAppStore'
 import { CreateSignupLinkModal } from './CreateSignupLinkModal'
+
+const VendorRowSkeleton = () => (
+  <tr className='animate-pulse border-b border-dark-border'>
+    <td className='py-4 px-6'><div className='h-4 w-32 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-32 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-48 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-32 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-12 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-12 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-12 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
+    <td className='py-4 px-6'><div className='h-6 w-20 bg-slate-200 rounded-full' /></td>
+    <td className='py-4 px-6'><div className='h-8 w-8 bg-slate-200 rounded mx-auto' /></td>
+  </tr>
+)
 
 export const VendorManagement = () => {
   const [vendors, setVendors] = useState<VendorAPIItem[]>([])
@@ -190,11 +204,6 @@ export const VendorManagement = () => {
       {/* Vendor List */}
       <section id='vendor-list'>
         <div className='bg-dark-surface border border-dark-border rounded-xl overflow-hidden min-h-[400px] relative'>
-          {isLoading && (
-            <div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center'>
-              <Loader2 className='w-8 h-8 text-accent-primary animate-spin' />
-            </div>
-          )}
           <div className='overflow-x-auto'>
             <table className='w-full'>
               <thead>
@@ -257,7 +266,9 @@ export const VendorManagement = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-dark-border'>
-                {!isLoading && vendors.length === 0 ? (
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => <VendorRowSkeleton key={i} />)
+                ) : vendors.length === 0 ? (
                   <tr>
                     <td colSpan={10} className='py-20 text-center text-slate-500'>
                       No vendors found

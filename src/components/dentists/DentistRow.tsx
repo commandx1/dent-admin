@@ -58,13 +58,13 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
   const renderAvatar = () => {
     if (isPhotoLoading) {
       return (
-        <div className='w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
+        <div className='min-w-10 h-10 rounded-full bg-slate-200 animate-pulse border border-dark-border' />
       )
     }
 
     if (photo) {
       return (
-        <div className='min-w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
+        <div className='min-w-10 max-w-10 h-10 rounded-full border border-dark-border overflow-hidden'>
           <img src={photo} alt={`${dentist.firstName} ${dentist.lastName}`} className='w-full h-full object-cover' />
         </div>
       )

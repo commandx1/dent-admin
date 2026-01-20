@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Mail, MapPin, Loader2, CheckCircle2, AlertCircle, Wrench } from 'lucide-react';
+import { X, User, Mail, MapPin, CheckCircle2, AlertCircle, Wrench } from 'lucide-react';
 import api from '@/lib/api';
 import AddressAutocomplete from './AddressAutocomplete';
 import type { ParsedAddress } from '@/lib/utils';
@@ -285,9 +285,15 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-2 px-6 py-4 bg-accent-primary hover:opacity-90 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-accent-primary/25 disabled:opacity-50"
+              className="flex-2 px-6 py-4 bg-accent-primary hover:opacity-90 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-accent-primary/25 disabled:opacity-50 min-w-[140px]"
             >
-              {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Add Member'}
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-75" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-150" />
+                </div>
+              ) : 'Add Member'}
             </button>
           </div>
         </form>

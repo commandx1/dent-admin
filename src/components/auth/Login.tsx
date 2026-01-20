@@ -136,10 +136,16 @@ export const Login = () => {
 
             <Button
               type="submit"
-              className="w-full py-6 rounded-xl bg-accent-primary hover:bg-accent-primary/90 text-white font-bold text-lg shadow-lg shadow-accent-primary/20 transition-all active:scale-[0.98]"
+              className="w-full py-6 rounded-xl bg-accent-primary hover:bg-accent-primary/90 text-white font-bold text-lg shadow-lg shadow-accent-primary/20 transition-all active:scale-[0.98] min-h-[60px]"
               disabled={loading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-75" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-150" />
+                </div>
+              ) : 'Login'}
             </Button>
           </form>
         ) : (
@@ -173,10 +179,16 @@ export const Login = () => {
 
             <Button
               type="submit"
-              className="w-full py-6 rounded-xl bg-accent-primary hover:bg-accent-primary/90 text-white font-bold text-lg shadow-lg shadow-accent-primary/20 transition-all active:scale-[0.98]"
+              className="w-full py-6 rounded-xl bg-accent-primary hover:bg-accent-primary/90 text-white font-bold text-lg shadow-lg shadow-accent-primary/20 transition-all active:scale-[0.98] min-h-[60px]"
               disabled={loading}
             >
-              {loading ? 'Verifying...' : 'Verify and Login'}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-75" />
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-150" />
+                </div>
+              ) : 'Verify and Login'}
             </Button>
           </form>
         )}

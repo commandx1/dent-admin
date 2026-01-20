@@ -8,7 +8,6 @@ import {
   Phone,
   Mail,
   FileText,
-  Loader2,
   CheckCircle2,
   AlertCircle,
   LucideIcon
@@ -548,10 +547,11 @@ const TechnicianCreateForm: React.FC = () => {
                 flex items-center justify-center gap-2'
             >
               {isSubmitting ? (
-                <>
-                  <Loader2 size={20} className='animate-spin' />
-                  Creating...
-                </>
+                <div className='flex items-center gap-1'>
+                  <div className='w-1.5 h-1.5 bg-white rounded-full animate-pulse' />
+                  <div className='w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-75' />
+                  <div className='w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-150' />
+                </div>
               ) : (
                 'Create Technician'
               )}
