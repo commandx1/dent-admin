@@ -34,9 +34,9 @@ export const technicianService = {
     return response.data;
   },
 
-  updateTechnicianStatus: async (technicianId: number | string, isActive: boolean) => {
-    const response = await api.patch(`/api/v1/technicians/${technicianId}/status`, null, {
-      params: { isActive: isActive ? 1 : 0 }
+  updateTechnicianStatus: async (userId: string, status: string) => {
+    const response = await api.patch(`/api/v1/technicians/users/${userId}/status`, null, {
+      params: { status }
     });
     return response.data;
   }

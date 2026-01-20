@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { StatusBadge } from '../common/StatusBadge'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import { technicianService } from '@/services/technicianService'
+import { Select } from '@/components/ui/select'
 
 interface TechnicianRowProps {
   item: Company | Employee
@@ -54,32 +55,35 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     fetchPhoto()
   },[userId,company,isSubItem])
 
-  const [isActive,setIsActive] = useState<boolean>(item.status === 'Active')
+  const [currentStatus,setCurrentStatus] = useState(item.ownerAccountStatus)
+  const isActive = currentStatus === 'ACTIVE'
+  const isPending = currentStatus === 'PENDING'
 
-  const handleStatusToggle = async () => {
+  const handleStatusChange = async (newStatus: string) => {
     try {
-      const nextStatus = !isActive
-
       if (company) {
         if (company.companyType === 'corporate') {
-          await technicianService.updateCompanyStatus(company.companyId,nextStatus)
+          await technicianService.updateCompanyStatus(company.companyId, newStatus === 'ACTIVE')
         } else {
-          // individual
-          const techId = company.ownerTechnicianId || company.ownerUserId
-          if (!techId) return
-          await technicianService.updateTechnicianStatus(techId,nextStatus)
+          const userId = company.ownerUserId
+          if (!userId) return
+          await technicianService.updateTechnicianStatus(userId, newStatus)
         }
       } else if (employee) {
-        await technicianService.updateTechnicianStatus(employee.technicianId,nextStatus)
+        await technicianService.updateTechnicianStatus(employee.userId, newStatus)
       } else {
         return
       }
 
-      setIsActive(nextStatus)
+      setCurrentStatus(newStatus as 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED')
     } catch (error) {
       console.error('Failed to update status:',error)
-      throw error // Re-throw to let StatusBadge handle loading state correctly
     }
+  }
+
+  const handleStatusToggle = async () => {
+    if (isPending) return
+    await handleStatusChange(isActive ? 'PASSIVE' : 'ACTIVE')
   }
 
   const hasEmployees = company && company.employees && company.employees.length > 0
@@ -166,7 +170,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         <td className='py-4 px-4'>
           <span
             className={cn(
-              'px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
+              'px-2 py-1 rounded-full text-[10px] font-bold capitalize tracking-wider',
               company &&
               company.companyType === 'corporate' &&
               'bg-accent-primary/20 text-accent-primary border border-accent-primary/20',
@@ -226,11 +230,33 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         </td>
         <td className='py-4 px-4'>
           <div className='flex items-center gap-4'>
-            <StatusBadge
-              status={isActive ? 'Active' : 'Inactive'}
-              type={isActive ? 'success' : 'danger'}
-              onToggle={handleStatusToggle}
-            />
+            {isCorporate && !isSubItem ? (
+              <StatusBadge
+                status={isPending ? 'Pending' : (isActive ? 'Active' : 'Inactive')}
+                type={isPending ? 'warning' : (isActive ? 'success' : 'danger')}
+                onToggle={isPending ? undefined : handleStatusToggle}
+              />
+            ) : (
+              <Select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                disabled={isPending}
+                className={cn(
+                  "w-32",
+                  currentStatus === 'ACTIVE' && "text-accent-success border-accent-success/30 bg-accent-success/10",
+                  currentStatus === 'PASSIVE' && "text-accent-danger border-accent-danger/30 bg-accent-danger/10",
+                  currentStatus === 'PENDING' && "text-accent-warning border-accent-warning/30 bg-accent-warning/10",
+                  (currentStatus === 'LOCKED' || currentStatus === 'REVOKED') && "text-slate-500 border-slate-300 bg-slate-100"
+                )}
+              >
+                <option value="ACTIVE">Active</option>
+                <option value="PASSIVE">Passive</option>
+                <option value="PENDING">Pending</option>
+                <option value="LOCKED">Locked</option>
+                <option value="UNLOCKED">Unlocked</option>
+                <option value="REVOKED">Revoked</option>
+              </Select>
+            )}
             {isCorporate && !isSubItem && (
               <button
                 onClick={e => {

@@ -24,6 +24,7 @@ export interface Employee {
   rating: Rating;
   jobStats: JobStats;
   status: string;
+  ownerAccountStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED';
 }
 
 export interface Company {
@@ -43,6 +44,7 @@ export interface Company {
   companyRating: Rating;
   companyJobStats: JobStats;
   status: string;
+  ownerAccountStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED';
   employees: Employee[];
 }
 
