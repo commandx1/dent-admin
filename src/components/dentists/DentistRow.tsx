@@ -53,7 +53,7 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
   const mainDentist = dentist as Dentist
   const hasSubDentists = isMainDentist && mainDentist.subDentists && mainDentist.subDentists.length > 0
 
-  const formattedLastLogin = dentist.lastLogin ? new Date(dentist.lastLogin).toLocaleString() : 'Never'
+  const formattedLastLogin = dentist.lastLogin ? new Date(dentist.lastLogin).toLocaleString('en-US', { timeZone: 'America/New_York' }) : 'Never'
 
   const renderAvatar = () => {
     if (isPhotoLoading) {
@@ -170,7 +170,7 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
           <div className='flex items-center gap-2'>
             <Calendar className='h-3.5 w-3.5 text-slate-400' />
             <p className='text-slate-800 text-sm'>
-              {dentist.createdAt ? new Date(dentist.createdAt).toLocaleDateString() : '--'}
+              {dentist.createdAt ? new Date(dentist.createdAt).toLocaleDateString('en-US', { timeZone: 'America/New_York' }) : '--'}
             </p>
           </div>
         </td>

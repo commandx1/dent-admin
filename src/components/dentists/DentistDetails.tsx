@@ -199,12 +199,12 @@ export const DentistDetails = () => {
                   </div>
                   <div className='flex items-center gap-3 text-sm'>
                     <Clock className='text-slate-400 w-5 h-5 shrink-0' />
-                    <span className='text-slate-700'>Last login: {new Date(dentist.lastLogin).toLocaleString()}</span>
+                    <span className='text-slate-700'>Last login: {new Date(dentist.lastLogin).toLocaleString('en-US', { timeZone: 'America/New_York' })}</span>
                   </div>
                   <div className='flex items-center gap-3 text-sm'>
                     <CalendarPlus className='text-slate-400 w-5 h-5 shrink-0' />
                     <span className='text-slate-700'>
-                      Member since: {new Date(dentist.createdAt).toLocaleDateString()}
+                      Member since: {new Date(dentist.createdAt).toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
                     </span>
                   </div>
                 </div>
@@ -318,7 +318,7 @@ export const DentistDetails = () => {
                     Registration Date
                   </label>
                   <p className='text-slate-800 font-medium text-base'>
-                    {new Date(dentist.createdAt).toLocaleDateString()}
+                    {new Date(dentist.createdAt).toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
                   </p>
                 </div>
               </div>

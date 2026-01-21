@@ -36,7 +36,8 @@ const AppointmentCardSkeleton = () => (
       <div className='h-3 w-20 bg-slate-200 rounded' />
       <div className='h-5 w-16 bg-slate-200 rounded-full' />
     </div>
-    <div className='h-5 w-32 bg-slate-200 rounded mb-2' />
+    <div className='h-5 w-32 bg-slate-200 rounded mb-1' />
+    <div className='h-3 w-48 bg-slate-200 rounded mb-3' />
     <div className='flex items-center gap-2 mb-1'>
       <div className='w-3 h-3 bg-slate-200 rounded-full' />
       <div className='h-3 w-24 bg-slate-200 rounded' />
@@ -216,21 +217,47 @@ export const Dashboard = () => {
                 No upcoming appointments found for the next {daysFromNow} days.
               </div>
             ) : (
-              scheduledAppointments.map(appointment => (
-                <AppointmentCard
-                  key={appointment.appointmentId}
-                  title={appointment.description || 'No Description'}
-                  date={new Date(appointment.scheduledDate).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                  time={appointment.scheduledTime}
-                  dentist={appointment.organizerName}
-                  technician={appointment.serviceProviderName}
-                  variant='primary'
-                />
-              ))
+              scheduledAppointments.map(appointment => {
+                const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
+                
+                const nyTime = appointmentDate.toLocaleTimeString('en-US', {
+                  timeZone: 'America/New_York',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                });
+
+                const nyDate = appointmentDate.toLocaleDateString('en-US', {
+                  timeZone: 'America/New_York',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                });
+
+                const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
+                  timeZone: 'America/New_York',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                });
+
+                return (
+                  <AppointmentCard
+                    key={appointment.appointmentId}
+                    title={appointment.description || 'No Description'}
+                    description={appointment.locationAddress}
+                    date={nyDate}
+                    time={nyTime}
+                    createdAt={nyCreatedAt}
+                    dentist={appointment.organizerName}
+                    technician={appointment.serviceProviderName}
+                    variant='primary'
+                  />
+                )
+              })
             )}
           </div>
         </div>
