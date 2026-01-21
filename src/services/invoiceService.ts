@@ -81,10 +81,8 @@ export const invoiceService = {
     };
   },
 
-  getStatistics: async (days = 30) => {
-    const response = await api.get<InvoiceStatistics>('/api/v1/invoices/statistics', {
-      params: { days }
-    });
+  getStatistics: async () => {
+    const response = await api.get<InvoiceStatistics>('/api/v1/invoices/statistics');
     return response.data;
   },
 };
