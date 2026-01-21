@@ -2,7 +2,6 @@ import React,{ useState,useEffect } from 'react'
 import { CAPABILITIES,type Company,type Employee } from './types'
 import { Star,ChevronRight,ChevronDown,Building,User,UserPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { StatusBadge } from '../common/StatusBadge'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import { technicianService } from '@/services/technicianService'
 import { Select } from '@/components/ui/select'
@@ -16,6 +15,8 @@ interface TechnicianRowProps {
 export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false,onRefresh }) => {
   const [isExpanded,setIsExpanded] = useState(false)
   const [isModalOpen,setIsModalOpen] = useState(false)
+  const [isConfirmOpen,setIsConfirmOpen] = useState(false)
+  const [pendingStatus,setPendingStatus] = useState<string | null>(null)
   const [photo,setPhoto] = useState<string | null>(null)
   const [isPhotoLoading,setIsPhotoLoading] = useState(false)
 
@@ -56,10 +57,16 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
   },[userId,company,isSubItem])
 
   const [currentStatus,setCurrentStatus] = useState(item.ownerAccountStatus)
-  const isActive = currentStatus === 'ACTIVE'
   const isPending = currentStatus === 'PENDING'
 
   const handleStatusChange = async (newStatus: string) => {
+    setPendingStatus(newStatus)
+    setIsConfirmOpen(true)
+  }
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatus) return
+    const newStatus = pendingStatus
     try {
       if (company) {
         if (company.companyType === 'corporate') {
@@ -78,12 +85,10 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
       setCurrentStatus(newStatus as 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED')
     } catch (error) {
       console.error('Failed to update status:',error)
+    } finally {
+      setIsConfirmOpen(false)
+      setPendingStatus(null)
     }
-  }
-
-  const handleStatusToggle = async () => {
-    if (isPending) return
-    await handleStatusChange(isActive ? 'PASSIVE' : 'ACTIVE')
   }
 
   const hasEmployees = company && company.employees && company.employees.length > 0
@@ -230,31 +235,21 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         </td>
         <td className='py-4 px-4'>
           <div className='flex items-center gap-4'>
-            {isCorporate && !isSubItem ? (
-              <StatusBadge
-                status={isPending ? 'Pending' : (isActive ? 'Active' : 'Inactive')}
-                type={isPending ? 'warning' : (isActive ? 'success' : 'danger')}
-                onToggle={isPending ? undefined : handleStatusToggle}
-              />
+            {isPending ? (
+              <div className='px-3 py-1 rounded-full text-xs font-medium bg-accent-warning/20 text-accent-warning border border-accent-warning/30 min-w-[85px] text-center'>
+                Pending
+              </div>
             ) : (
               <Select
-                value={currentStatus}
+                value={currentStatus === 'ACTIVE' ? 'ACTIVE' : 'PASSIVE'}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                disabled={isPending}
                 className={cn(
                   "w-32",
-                  currentStatus === 'ACTIVE' && "text-accent-success border-accent-success/30 bg-accent-success/10",
-                  currentStatus === 'PASSIVE' && "text-accent-danger border-accent-danger/30 bg-accent-danger/10",
-                  currentStatus === 'PENDING' && "text-accent-warning border-accent-warning/30 bg-accent-warning/10",
-                  (currentStatus === 'LOCKED' || currentStatus === 'REVOKED') && "text-slate-500 border-slate-300 bg-slate-100"
+                  currentStatus === 'ACTIVE' ? "text-accent-success border-accent-success/30 bg-accent-success/10" : "text-accent-danger border-accent-danger/30 bg-accent-danger/10"
                 )}
               >
                 <option value="ACTIVE">Active</option>
-                <option value="PASSIVE">Passive</option>
-                <option value="PENDING">Pending</option>
-                <option value="LOCKED">Locked</option>
-                <option value="UNLOCKED">Unlocked</option>
-                <option value="REVOKED">Revoked</option>
+                <option value="PASSIVE">Inactive</option>
               </Select>
             )}
             {isCorporate && !isSubItem && (
@@ -285,6 +280,37 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
           companyName={company.companyName}
           onSuccess={onRefresh}
         />
+      )}
+
+      {/* Confirmation Modal */}
+      {isConfirmOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Emin misiniz?</h3>
+              <p className="text-slate-500">
+                Bu teknisyenin durumunu <strong>{pendingStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</strong> olarak değiştirmek istediğinizden emin misiniz?
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+              <button
+                onClick={() => {
+                  setIsConfirmOpen(false)
+                  setPendingStatus(null)
+                }}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                Vazgeç
+              </button>
+              <button
+                onClick={confirmStatusChange}
+                className="px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+              >
+                Evet, Güncelle
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

@@ -81,7 +81,7 @@ export const invoiceService = {
     };
   },
 
-  getStatistics: async (days: number) => {
+  getStatistics: async (days?: number) => {
     const response = await api.get<InvoiceStatistics>('/api/v1/invoices/statistics', {
       params: days ? { days } : undefined,
     });
