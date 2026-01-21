@@ -38,8 +38,8 @@ const mapAPIItemToInvoice = (item: InvoiceAPIItem): Invoice => {
     invoiceId: item.invoiceNumber,
     dentist: {
       userId: item.serviceRecipientId || item.recipientUserId,
-      name: item.recipientName,
-      clinic: '', 
+      name: [item.serviceProviderName, item.serviceProviderSurname].filter(Boolean).join(' ') || 'Unknown Dentist',
+      clinic: item.recipientName, 
       avatar: '',
     },
     technician: {
