@@ -6,7 +6,6 @@ import { useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Product } from './types'
-import { StatusBadge } from '../common/StatusBadge'
 import { vendorService } from '@/services/vendorService'
 import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
@@ -16,12 +15,6 @@ interface ProductRowProps {
 }
 
 const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
-  const [isActive, setIsActive] = useState(product.active)
-
-  const handleToggle = () => {
-    setIsActive(!isActive)
-  }
-
   return (
     <tr key={product.id} className="hover:bg-dark-elevated/30 transition-all">
       <td className="py-4 px-6">
@@ -57,13 +50,6 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
           {product.stock}
         </span>
       </td>
-      <td className="py-4 px-6">
-        <StatusBadge
-          status={isActive ? 'Active' : 'Inactive'}
-          type={isActive ? 'success' : 'default'}
-          onToggle={handleToggle}
-        />
-      </td>
     </tr>
   )
 }
@@ -84,7 +70,6 @@ const ProductRowSkeleton = () => (
     <td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
     <td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
     <td className="py-4 px-6"><div className="h-4 w-8 bg-slate-200 rounded" /></td>
-    <td className="py-4 px-6"><div className="h-8 w-24 bg-slate-200 rounded-full" /></td>
   </tr>
 )
 
@@ -165,7 +150,6 @@ export const VendorDetails = () => {
                 <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Discount</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Final Price</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Stock</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-slate-700">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-dark-border">
