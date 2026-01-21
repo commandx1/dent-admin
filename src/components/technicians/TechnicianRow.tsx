@@ -287,9 +287,9 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6">
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Emin misiniz?</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Are you sure?</h3>
               <p className="text-slate-500">
-                Bu teknisyenin durumunu <strong>{pendingStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</strong> olarak değiştirmek istediğinizden emin misiniz?
+                Are you sure you want to change this technician's status to <strong>{pendingStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</strong>?
               </p>
             </div>
             <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
@@ -300,13 +300,13 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 }}
                 className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
               >
-                Vazgeç
+                Cancel
               </button>
               <button
                 onClick={confirmStatusChange}
                 className="px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
               >
-                Evet, Güncelle
+                Yes, Update
               </button>
             </div>
           </div>
