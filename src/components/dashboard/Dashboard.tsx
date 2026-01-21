@@ -56,13 +56,14 @@ export const Dashboard = () => {
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(true)
   const [daysFromNow, setDaysFromNow] = useState(7)
+  const [invoiceDaysFromNow, setInvoiceDaysFromNow] = useState(30)
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true)
       const [appData, invData] = await Promise.all([
         appointmentService.getStatistics(),
-        invoiceService.getStatistics()
+        invoiceService.getStatistics(invoiceDaysFromNow)
       ])
       setAppointmentStats(appData)
       setInvoiceStats(invData)
@@ -71,7 +72,7 @@ export const Dashboard = () => {
     } finally {
       setIsLoadingStats(false)
     }
-  }
+  }, [invoiceDaysFromNow])
 
   const fetchScheduled = useCallback(async () => {
     try {
@@ -86,8 +87,11 @@ export const Dashboard = () => {
   }, [daysFromNow])
 
   useEffect(() => {
-    fetchStats()
-  }, [])
+    const timer = setTimeout(() => {
+      fetchStats()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [fetchStats])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -150,7 +154,16 @@ export const Dashboard = () => {
           <div className='flex items-center justify-between mb-6'>
             <div>
               <h3 className='text-lg font-semibold text-slate-800'>Invoice Summary</h3>
-              <p className='text-sm text-slate-500 mt-1'>Current month financial overview</p>
+              <div className='flex items-center gap-2 mt-1'>
+                <p className='text-sm text-slate-500'>Last</p>
+                <input
+                  type='number'
+                  value={invoiceDaysFromNow}
+                  onChange={e => setInvoiceDaysFromNow(parseInt(e.target.value) || 0)}
+                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary'
+                />
+                <p className='text-sm text-slate-500'>days overview</p>
+              </div>
             </div>
           </div>
 

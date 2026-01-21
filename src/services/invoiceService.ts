@@ -19,6 +19,20 @@ const mapAPIItemToInvoice = (item: InvoiceAPIItem): Invoice => {
     'REJECTED': 'Rejected',
   };
 
+  const nyDateOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  };
+
+  const nyTimeOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+
   return {
     id: item.invoiceId,
     invoiceId: item.invoiceNumber,
@@ -42,10 +56,10 @@ const mapAPIItemToInvoice = (item: InvoiceAPIItem): Invoice => {
     status: statusMap[item.invoiceStatus] || 'Pending',
     invoiceType: item.invoiceType,
     rejectedReason: item.rejectedReason,
-    createdAt: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    createdTime: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
-    updatedAt: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    updatedTime: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+    createdAt: date.toLocaleDateString('en-US', nyDateOptions),
+    createdTime: date.toLocaleTimeString('en-US', nyTimeOptions),
+    updatedAt: date.toLocaleDateString('en-US', nyDateOptions),
+    updatedTime: date.toLocaleTimeString('en-US', nyTimeOptions),
   };
 };
 
@@ -67,8 +81,10 @@ export const invoiceService = {
     };
   },
 
-  getStatistics: async () => {
-    const response = await api.get<InvoiceStatistics>('/api/v1/invoices/statistics');
+  getStatistics: async (days = 30) => {
+    const response = await api.get<InvoiceStatistics>('/api/v1/invoices/statistics', {
+      params: { days }
+    });
     return response.data;
   },
 };
