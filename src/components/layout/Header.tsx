@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Mail, Download, MoreVertical, Search } from 'lucide-react'
+import { ArrowLeft, Download, Search } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 
 export const Header = () => {
@@ -60,7 +60,7 @@ export const Header = () => {
     }
 
     if (isVendorDetails) {
-      const vendorId = isVendorDetails.params.id
+      //const vendorId = isVendorDetails.params.id
       return {
         left: (
           <div className="flex items-center gap-4">
@@ -72,27 +72,19 @@ export const Header = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">Enis Atay</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Dental Supply Industry • ID: {vendorId}</p>
-            </div>
+            <h3 className='text-xl font-bold text-slate-900'>
+              Vendor Details
+            </h3>
           </div>
         ),
         right: (
           <div className="flex items-center gap-4">
-            {searchInput}
-            <div className="flex items-center gap-3 border-l border-dark-border pl-4">
+            <div className="flex items-center gap-3">
               <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 Impersonate
               </Button>
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
-                <Mail className="h-4 w-4 mr-2" /> Send Email
-              </Button>
               <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
                 <Download className="h-4 w-4 mr-2" /> Export
-              </Button>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
-                <MoreVertical className="h-5 w-5" />
               </Button>
             </div>
           </div>
