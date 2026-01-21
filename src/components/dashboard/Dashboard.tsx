@@ -58,6 +58,11 @@ export const Dashboard = () => {
   const [daysFromNow, setDaysFromNow] = useState(7)
   const [invoiceDaysFromNow, setInvoiceDaysFromNow] = useState(30)
 
+  const handleNumericInput = (value: string, setter: (val: number) => void) => {
+    const numericValue = value.replace(/[^0-9]/g, '')
+    setter(parseInt(numericValue) || 0)
+  }
+
   const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true)
@@ -157,10 +162,11 @@ export const Dashboard = () => {
               <div className='flex items-center gap-2 mt-1'>
                 <p className='text-sm text-slate-500'>Last</p>
                 <input
-                  type='number'
+                  type='text'
+                  inputMode='numeric'
                   value={invoiceDaysFromNow}
-                  onChange={e => setInvoiceDaysFromNow(parseInt(e.target.value) || 0)}
-                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary'
+                  onChange={e => handleNumericInput(e.target.value, setInvoiceDaysFromNow)}
+                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
                 />
                 <p className='text-sm text-slate-500'>days overview</p>
               </div>
@@ -208,10 +214,11 @@ export const Dashboard = () => {
               <div className='flex items-center gap-2 mt-1'>
                 <p className='text-sm text-slate-500'>Next</p>
                 <input
-                  type='number'
+                  type='text'
+                  inputMode='numeric'
                   value={daysFromNow}
-                  onChange={e => setDaysFromNow(parseInt(e.target.value) || 0)}
-                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary'
+                  onChange={e => handleNumericInput(e.target.value, setDaysFromNow)}
+                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
                 />
                 <p className='text-sm text-slate-500'>days overview</p>
               </div>
