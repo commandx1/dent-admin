@@ -266,7 +266,7 @@ export const VendorManagement = () => {
                   [...Array(5)].map((_, i) => <VendorRowSkeleton key={i} />)
                 ) : vendors.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className='py-20 text-center text-slate-500'>
+                    <td colSpan={9} className='py-20 text-center text-slate-500'>
                       No vendors found
                     </td>
                   </tr>
