@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { VendorAPIItem } from './types';
 import { Store } from 'lucide-react';
-import { StatusBadge } from '../common/StatusBadge';
 
 interface VendorRowProps {
   vendor: VendorAPIItem;
@@ -13,10 +12,6 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
 
   const handleViewDetails = () => {
     navigate(`/vendors/${vendor.id}`);
-  };
-
-  const handleStatusToggle = () => {
-    // Status toggle logic if needed, API not explicitly provided for this yet
   };
 
   const formattedDate = new Date(vendor.createdDate).toLocaleDateString('en-US', {
@@ -54,13 +49,6 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
         <span className="text-slate-800 font-semibold">0</span>
       </td>
       <td className="py-4 px-6 text-slate-500 text-sm">{formattedDate}</td>
-      <td className="py-4 px-6">
-        <StatusBadge 
-          status={vendor.lockoutEnabled ? 'Locked' : 'Active'}
-          type={vendor.lockoutEnabled ? 'danger' : 'success'}
-          onToggle={handleStatusToggle}
-        />
-      </td>
       <td className="py-4 px-6">
         <button 
           onClick={(e) => { e.stopPropagation(); handleViewDetails(); }}

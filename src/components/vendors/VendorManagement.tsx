@@ -28,8 +28,7 @@ const VendorRowSkeleton = () => (
     <td className='py-4 px-6'><div className='h-4 w-12 bg-slate-200 rounded mx-auto' /></td>
     <td className='py-4 px-6'><div className='h-4 w-12 bg-slate-200 rounded mx-auto' /></td>
     <td className='py-4 px-6'><div className='h-4 w-24 bg-slate-200 rounded' /></td>
-    <td className='py-4 px-6'><div className='h-6 w-20 bg-slate-200 rounded-full' /></td>
-    <td className='py-4 px-6'><div className='h-8 w-8 bg-slate-200 rounded mx-auto' /></td>
+    <td className='py-4 px-6'><div className='h-4 w-20 bg-slate-200 rounded' /></td>
   </tr>
 )
 
@@ -256,9 +255,6 @@ export const VendorManagement = () => {
                       direction={sortBy === 'createddate' ? sortDirection.toLowerCase() as 'asc' | 'desc' : undefined}
                       onClick={() => handleSort('createddate')}
                     />
-                  </th>
-                  <th className='py-4 px-6 text-left'>
-                    <span className='text-sm font-semibold text-slate-700'>Status</span>
                   </th>
                   <th className='py-4 px-6 text-left'>
                     <span className='text-sm font-semibold text-slate-700'>Actions</span>
