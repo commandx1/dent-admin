@@ -56,9 +56,17 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     fetchPhoto()
   },[userId,company,isSubItem])
 
-  const [currentStatus,setCurrentStatus] = useState(
-    isSubItem && employee ? employee.accountStatus : item.ownerAccountStatus
-  )
+  const getInitialStatus = () => {
+    if (isSubItem && employee) {
+      return employee.accountStatus
+    }
+    if (company) {
+      return company.deleted === 'True' ? 'PASSIVE' : 'ACTIVE'
+    }
+    return item.ownerAccountStatus
+  }
+
+  const [currentStatus,setCurrentStatus] = useState(getInitialStatus())
   const isPending = currentStatus === 'PENDING'
 
   const handleStatusChange = async (newStatus: string) => {

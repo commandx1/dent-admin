@@ -45,6 +45,7 @@ export interface Company {
   companyRating: Rating;
   companyJobStats: JobStats;
   status: string;
+  deleted: 'True' | 'False';
   ownerAccountStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED';
   employees: Employee[];
 }
