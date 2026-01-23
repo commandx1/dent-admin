@@ -5,7 +5,9 @@ import { InvoiceTable } from './InvoiceTable'
 import { CalendarCheck, PhoneCall, Video } from 'lucide-react'
 import { appointmentService, type AppointmentStatistics, type ScheduledAppointment } from '@/services/appointmentService'
 import { invoiceService } from '@/services/invoiceService'
+import { technicianService } from '@/services/technicianService'
 import type { InvoiceStatistics } from '../invoices/types'
+import { toast } from 'sonner'
 
 const StatCardSkeleton = () => (
   <div className='bg-dark-elevated rounded-lg p-5 border border-dark-elevated animate-pulse'>
@@ -53,6 +55,7 @@ export const Dashboard = () => {
   const [appointmentStats, setAppointmentStats] = useState<AppointmentStatistics | null>(null)
   const [invoiceStats, setInvoiceStats] = useState<InvoiceStatistics | null>(null)
   const [scheduledAppointments, setScheduledAppointments] = useState<ScheduledAppointment[]>([])
+  const [technicians, setTechnicians] = useState<Array<{ id: string, name: string }>>([])
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(true)
   const [daysFromNow, setDaysFromNow] = useState(7)
@@ -82,7 +85,7 @@ export const Dashboard = () => {
   const fetchScheduled = useCallback(async () => {
     try {
       setIsLoadingAppointments(true)
-      const data = await appointmentService.getScheduled(0, 50, daysFromNow) // Increased size to get enough for both
+      const data = await appointmentService.getScheduled(0, 50, daysFromNow)
       setScheduledAppointments(data.content)
     } catch (error) {
       console.error('Failed to fetch scheduled appointments:', error)
@@ -90,6 +93,53 @@ export const Dashboard = () => {
       setIsLoadingAppointments(false)
     }
   }, [daysFromNow])
+
+  const fetchTechniciansList = useCallback(async () => {
+    try {
+      // Fetching a larger list to have options
+      const data = await technicianService.getAll(0, 100, 'companyName', 'ASC')
+      const formattedTechs: Array<{ id: string, name: string }> = []
+      
+      data.content.forEach(company => {
+        if (company.companyType === 'individual') {
+          // If it's an individual, add the owner
+          if (company.ownerUserId) {
+            formattedTechs.push({
+              id: company.ownerUserId,
+              name: company.ownerFullName || [company.ownerFirstName, company.ownerLastName].filter(Boolean).join(' ') || company.companyName || 'Unknown Individual',
+              // Keep company name for matching fallback
+              companyName: company.companyName
+            } as { id: string, name: string, companyName?: string })
+          }
+        } else if (company.companyType === 'corporate') {
+          // If it's corporate, add only the employees
+          if (company.employees) {
+            company.employees.forEach(emp => {
+              formattedTechs.push({
+                id: emp.userId,
+                name: emp.fullName || [emp.firstName, emp.lastName].filter(Boolean).join(' ') || 'Unknown Employee'
+              })
+            })
+          }
+        }
+      })
+      
+      setTechnicians(formattedTechs)
+    } catch (error) {
+      console.error('Failed to fetch technicians list:', error)
+    }
+  }, [])
+
+  const handleTechnicianChange = async (appointmentId: string, newTechnicianId: string) => {
+    try {
+      await appointmentService.changeTechnician(appointmentId, newTechnicianId)
+      toast.success('Technician updated successfully')
+      fetchScheduled() // Refresh the list
+    } catch (error) {
+      console.error('Failed to update technician:', error)
+      toast.error('Failed to update technician')
+    }
+  }
 
   const approvedAppointments = useMemo(() => 
     scheduledAppointments.filter(app => app.appointmentStatus === 'APPROVED'),
@@ -114,6 +164,10 @@ export const Dashboard = () => {
     }, 500)
     return () => clearTimeout(timer)
   }, [fetchScheduled])
+
+  useEffect(() => {
+    fetchTechniciansList()
+  }, [fetchTechniciansList])
 
   return (
     <div className='space-y-8'>
@@ -287,6 +341,7 @@ export const Dashboard = () => {
 
                   return (
                     <AppointmentCard
+                      id={appointment.appointmentId}
                       key={appointment.appointmentId}
                       title={appointment.description || 'No Description'}
                       description={appointment.locationAddress}
@@ -295,7 +350,10 @@ export const Dashboard = () => {
                       createdAt={nyCreatedAt}
                       dentist={appointment.organizerName}
                       technician={appointment.serviceProviderName}
+                      technicianId={appointment.serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
                       variant='success'
+                      technicianOptions={technicians}
+                      onTechnicianChange={handleTechnicianChange}
                     />
                   )
                 })
@@ -352,6 +410,7 @@ export const Dashboard = () => {
 
                   return (
                     <AppointmentCard
+                      id={appointment.appointmentId}
                       key={appointment.appointmentId}
                       title={appointment.description || 'No Description'}
                       description={appointment.locationAddress}
@@ -360,7 +419,10 @@ export const Dashboard = () => {
                       createdAt={nyCreatedAt}
                       dentist={appointment.organizerName}
                       technician={appointment.serviceProviderName}
+                      technicianId={appointment.serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
                       variant='warning'
+                      technicianOptions={technicians}
+                      onTechnicianChange={handleTechnicianChange}
                     />
                   )
                 })

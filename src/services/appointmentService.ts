@@ -23,6 +23,7 @@ export interface ScheduledAppointment {
   scheduledTime: string;
   organizerName: string;
   serviceProviderName: string;
+  serviceProviderId: string;
   locationAddress: string;
   appointmentStatus: 'PENDING' | 'APPROVED';
 }
@@ -51,6 +52,14 @@ export const appointmentService = {
         daysFromNow,
         sortDirection,
       },
+    });
+    return response.data;
+  },
+
+  changeTechnician: async (appointmentId: string, newTechnicianId: string) => {
+    const response = await api.put('/api/v1/appointments/change-technician', {
+      appointmentId,
+      newTechnicianId,
     });
     return response.data;
   },
