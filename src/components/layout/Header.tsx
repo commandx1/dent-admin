@@ -16,7 +16,7 @@ export const Header = () => {
   const isTechniciansPage = pathname === '/technicians'
   const isVendorsPage = pathname === '/vendors' || !!isVendorDetails
   const isInvoicesPage = pathname === '/invoices'
-  const showSearch = isDentistsPage || isTechniciansPage || isVendorsPage || isInvoicesPage
+  const showSearch = isDentistsPage || isVendorsPage || isInvoicesPage
 
   const headerContent = useMemo(() => {
     const searchInput = (
