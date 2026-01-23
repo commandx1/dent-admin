@@ -59,24 +59,34 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
   const [totalPages, setTotalPages] = useState(0)
   const [sortBy, setSortBy] = useState('companyName')
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('ASC')
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const fetchTechnicians = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const data = await technicianService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, type)
-      setTechnicians(data.content)
-      setTotalElements(data.totalElements)
-      setTotalPages(data.totalPages)
-    } catch (error) {
-      console.error(`Failed to fetch ${type} technicians:`, error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, itemsPerPage, sortBy, sortDirection, type])
+  const handleRefresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1)
+  }, [])
 
   useEffect(() => {
-    fetchTechnicians()
-  }, [fetchTechnicians])
+    let ignore = false
+    const loadTechnicians = async () => {
+      try {
+        setIsLoading(true)
+        const data = await technicianService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, type)
+        if (!ignore) {
+          setTechnicians(data.content)
+          setTotalElements(data.totalElements)
+          setTotalPages(data.totalPages)
+        }
+      } catch (error) {
+        console.error(`Failed to fetch ${type} technicians:`, error)
+      } finally {
+        if (!ignore) {
+          setIsLoading(false)
+        }
+      }
+    }
+    loadTechnicians()
+    return () => { ignore = true }
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, type, refreshKey])
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -152,9 +162,9 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
                   </td>
                 </tr>
               ) : (
-                technicians.map(item => (
-                  <TechnicianRow key={item.companyId} item={item} onRefresh={fetchTechnicians} />
-                ))
+                    technicians.map(item => (
+                      <TechnicianRow key={item.companyId} item={item} onRefresh={handleRefresh} />
+                    ))
               )}
             </tbody>
           </table>
@@ -178,18 +188,21 @@ export const TechnicianManagement = () => {
   const [stats, setStats] = useState<TechnicianStatistics | null>(null)
   const navigate = useNavigate()
 
-  const fetchStats = useCallback(async () => {
-    try {
-      const statistics = await technicianService.getStatistics()
-      setStats(statistics)
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error)
-    }
-  }, [])
-
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    let ignore = false
+    const loadStats = async () => {
+      try {
+        const statistics = await technicianService.getStatistics()
+        if (!ignore) {
+          setStats(statistics)
+        }
+      } catch (error) {
+        console.error('Failed to fetch statistics:', error)
+      }
+    }
+    loadStats()
+    return () => { ignore = true }
+  }, [])
 
   return (
     <div className='space-y-8'>
