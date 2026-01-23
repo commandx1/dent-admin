@@ -10,9 +10,10 @@ interface TechnicianRowProps {
   item: Company | Employee
   isSubItem?: boolean
   onRefresh?: () => void
+  parentCompany?: Company
 }
 
-export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false, onRefresh }) => {
+export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false, onRefresh, parentCompany }) => {
   const [isExpanded,setIsExpanded] = useState(false)
   const [isModalOpen,setIsModalOpen] = useState(false)
   const [isConfirmOpen,setIsConfirmOpen] = useState(false)
@@ -98,6 +99,21 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         }
       } else if (employee) {
         await technicianService.updateTechnicianStatus(employee.userId, newStatus)
+        
+        // If an employee is being activated but their parent company is inactive, activate the company too
+        if (newStatus === 'ACTIVE' && parentCompany && parentCompany.deleted === 'True') {
+          await technicianService.updateCompanyStatus(parentCompany.companyId, true)
+        }
+
+        // If an employee is being deactivated and all other employees are already inactive, deactivate the company too
+        if (newStatus !== 'ACTIVE' && parentCompany && parentCompany.deleted === 'False') {
+          const otherEmployeesActive = parentCompany.employees?.some(emp => 
+            emp.userId !== employee.userId && emp.accountStatus === 'ACTIVE'
+          )
+          if (!otherEmployeesActive) {
+            await technicianService.updateCompanyStatus(parentCompany.companyId, false)
+          }
+        }
       } else {
         return
       }
@@ -292,7 +308,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
       </tr>
 
       {/* Sub Technicians Rows */}
-      {isExpanded && company?.employees?.map(emp => <TechnicianRow key={emp.technicianId} item={emp} isSubItem onRefresh={onRefresh} />)}
+      {isExpanded && company?.employees?.map(emp => <TechnicianRow key={emp.technicianId} item={emp} isSubItem onRefresh={onRefresh} parentCompany={company} />)}
 
       {/* Modal for adding company user */}
       {company && isCorporate && (
