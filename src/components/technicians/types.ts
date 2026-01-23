@@ -25,6 +25,7 @@ export interface Employee {
   jobStats: JobStats;
   status: string;
   ownerAccountStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED';
+  accountStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED';
 }
 
 export interface Company {
