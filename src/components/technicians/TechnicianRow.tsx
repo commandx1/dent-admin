@@ -12,7 +12,7 @@ interface TechnicianRowProps {
   onRefresh?: () => void
 }
 
-export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false,onRefresh }) => {
+export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = false, onRefresh }) => {
   const [isExpanded,setIsExpanded] = useState(false)
   const [isModalOpen,setIsModalOpen] = useState(false)
   const [isConfirmOpen,setIsConfirmOpen] = useState(false)
@@ -85,6 +85,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
       }
 
       setCurrentStatus(newStatus as 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'UNLOCKED' | 'PASSIVE' | 'REVOKED')
+      onRefresh?.()
     } catch (error) {
       console.error('Failed to update status:',error)
     } finally {
@@ -242,17 +243,19 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 Pending
               </div>
             ) : (
-              <Select
-                value={currentStatus === 'ACTIVE' ? 'ACTIVE' : 'PASSIVE'}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className={cn(
-                  "w-32",
-                  currentStatus === 'ACTIVE' ? "text-accent-success border-accent-success/30 bg-accent-success/10" : "text-accent-danger border-accent-danger/30 bg-accent-danger/10"
-                )}
-              >
-                <option value="ACTIVE">Active</option>
-                <option value="PASSIVE">Inactive</option>
-              </Select>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Select
+                  value={currentStatus === 'ACTIVE' ? 'ACTIVE' : 'PASSIVE'}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className={cn(
+                    "w-32",
+                    currentStatus === 'ACTIVE' ? "text-accent-success border-accent-success/30 bg-accent-success/10" : "text-accent-danger border-accent-danger/30 bg-accent-danger/10"
+                  )}
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="PASSIVE">Inactive</option>
+                </Select>
+              </div>
             )}
             {isCorporate && !isSubItem && (
               <button
@@ -271,7 +274,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
       </tr>
 
       {/* Sub Technicians Rows */}
-      {isExpanded && company?.employees?.map(emp => <TechnicianRow key={emp.technicianId} item={emp} isSubItem />)}
+      {isExpanded && company?.employees?.map(emp => <TechnicianRow key={emp.technicianId} item={emp} isSubItem onRefresh={onRefresh} />)}
 
       {/* Modal for adding company user */}
       {company && isCorporate && (
