@@ -186,6 +186,7 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
 
 export const TechnicianManagement = () => {
   const [stats, setStats] = useState<TechnicianStatistics | null>(null)
+  const [activeTab, setActiveTab] = useState<'corporate' | 'individual'>('corporate')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -233,14 +234,39 @@ export const TechnicianManagement = () => {
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section id='technicians-actions'>
+      <section id='technicians-actions' className='space-y-6'>
         <div className='bg-dark-surface border border-dark-border rounded-xl p-6'>
           <div className='flex items-center justify-between'>
-            <div>
-              <h3 className='text-lg font-semibold text-slate-900 mb-2'>Quick Actions</h3>
-              <p className='text-sm text-slate-500'>Create new technician profiles</p>
+            <div className='flex items-center gap-8'>
+              {/* Tabs */}
+              <div className='flex items-center bg-dark-elevated p-1 rounded-lg border border-dark-border'>
+                <button
+                  onClick={() => setActiveTab('corporate')}
+                  className={cn(
+                    'px-6 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2',
+                    activeTab === 'corporate' 
+                      ? 'bg-white text-accent-primary shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  <Building className='h-4 w-4' />
+                  Company
+                </button>
+                <button
+                  onClick={() => setActiveTab('individual')}
+                  className={cn(
+                    'px-6 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2',
+                    activeTab === 'individual' 
+                      ? 'bg-white text-accent-warning shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  <User className='h-4 w-4' />
+                  Individual
+                </button>
+              </div>
             </div>
+            
             <div className='flex items-center gap-3'>
               <Button
                 onClick={() => navigate('/technicians/new')}
@@ -254,9 +280,13 @@ export const TechnicianManagement = () => {
       </section>
 
       {/* Table section */}
-      <section id='technicians-tables' className='space-y-12'>
-        <TechnicianList type="corporate" title="Corporate Technicians" icon={Building} />
-        <TechnicianList type="individual" title="Individual Technicians" icon={User} />
+      <section id='technicians-list'>
+        <TechnicianList 
+          key={activeTab}
+          type={activeTab} 
+          title={activeTab === 'corporate' ? "Corporate Technicians" : "Individual Technicians"} 
+          icon={activeTab === 'corporate' ? Building : User} 
+        />
       </section>
     </div>
   )
