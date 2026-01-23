@@ -3,7 +3,6 @@ import {
   Package,
 } from 'lucide-react'
 import { useParams } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Product } from './types'
 import { vendorService } from '@/services/vendorService'
@@ -121,9 +120,6 @@ export const VendorDetails = () => {
             <h3 className="text-lg font-semibold text-slate-900">Product Inventory</h3>
             <p className="text-sm text-slate-500 mt-1">Manage and track product stock and pricing</p>
           </div>
-          <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white">
-            Add New Product
-          </Button>
         </div>
 
         <div className="overflow-x-auto">

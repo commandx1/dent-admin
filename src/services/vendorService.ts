@@ -53,4 +53,28 @@ export const vendorService = {
     });
     return response.data;
   },
+
+  importProducts: async (email: string, file: File) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('file', file);
+    const response = await api.post('/api/user-products/import-xlsx', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  exportVendorProducts: async (vendorId: string, sortBy = 'oldprice', sortDirection = 'DESC', searchTerm = '') => {
+    const response = await api.get(`/api/v1/vendors/exportVendorProducts/${vendorId}`, {
+      params: {
+        sortBy,
+        sortDirection,
+        ...(searchTerm ? { searchTerm } : {}),
+      },
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };

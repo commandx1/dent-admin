@@ -3,6 +3,7 @@ import { useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Download, Search } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
+import { vendorService } from '@/services/vendorService'
 
 export const Header = () => {
   const location = useLocation()
@@ -19,6 +20,21 @@ export const Header = () => {
   const showSearch = isDentistsPage || isVendorsPage || isInvoicesPage
 
   const headerContent = useMemo(() => {
+    const handleVendorProductExport = async (vendorId: string) => {
+      try {
+        const blob = await vendorService.exportVendorProducts(vendorId, 'oldprice', 'DESC', searchQuery);
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `vendor_products_${vendorId}_${new Date().getTime()}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode?.removeChild(link);
+      } catch (error) {
+        console.error('Failed to export vendor products:', error);
+      }
+    }
+
     const searchInput = (
       <div className="relative group">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 group-focus-within:text-accent-primary transition-colors" />
@@ -60,7 +76,7 @@ export const Header = () => {
     }
 
     if (isVendorDetails) {
-      //const vendorId = isVendorDetails.params.id
+      const vendorId = isVendorDetails.params.id || ''
       return {
         left: (
           <div className="flex items-center gap-4">
@@ -83,7 +99,10 @@ export const Header = () => {
               <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
                 Impersonate
               </Button>
-              <Button className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10">
+              <Button 
+                onClick={() => handleVendorProductExport(vendorId)}
+                className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10"
+              >
                 <Download className="h-4 w-4 mr-2" /> Export
               </Button>
             </div>

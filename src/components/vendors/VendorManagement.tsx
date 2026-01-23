@@ -17,6 +17,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { vendorService } from '@/services/vendorService'
 import { useAppStore } from '@/store/useAppStore'
 import { CreateSignupLinkModal } from './CreateSignupLinkModal'
+import { ImportProductsModal } from './ImportProductsModal'
 
 const VendorRowSkeleton = () => (
   <tr className='animate-pulse border-b border-dark-border'>
@@ -37,6 +38,7 @@ export const VendorManagement = () => {
   const [stats, setStats] = useState<VendorStatistics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalElements, setTotalElements] = useState(0)
@@ -166,7 +168,10 @@ export const VendorManagement = () => {
                 <p className='text-xs opacity-90'>Generate vendor registration</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button 
+              onClick={() => setIsImportModalOpen(true)}
+              className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'
+            >
               <div className='w-12 h-12 bg-accent-secondary/20 rounded-lg flex items-center justify-center'>
                 <Import className='text-accent-secondary h-6 w-6' />
               </div>
@@ -294,6 +299,11 @@ export const VendorManagement = () => {
     <CreateSignupLinkModal 
       isOpen={isSignupModalOpen} 
       onClose={() => setIsSignupModalOpen(false)} 
+    />
+
+    <ImportProductsModal
+      isOpen={isImportModalOpen}
+      onClose={() => setIsImportModalOpen(false)}
     />
   </div>
 )
