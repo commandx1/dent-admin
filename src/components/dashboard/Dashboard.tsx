@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { StatCard } from './StatCard'
 import { AppointmentCard } from './AppointmentCard'
 import { InvoiceTable } from './InvoiceTable'
@@ -82,7 +82,7 @@ export const Dashboard = () => {
   const fetchScheduled = useCallback(async () => {
     try {
       setIsLoadingAppointments(true)
-      const data = await appointmentService.getScheduled(0, 10, daysFromNow)
+      const data = await appointmentService.getScheduled(0, 50, daysFromNow) // Increased size to get enough for both
       setScheduledAppointments(data.content)
     } catch (error) {
       console.error('Failed to fetch scheduled appointments:', error)
@@ -90,6 +90,16 @@ export const Dashboard = () => {
       setIsLoadingAppointments(false)
     }
   }, [daysFromNow])
+
+  const approvedAppointments = useMemo(() => 
+    scheduledAppointments.filter(app => app.appointmentStatus === 'APPROVED'),
+    [scheduledAppointments]
+  )
+  
+  const pendingAppointments = useMemo(() => 
+    scheduledAppointments.filter(app => app.appointmentStatus === 'PENDING'),
+    [scheduledAppointments]
+  )
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -205,12 +215,13 @@ export const Dashboard = () => {
         </div>
       </section>
 
-      {/* Upcoming Appointments */}
-      <section>
+      {/* Appointments Sections */}
+      <section className='space-y-6'>
+        {/* Header with day filter */}
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
-          <div className='flex items-center justify-between mb-6'>
+          <div className='flex items-center justify-between'>
             <div>
-              <h3 className='text-lg font-semibold text-slate-800'>Upcoming Scheduled Appointments</h3>
+              <h3 className='text-lg font-semibold text-slate-800'>Scheduled Appointments Overview</h3>
               <div className='flex items-center gap-2 mt-1'>
                 <p className='text-sm text-slate-500'>Next</p>
                 <input
@@ -224,61 +235,137 @@ export const Dashboard = () => {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-            {isLoadingAppointments ? (
-              <>
-                <AppointmentCardSkeleton />
-                <AppointmentCardSkeleton />
-                <AppointmentCardSkeleton />
-              </>
-            ) : scheduledAppointments.length === 0 ? (
-              <div className='col-span-full py-10 text-center text-slate-500 bg-dark-elevated rounded-xl border border-dark-border'>
-                No upcoming appointments found for the next {daysFromNow} days.
-              </div>
-            ) : (
-              scheduledAppointments.map(appointment => {
-                const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
-                
-                const nyTime = appointmentDate.toLocaleTimeString('en-US', {
-                  timeZone: 'America/New_York',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                });
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+          {/* Approved Appointments */}
+          <div className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <h4 className='font-bold text-slate-800 flex items-center gap-2'>
+                <span className='w-2 h-2 rounded-full bg-accent-success'></span>
+                Approved Appointments
+                <span className='ml-2 text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full'>
+                  {isLoadingAppointments ? '...' : approvedAppointments.length}
+                </span>
+              </h4>
+            </div>
+            
+            <div className='grid grid-cols-1 gap-4'>
+              {isLoadingAppointments ? (
+                <>
+                  <AppointmentCardSkeleton />
+                  <AppointmentCardSkeleton />
+                </>
+              ) : approvedAppointments.length === 0 ? (
+                <div className='py-10 text-center text-slate-500 bg-dark-surface rounded-xl border border-dark-border border-dashed'>
+                  No approved appointments
+                </div>
+              ) : (
+                approvedAppointments.map(appointment => {
+                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
+                  const nyTime = appointmentDate.toLocaleTimeString('en-US', {
+                    timeZone: 'America/New_York',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  });
+                  const nyDate = appointmentDate.toLocaleDateString('en-US', {
+                    timeZone: 'America/New_York',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
+                  const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
+                    timeZone: 'America/New_York',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  });
 
-                const nyDate = appointmentDate.toLocaleDateString('en-US', {
-                  timeZone: 'America/New_York',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                });
+                  return (
+                    <AppointmentCard
+                      key={appointment.appointmentId}
+                      title={appointment.description || 'No Description'}
+                      description={appointment.locationAddress}
+                      date={nyDate}
+                      time={nyTime}
+                      createdAt={nyCreatedAt}
+                      dentist={appointment.organizerName}
+                      technician={appointment.serviceProviderName}
+                      variant='success'
+                    />
+                  )
+                })
+              )}
+            </div>
+          </div>
 
-                const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
-                  timeZone: 'America/New_York',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                });
+          {/* Pending Appointments */}
+          <div className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <h4 className='font-bold text-slate-800 flex items-center gap-2'>
+                <span className='w-2 h-2 rounded-full bg-accent-warning'></span>
+                Pending Appointments
+                <span className='ml-2 text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full'>
+                  {isLoadingAppointments ? '...' : pendingAppointments.length}
+                </span>
+              </h4>
+            </div>
 
-                return (
-                  <AppointmentCard
-                    key={appointment.appointmentId}
-                    title={appointment.description || 'No Description'}
-                    description={appointment.locationAddress}
-                    date={nyDate}
-                    time={nyTime}
-                    createdAt={nyCreatedAt}
-                    dentist={appointment.organizerName}
-                    technician={appointment.serviceProviderName}
-                    variant='primary'
-                  />
-                )
-              })
-            )}
+            <div className='grid grid-cols-1 gap-4'>
+              {isLoadingAppointments ? (
+                <>
+                  <AppointmentCardSkeleton />
+                  <AppointmentCardSkeleton />
+                </>
+              ) : pendingAppointments.length === 0 ? (
+                <div className='py-10 text-center text-slate-500 bg-dark-surface rounded-xl border border-dark-border border-dashed'>
+                  No pending appointments
+                </div>
+              ) : (
+                pendingAppointments.map(appointment => {
+                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
+                  const nyTime = appointmentDate.toLocaleTimeString('en-US', {
+                    timeZone: 'America/New_York',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  });
+                  const nyDate = appointmentDate.toLocaleDateString('en-US', {
+                    timeZone: 'America/New_York',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
+                  const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
+                    timeZone: 'America/New_York',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  });
+
+                  return (
+                    <AppointmentCard
+                      key={appointment.appointmentId}
+                      title={appointment.description || 'No Description'}
+                      description={appointment.locationAddress}
+                      date={nyDate}
+                      time={nyTime}
+                      createdAt={nyCreatedAt}
+                      dentist={appointment.organizerName}
+                      technician={appointment.serviceProviderName}
+                      variant='warning'
+                    />
+                  )
+                })
+              )}
+            </div>
           </div>
         </div>
       </section>

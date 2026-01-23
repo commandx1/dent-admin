@@ -24,6 +24,7 @@ export interface ScheduledAppointment {
   organizerName: string;
   serviceProviderName: string;
   locationAddress: string;
+  appointmentStatus: 'PENDING' | 'APPROVED';
 }
 
 export interface ScheduledAppointmentResponse {
