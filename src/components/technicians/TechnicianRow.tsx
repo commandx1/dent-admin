@@ -80,7 +80,17 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     try {
       if (company) {
         if (company.companyType === 'corporate') {
+          // Update company status
           await technicianService.updateCompanyStatus(company.companyId, newStatus === 'ACTIVE')
+          
+          // Update all employees to match the new company status
+          if (company.employees && company.employees.length > 0) {
+            await Promise.all(
+              company.employees.map(emp => 
+                technicianService.updateTechnicianStatus(emp.userId, newStatus)
+              )
+            )
+          }
         } else {
           const userId = company.ownerUserId
           if (!userId) return
