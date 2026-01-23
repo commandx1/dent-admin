@@ -61,7 +61,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     if (isSubItem && employee) {
       return employee.accountStatus
     }
-    if (company) {
+    if (company?.companyType === 'corporate') {
       return company.deleted === 'True' ? 'PASSIVE' : 'ACTIVE'
     }
     return item.ownerAccountStatus
