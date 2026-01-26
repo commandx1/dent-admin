@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { StatCard } from './StatCard'
 import { AppointmentCard } from './AppointmentCard'
 import { InvoiceTable } from './InvoiceTable'
-import { CalendarCheck, PhoneCall, Video } from 'lucide-react'
+import { CalendarCheck, PhoneCall, Video, CheckCircle2, Clock } from 'lucide-react'
 import { appointmentService, type AppointmentStatistics, type ScheduledAppointment } from '@/services/appointmentService'
 import { invoiceService } from '@/services/invoiceService'
 import { technicianService } from '@/services/technicianService'
 import type { InvoiceStatistics } from '../invoices/types'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 const StatCardSkeleton = () => (
   <div className='bg-dark-elevated rounded-lg p-5 border border-dark-elevated animate-pulse'>
@@ -66,6 +67,8 @@ export const Dashboard = () => {
     setter(parseInt(numericValue) || 0)
   }
 
+  const [activeTab, setActiveTab] = useState<'approved' | 'pending'>('approved')
+
   const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true)
@@ -103,7 +106,7 @@ export const Dashboard = () => {
       data.content.forEach(company => {
         if (company.companyType === 'individual') {
           // If it's an individual, add the owner
-          if (company.ownerUserId) {
+          if (company.ownerUserId && company.ownerAccountStatus === 'ACTIVE') {
             formattedTechs.push({
               id: company.ownerUserId,
               name: company.ownerFullName || [company.ownerFirstName, company.ownerLastName].filter(Boolean).join(' ') || company.companyName || 'Unknown Individual',
@@ -115,10 +118,12 @@ export const Dashboard = () => {
           // If it's corporate, add only the employees
           if (company.employees) {
             company.employees.forEach(emp => {
-              formattedTechs.push({
-                id: emp.userId,
-                name: emp.fullName || [emp.firstName, emp.lastName].filter(Boolean).join(' ') || 'Unknown Employee'
-              })
+              if (emp.accountStatus === 'ACTIVE') {
+                formattedTechs.push({
+                  id: emp.userId,
+                  name: emp.fullName || [emp.firstName,emp.lastName].filter(Boolean).join(' ') || 'Unknown Employee'
+                })
+              }
             })
           }
         }
@@ -269,11 +274,10 @@ export const Dashboard = () => {
         </div>
       </section>
 
-      {/* Appointments Sections */}
+      {/* Appointments Section */}
       <section className='space-y-6'>
-        {/* Header with day filter */}
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
-          <div className='flex items-center justify-between'>
+          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8'>
             <div>
               <h3 className='text-lg font-semibold text-slate-800'>Scheduled Appointments Overview</h3>
               <div className='flex items-center gap-2 mt-1'>
@@ -288,103 +292,62 @@ export const Dashboard = () => {
                 <p className='text-sm text-slate-500'>days overview</p>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-          {/* Approved Appointments */}
-          <div className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <h4 className='font-bold text-slate-800 flex items-center gap-2'>
-                <span className='w-2 h-2 rounded-full bg-accent-success'></span>
-                Approved Appointments
-                <span className='ml-2 text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full'>
+            {/* Tabs Trigger */}
+            <div className='flex p-1 bg-dark-elevated rounded-lg self-start md:self-center'>
+              <button
+                onClick={() => setActiveTab('approved')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                  activeTab === 'approved'
+                    ? 'bg-white text-accent-success shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                <CheckCircle2 className='w-4 h-4' />
+                Approved
+                <span className={cn(
+                  'ml-1 px-1.5 py-0.5 rounded-full text-[10px]',
+                  activeTab === 'approved' ? 'bg-accent-success/10 text-accent-success' : 'bg-slate-200 text-slate-500'
+                )}>
                   {isLoadingAppointments ? '...' : approvedAppointments.length}
                 </span>
-              </h4>
-            </div>
-            
-            <div className='grid grid-cols-1 gap-4'>
-              {isLoadingAppointments ? (
-                <>
-                  <AppointmentCardSkeleton />
-                  <AppointmentCardSkeleton />
-                </>
-              ) : approvedAppointments.length === 0 ? (
-                <div className='py-10 text-center text-slate-500 bg-dark-surface rounded-xl border border-dark-border border-dashed'>
-                  No approved appointments
-                </div>
-              ) : (
-                approvedAppointments.map(appointment => {
-                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
-                  const nyTime = appointmentDate.toLocaleTimeString('en-US', {
-                    timeZone: 'America/New_York',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true
-                  });
-                  const nyDate = appointmentDate.toLocaleDateString('en-US', {
-                    timeZone: 'America/New_York',
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  });
-                  const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
-                    timeZone: 'America/New_York',
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true
-                  });
-
-                  return (
-                    <AppointmentCard
-                      id={appointment.appointmentId}
-                      key={appointment.appointmentId}
-                      title={appointment.description || 'No Description'}
-                      description={appointment.locationAddress}
-                      date={nyDate}
-                      time={nyTime}
-                      createdAt={nyCreatedAt}
-                      dentist={appointment.organizerName}
-                      technician={appointment.serviceProviderName}
-                      technicianId={appointment.serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
-                      variant='success'
-                      technicianOptions={technicians}
-                      onTechnicianChange={handleTechnicianChange}
-                    />
-                  )
-                })
-              )}
+              </button>
+              <button
+                onClick={() => setActiveTab('pending')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                  activeTab === 'pending'
+                    ? 'bg-white text-accent-warning shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                <Clock className='w-4 h-4' />
+                Pending
+                <span className={cn(
+                  'ml-1 px-1.5 py-0.5 rounded-full text-[10px]',
+                  activeTab === 'pending' ? 'bg-accent-warning/10 text-accent-warning' : 'bg-slate-200 text-slate-500'
+                )}>
+                  {isLoadingAppointments ? '...' : pendingAppointments.length}
+                </span>
+              </button>
             </div>
           </div>
 
-          {/* Pending Appointments */}
-          <div className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <h4 className='font-bold text-slate-800 flex items-center gap-2'>
-                <span className='w-2 h-2 rounded-full bg-accent-warning'></span>
-                Pending Appointments
-                <span className='ml-2 text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full'>
-                  {isLoadingAppointments ? '...' : pendingAppointments.length}
-                </span>
-              </h4>
-            </div>
-
-            <div className='grid grid-cols-1 gap-4'>
-              {isLoadingAppointments ? (
-                <>
-                  <AppointmentCardSkeleton />
-                  <AppointmentCardSkeleton />
-                </>
-              ) : pendingAppointments.length === 0 ? (
-                <div className='py-10 text-center text-slate-500 bg-dark-surface rounded-xl border border-dark-border border-dashed'>
-                  No pending appointments
-                </div>
-              ) : (
-                pendingAppointments.map(appointment => {
+          <div className='min-h-[300px]'>
+            {isLoadingAppointments ? (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                <AppointmentCardSkeleton />
+                <AppointmentCardSkeleton />
+                <AppointmentCardSkeleton />
+              </div>
+            ) : (activeTab === 'approved' ? approvedAppointments : pendingAppointments).length === 0 ? (
+              <div className='py-20 text-center text-slate-500 bg-dark-surface/50 rounded-xl border border-dark-border border-dashed'>
+                No {activeTab} appointments found for the next {daysFromNow} days.
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                {(activeTab === 'approved' ? approvedAppointments : pendingAppointments).map(appointment => {
                   const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
                   const nyTime = appointmentDate.toLocaleTimeString('en-US', {
                     timeZone: 'America/New_York',
@@ -420,14 +383,14 @@ export const Dashboard = () => {
                       dentist={appointment.organizerName}
                       technician={appointment.serviceProviderName}
                       technicianId={appointment.serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
-                      variant='warning'
+                      variant={activeTab === 'approved' ? 'success' : 'warning'}
                       technicianOptions={technicians}
                       onTechnicianChange={handleTechnicianChange}
                     />
                   )
-                })
-              )}
-            </div>
+                })}
+              </div>
+            )}
           </div>
         </div>
       </section>
