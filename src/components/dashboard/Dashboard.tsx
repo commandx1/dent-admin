@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState,useEffect,useCallback,useMemo } from 'react'
 import { StatCard } from './StatCard'
 import { AppointmentCard } from './AppointmentCard'
 import { InvoiceTable } from './InvoiceTable'
-import { CalendarCheck, PhoneCall, Video, CheckCircle2, Clock } from 'lucide-react'
-import { appointmentService, type AppointmentStatistics, type ScheduledAppointment } from '@/services/appointmentService'
+import { CalendarCheck,PhoneCall,Video,CheckCircle2,Clock } from 'lucide-react'
+import { appointmentService,type AppointmentStatistics,type ScheduledAppointment } from '@/services/appointmentService'
 import { invoiceService } from '@/services/invoiceService'
 import { technicianService } from '@/services/technicianService'
 import type { InvoiceStatistics } from '../invoices/types'
@@ -53,66 +53,66 @@ const AppointmentCardSkeleton = () => (
 )
 
 export const Dashboard = () => {
-  const [appointmentStats, setAppointmentStats] = useState<AppointmentStatistics | null>(null)
-  const [invoiceStats, setInvoiceStats] = useState<InvoiceStatistics | null>(null)
-  const [scheduledAppointments, setScheduledAppointments] = useState<ScheduledAppointment[]>([])
-  const [technicians, setTechnicians] = useState<Array<{ id: string, name: string }>>([])
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
-  const [isLoadingAppointments, setIsLoadingAppointments] = useState(true)
-  const [daysFromNow, setDaysFromNow] = useState(7)
-  const [invoiceDaysFromNow, setInvoiceDaysFromNow] = useState(30)
+  const [appointmentStats,setAppointmentStats] = useState<AppointmentStatistics | null>(null)
+  const [invoiceStats,setInvoiceStats] = useState<InvoiceStatistics | null>(null)
+  const [scheduledAppointments,setScheduledAppointments] = useState<ScheduledAppointment[]>([])
+  const [technicians,setTechnicians] = useState<Array<{ id: string,name: string }>>([])
+  const [isLoadingStats,setIsLoadingStats] = useState(true)
+  const [isLoadingAppointments,setIsLoadingAppointments] = useState(true)
+  const [daysFromNow,setDaysFromNow] = useState(7)
+  const [invoiceDaysFromNow,setInvoiceDaysFromNow] = useState(30)
 
-  const handleNumericInput = (value: string, setter: (val: number) => void) => {
-    const numericValue = value.replace(/[^0-9]/g, '')
+  const handleNumericInput = (value: string,setter: (val: number) => void) => {
+    const numericValue = value.replace(/[^0-9]/g,'')
     setter(parseInt(numericValue) || 0)
   }
 
-  const [activeTab, setActiveTab] = useState<'approved' | 'pending'>('approved')
+  const [activeTab,setActiveTab] = useState<'approved' | 'pending'>('approved')
 
   const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true)
-      const [appData, invData] = await Promise.all([
+      const [appData,invData] = await Promise.all([
         appointmentService.getStatistics(),
         invoiceService.getStatistics(invoiceDaysFromNow)
       ])
       setAppointmentStats(appData)
       setInvoiceStats(invData)
     } catch (error) {
-      console.error('Failed to fetch statistics:', error)
+      console.error('Failed to fetch statistics:',error)
     } finally {
       setIsLoadingStats(false)
     }
-  }, [invoiceDaysFromNow])
+  },[invoiceDaysFromNow])
 
   const fetchScheduled = useCallback(async () => {
     try {
       setIsLoadingAppointments(true)
-      const data = await appointmentService.getScheduled(0, 50, daysFromNow)
+      const data = await appointmentService.getScheduled(0,50,daysFromNow)
       setScheduledAppointments(data.content)
     } catch (error) {
-      console.error('Failed to fetch scheduled appointments:', error)
+      console.error('Failed to fetch scheduled appointments:',error)
     } finally {
       setIsLoadingAppointments(false)
     }
-  }, [daysFromNow])
+  },[daysFromNow])
 
   const fetchTechniciansList = useCallback(async () => {
     try {
       // Fetching a larger list to have options
-      const data = await technicianService.getAll(0, 100, 'companyName', 'ASC')
-      const formattedTechs: Array<{ id: string, name: string }> = []
-      
+      const data = await technicianService.getAll(0,100,'companyName','ASC')
+      const formattedTechs: Array<{ id: string,name: string }> = []
+
       data.content.forEach(company => {
         if (company.companyType === 'individual') {
           // If it's an individual, add the owner
           if (company.ownerUserId && company.ownerAccountStatus === 'ACTIVE') {
             formattedTechs.push({
               id: company.ownerUserId,
-              name: company.ownerFullName || [company.ownerFirstName, company.ownerLastName].filter(Boolean).join(' ') || company.companyName || 'Unknown Individual',
+              name: company.ownerFullName || [company.ownerFirstName,company.ownerLastName].filter(Boolean).join(' ') || company.companyName || 'Unknown Individual',
               // Keep company name for matching fallback
               companyName: company.companyName
-            } as { id: string, name: string, companyName?: string })
+            } as { id: string,name: string,companyName?: string })
           }
         } else if (company.companyType === 'corporate') {
           // If it's corporate, add only the employees
@@ -128,30 +128,30 @@ export const Dashboard = () => {
           }
         }
       })
-      
+
       setTechnicians(formattedTechs)
     } catch (error) {
-      console.error('Failed to fetch technicians list:', error)
+      console.error('Failed to fetch technicians list:',error)
     }
-  }, [])
+  },[])
 
-  const handleTechnicianChange = async (appointmentId: string, newTechnicianId: string) => {
+  const handleTechnicianChange = async (appointmentId: string,newTechnicianId: string) => {
     try {
-      await appointmentService.changeTechnician(appointmentId, newTechnicianId)
+      await appointmentService.changeTechnician(appointmentId,newTechnicianId)
       toast.success('Technician updated successfully')
       fetchScheduled() // Refresh the list
     } catch (error) {
-      console.error('Failed to update technician:', error)
+      console.error('Failed to update technician:',error)
       toast.error('Failed to update technician')
     }
   }
 
-  const approvedAppointments = useMemo(() => 
+  const approvedAppointments = useMemo(() =>
     scheduledAppointments.filter(app => app.appointmentStatus === 'APPROVED'),
     [scheduledAppointments]
   )
-  
-  const pendingAppointments = useMemo(() => 
+
+  const pendingAppointments = useMemo(() =>
     scheduledAppointments.filter(app => app.appointmentStatus === 'PENDING'),
     [scheduledAppointments]
   )
@@ -159,20 +159,20 @@ export const Dashboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchStats()
-    }, 500)
+    },500)
     return () => clearTimeout(timer)
-  }, [fetchStats])
+  },[fetchStats])
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchScheduled()
-    }, 500)
+    },500)
     return () => clearTimeout(timer)
-  }, [fetchScheduled])
+  },[fetchScheduled])
 
   useEffect(() => {
     fetchTechniciansList()
-  }, [fetchTechniciansList])
+  },[fetchTechniciansList])
 
   return (
     <div className='space-y-8'>
@@ -225,20 +225,18 @@ export const Dashboard = () => {
       {/* Invoice Summary */}
       <section>
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
-          <div className='flex items-center justify-between mb-6'>
-            <div>
-              <h3 className='text-lg font-semibold text-slate-800'>Invoice Summary</h3>
-              <div className='flex items-center gap-2 mt-1'>
-                <p className='text-sm text-slate-500'>Last</p>
-                <input
-                  type='text'
-                  inputMode='numeric'
-                  value={invoiceDaysFromNow}
-                  onChange={e => handleNumericInput(e.target.value, setInvoiceDaysFromNow)}
-                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
-                />
-                <p className='text-sm text-slate-500'>days overview</p>
-              </div>
+          <div className='flex items-center justify-between w-full mb-6'>
+            <h3 className='text-lg font-semibold text-slate-800'>Invoice Summary</h3>
+            <div className='flex items-center gap-2 mt-1'>
+              <p className='text-sm text-slate-500'>Last</p>
+              <input
+                type='text'
+                inputMode='numeric'
+                value={invoiceDaysFromNow}
+                onChange={e => handleNumericInput(e.target.value,setInvoiceDaysFromNow)}
+                className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
+              />
+              <p className='text-sm text-slate-500'>days overview</p>
             </div>
           </div>
 
@@ -277,22 +275,21 @@ export const Dashboard = () => {
       {/* Appointments Section */}
       <section className='space-y-6'>
         <div className='bg-dark-surface border border-dark-elevated rounded-xl p-6'>
-          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8'>
-            <div>
-              <h3 className='text-lg font-semibold text-slate-800'>Scheduled Appointments Overview</h3>
-              <div className='flex items-center gap-2 mt-1'>
-                <p className='text-sm text-slate-500'>Next</p>
-                <input
-                  type='text'
-                  inputMode='numeric'
-                  value={daysFromNow}
-                  onChange={e => handleNumericInput(e.target.value, setDaysFromNow)}
-                  className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
-                />
-                <p className='text-sm text-slate-500'>days overview</p>
-              </div>
+          <div className='flex items-center justify-between w-full mb-6'>
+            <h3 className='text-lg font-semibold text-slate-800'>Scheduled Appointments Overview</h3>
+            <div className='flex items-center gap-2 mt-1'>
+              <p className='text-sm text-slate-500'>Next</p>
+              <input
+                type='text'
+                inputMode='numeric'
+                value={daysFromNow}
+                onChange={e => handleNumericInput(e.target.value,setDaysFromNow)}
+                className='w-16 bg-dark-elevated border border-dark-border rounded px-2 py-0.5 text-sm text-slate-800 focus:outline-none focus:border-accent-primary text-center'
+              />
+              <p className='text-sm text-slate-500'>days overview</p>
             </div>
-
+          </div>
+          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8'>
             {/* Tabs Trigger */}
             <div className='flex p-1 bg-dark-elevated rounded-lg self-start md:self-center'>
               <button
@@ -348,20 +345,20 @@ export const Dashboard = () => {
             ) : (
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                 {(activeTab === 'approved' ? approvedAppointments : pendingAppointments).map(appointment => {
-                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`);
-                  const nyTime = appointmentDate.toLocaleTimeString('en-US', {
+                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`)
+                  const nyTime = appointmentDate.toLocaleTimeString('en-US',{
                     timeZone: 'America/New_York',
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
-                  });
-                  const nyDate = appointmentDate.toLocaleDateString('en-US', {
+                  })
+                  const nyDate = appointmentDate.toLocaleDateString('en-US',{
                     timeZone: 'America/New_York',
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric'
-                  });
-                  const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US', {
+                  })
+                  const nyCreatedAt = new Date(appointment.createdAt).toLocaleString('en-US',{
                     timeZone: 'America/New_York',
                     month: 'short',
                     day: 'numeric',
@@ -369,7 +366,7 @@ export const Dashboard = () => {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
-                  });
+                  })
 
                   return (
                     <AppointmentCard
@@ -393,7 +390,7 @@ export const Dashboard = () => {
             )}
           </div>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   )
 }
