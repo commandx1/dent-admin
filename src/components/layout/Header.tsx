@@ -1,15 +1,20 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Download, Search } from 'lucide-react'
+import { ArrowLeft, Download, Search, UserCircle } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { vendorService } from '@/services/vendorService'
+import { authService } from '@/services/authService'
+import { useAuthStore } from '@/store/useAuthStore'
+import type { User } from '@/store/useAuthStore'
+import { toast } from 'sonner'
 
 export const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const pathname = location.pathname
-  const { searchQuery, setSearchQuery, selectedDentist } = useAppStore()
+  const { searchQuery, setSearchQuery, selectedDentist, selectedVendor } = useAppStore()
+  const { setImpersonation } = useAuthStore()
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
   const isVendorDetails = matchPath('/vendors/:id', pathname)
@@ -77,6 +82,47 @@ export const Header = () => {
 
     if (isVendorDetails) {
       const vendorId = isVendorDetails.params.id || ''
+      
+      const handleImpersonate = async () => {
+        if (!selectedVendor) return;
+        try {
+          let response = await authService.impersonate(selectedVendor.email);
+          
+          // If accessToken is missing but refreshToken is present, try to refresh the token
+          if (!response.accessToken && response.refreshToken) {
+            const refreshResponse = await authService.refreshToken(response.refreshToken);
+            response = { ...response, ...refreshResponse };
+          }
+
+          if (response.accessToken && response.refreshToken) {
+            const userObj: User = {
+              id: response.id || (response as any).userId || selectedVendor.id,
+              name: response.name || selectedVendor.name,
+              surname: response.surname || selectedVendor.surname,
+              email: response.email || selectedVendor.email,
+              phoneNumber: response.phoneNumber || '', // Default or from response
+              emailConfirmed: response.emailConfirmed ?? true,
+              phoneNumberConfirmed: response.phoneNumberConfirmed ?? true,
+              roleName: response.roleName || 'Vendor',
+              twoFactorEnabled: response.twoFactorEnabled ?? false,
+              createdDate: response.createdDate,
+              lockoutEnd: response.lockoutEnd,
+            };
+
+            setImpersonation(userObj, response.accessToken, response.refreshToken);
+            toast.success(`Logged in as ${selectedVendor.fullName || selectedVendor.name}`);
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 500);
+          } else {
+            toast.error('Could not retrieve login credentials (accessToken)');
+          }
+        } catch (error) {
+          console.error('Impersonation failed:', error);
+          toast.error('Impersonation process failed');
+        }
+      }
+
       return {
         left: (
           <div className="flex items-center gap-4">
@@ -88,15 +134,26 @@ export const Header = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h3 className='text-xl font-bold text-slate-900'>
-              Vendor Details
-            </h3>
+            <div>
+              <h3 className='text-xl font-bold text-slate-900'>
+                {selectedVendor ? selectedVendor.fullName || selectedVendor.name : 'Vendor Details'}
+              </h3>
+              {selectedVendor && (
+                <p className="text-sm text-slate-500">{selectedVendor.email}</p>
+              )}
+            </div>
           </div>
         ),
         right: (
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10">
+              <Button 
+                variant="outline" 
+                onClick={handleImpersonate}
+                disabled={!selectedVendor}
+                className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10 gap-2"
+              >
+                <UserCircle className="h-4 w-4" />
                 Impersonate
               </Button>
               <Button 
