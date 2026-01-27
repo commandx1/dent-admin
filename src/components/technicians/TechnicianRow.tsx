@@ -249,9 +249,9 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
 
                 return (
                   <div key={i} className='relative'>
-                    {/* Alttaki boş/gri yıldız */}
+                    {/* Bottom empty/gray star */}
                     <Star className='h-3.5 w-3.5 text-slate-300 fill-slate-300' />
-                    {/* Üstteki dolan sarı yıldız */}
+                    {/* Top filled yellow star */}
                     {(isFull || isPartial) && (
                       <div
                         className='absolute inset-0 overflow-hidden'
