@@ -1,10 +1,12 @@
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { ImpersonationBanner } from './ImpersonationBanner'
 import { Outlet } from 'react-router-dom'
 
 export const MainLayout = () => {
   return (
     <div className='flex flex-col h-screen overflow-hidden bg-dark-bg text-slate-800'>
+      <ImpersonationBanner />
       <div className='flex-1 flex overflow-hidden'>
         <Sidebar />
         <div className='flex-1 flex flex-col overflow-hidden'>
