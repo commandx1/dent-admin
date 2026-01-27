@@ -23,6 +23,12 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api\/dentypro/, ''),
       },
+      '/api/import-xlsx': {
+        target: 'http://51.20.96.242:8080',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/import-xlsx/, '/api/user-products/import-xlsx'),
+      },
       '/api': {
         target: 'http://51.21.198.138:8080',
         changeOrigin: true,
