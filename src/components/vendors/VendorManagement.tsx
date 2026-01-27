@@ -18,6 +18,7 @@ import { vendorService } from '@/services/vendorService'
 import { useAppStore } from '@/store/useAppStore'
 import { CreateSignupLinkModal } from './CreateSignupLinkModal'
 import { ImportProductsModal } from './ImportProductsModal'
+import { toast } from 'sonner'
 
 const VendorRowSkeleton = () => (
   <tr className='animate-pulse border-b border-dark-border'>
@@ -192,13 +193,19 @@ export const VendorManagement = () => {
                 <p className='text-xs text-slate-500'>Download vendor list</p>
               </div>
             </button>
-            <button className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'>
+            <button 
+              onClick={() => {
+                document.getElementById('vendor-list')?.scrollIntoView({ behavior: 'smooth' });
+                toast.info('Please select a vendor from the list to impersonate');
+              }}
+              className='bg-dark-elevated hover:bg-dark-border border border-dark-border text-slate-800 rounded-lg p-4 flex items-center gap-3 transition-all'
+            >
               <div className='w-12 h-12 bg-accent-warning/20 rounded-lg flex items-center justify-center'>
                 <Eye className='text-accent-warning h-6 w-6' />
               </div>
               <div className='text-left'>
                 <p className='font-semibold'>Impersonate Vendor</p>
-                <p className='text-xs text-slate-500'>View as vendor</p>
+                <p className='text-xs text-slate-500'>Select a vendor from the list</p>
               </div>
             </button>
           </div>
