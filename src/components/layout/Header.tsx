@@ -22,7 +22,7 @@ export const Header = () => {
   const isTechniciansPage = pathname === '/technicians'
   const isVendorsPage = pathname === '/vendors' || !!isVendorDetails
   const isInvoicesPage = pathname === '/invoices'
-  const showSearch = isDentistsPage || isVendorsPage || isInvoicesPage
+  const showSearch = isDentistsPage || isVendorsPage || isInvoicesPage || isTechniciansPage
 
   const headerContent = useMemo(() => {
     const handleVendorProductExport = async (vendorId: string) => {
