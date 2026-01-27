@@ -19,6 +19,7 @@ export const DentistDetails = () => {
       fetchDentistDetails(id)
     }
     return () => setSelectedDentist(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, setSelectedDentist])
 
   const fetchPhoto = async (userId: string) => {
