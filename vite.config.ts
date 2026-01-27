@@ -10,6 +10,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: '/', // Update this if deploying to a subdirectory, e.g., '/admin/'
   server: {
     proxy: {
       '/api/google-maps': {
