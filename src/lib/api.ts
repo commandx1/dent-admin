@@ -13,11 +13,17 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
+    const state = useAuthStore.getState();
+    const token = state.token;
     // Don't add auth token for dentypro API calls as they might be handled differently
     if (token && !config.url?.includes('/api/dentypro')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (state.isImpersonating) {
+      config.headers['X-Impersonating'] = 'true';
+    }
+
     return config;
   },
   (error) => {
