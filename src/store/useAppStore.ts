@@ -24,6 +24,8 @@ interface AppState {
   }>
   selectedDentist: { name: string; companyName: string } | null
   setSelectedDentist: (dentist: { name: string; companyName: string } | null) => void
+  selectedVendor: { id: string; name: string; surname: string; email: string; fullName: string } | null
+  setSelectedVendor: (vendor: { id: string; name: string; surname: string; email: string; fullName: string } | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -33,6 +35,8 @@ export const useAppStore = create<AppState>((set) => ({
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   selectedDentist: null,
   setSelectedDentist: (selectedDentist) => set({ selectedDentist }),
+  selectedVendor: null,
+  setSelectedVendor: (selectedVendor) => set({ selectedVendor }),
   
   stats: {
     scheduled: 342,
