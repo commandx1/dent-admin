@@ -76,6 +76,42 @@ export const authService = {
   },
 
   logout: async (refreshToken: string) => {
+    document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     await api.post('/api/auth/logout', { refreshToken });
+  },
+
+  impersonate: async (email: string) => {
+    const response = await api.post<LoginResponse>('/api/v1/vendors/impersonate?email=' + email);
+
+    const headers = response.headers;
+    const authHeader = headers['authorization'] || headers['Authorization'];
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '').trim();
+      response.data.accessToken = token;
+    }
+
+    return response.data;
+  },
+
+  refreshToken: async (token?: string) => {
+    if (token) {
+      authService.setRefreshTokenCookie(token);
+    }
+    const response = await api.post<LoginResponse>('/api/auth/refresh-token');
+    
+    const headers = response.headers;
+    const authHeader = headers['authorization'] || headers['Authorization'];
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '').trim();
+      response.data.accessToken = token;
+    }
+
+    return response.data;
+  },
+
+  setRefreshTokenCookie: (token: string) => {
+    document.cookie = `refreshToken=${token}; path=/; max-age=31536000; SameSite=Lax`;
   }
 };
