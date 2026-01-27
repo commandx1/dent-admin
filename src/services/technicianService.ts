@@ -2,14 +2,15 @@ import api from '@/lib/api';
 import type { TechnicianResponse, TechnicianStatistics } from '@/components/technicians/types';
 
 export const technicianService = {
-  getAll: async (page = 0, size = 10, sortBy = 'companyName', sortDirection = 'ASC', searchTerm = '') => {
+  getAll: async (page = 0, size = 10, sortBy = 'companyName', sortDirection = 'ASC', searchTerm = '', companyTypeCorporate?: number) => {
     const response = await api.get<TechnicianResponse>(`/api/v1/technicians`, {
       params: { 
         page, 
         size, 
         sortBy, 
         sortDirection,
-        ...(searchTerm ? { searchTerm } : {})
+        ...(searchTerm ? { searchTerm } : {}),
+        ...(companyTypeCorporate !== undefined ? { companyTypeCorporate } : {})
       }
     });
     return response.data;

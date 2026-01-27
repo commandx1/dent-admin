@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Users, UserCheck } from 'lucide-react'
+import { Users, UserCheck, Building2, User } from 'lucide-react'
 import { DentistRow } from './DentistRow'
 import type { Dentist } from './types'
 import { StatsCard } from '../common/StatsCard'
@@ -7,6 +7,7 @@ import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
 import { dentistService } from '@/services/dentistService'
 import { useAppStore } from '@/store/useAppStore'
+import { cn } from '@/lib/utils'
 
 const DentistRowSkeleton = () => (
   <tr className='border-b border-dark-border animate-pulse'>
@@ -39,11 +40,13 @@ export const DentistManagement = () => {
   const searchQuery = useAppStore(state => state.searchQuery)
   const [sortBy, setSortBy] = useState('lastLogin')
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
+  const [activeTab, setActiveTab] = useState<'clinics' | 'solo'>('clinics')
 
   const fetchDentists = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await dentistService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, searchQuery)
+      const haveSubValue = activeTab === 'clinics' ? 1 : 0
+      const data = await dentistService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, searchQuery, haveSubValue)
       setDentists(data.content || [])
       setTotalElements(data.totalElements || 0)
       setTotalPages(data.totalPages || 0)
@@ -52,11 +55,11 @@ export const DentistManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [currentPage, itemsPerPage, searchQuery, sortBy, sortDirection])
+  }, [currentPage, itemsPerPage, searchQuery, sortBy, sortDirection, activeTab])
 
   useEffect(() => {
-    setCurrentPage(0) // Reset to first page on search
-  }, [searchQuery])
+    setCurrentPage(0) // Reset to first page on search or tab change
+  }, [searchQuery, activeTab])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -106,6 +109,42 @@ export const DentistManagement = () => {
             icon={UserCheck}
             accentColor='success'
           />
+        </div>
+      </section>
+
+      <section id='dentists-actions' className='space-y-6'>
+        <div className='bg-dark-surface border border-dark-border rounded-xl p-6'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-8'>
+              {/* Tabs */}
+              <div className='flex items-center bg-dark-elevated p-1 rounded-lg border border-dark-border'>
+                <button
+                  onClick={() => setActiveTab('clinics')}
+                  className={cn(
+                    'px-6 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2',
+                    activeTab === 'clinics' 
+                      ? 'bg-white text-accent-primary shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  <Building2 className='h-4 w-4' />
+                  Clinic
+                </button>
+                <button
+                  onClick={() => setActiveTab('solo')}
+                  className={cn(
+                    'px-6 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2',
+                    activeTab === 'solo' 
+                      ? 'bg-white text-accent-warning shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  <User className='h-4 w-4' />
+                  Individual
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

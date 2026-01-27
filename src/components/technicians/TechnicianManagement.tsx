@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { technicianService } from '@/services/technicianService'
 import { useCallback } from 'react'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/store/useAppStore'
 
 const TechnicianRowSkeleton = () => (
   <tr className='border-b border-dark-border animate-pulse'>
@@ -51,6 +52,7 @@ interface TechnicianListProps {
 }
 
 const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon }) => {
+  const { searchQuery } = useAppStore()
   const [technicians, setTechnicians] = useState<Company[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
@@ -70,7 +72,8 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
     const loadTechnicians = async () => {
       try {
         setIsLoading(true)
-        const data = await technicianService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, type)
+        const corporateValue = type === 'corporate' ? 1 : 0
+        const data = await technicianService.getAll(currentPage, itemsPerPage, sortBy, sortDirection, searchQuery, corporateValue)
         if (!ignore) {
           setTechnicians(data.content)
           setTotalElements(data.totalElements)
@@ -84,9 +87,14 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
         }
       }
     }
-    loadTechnicians()
-    return () => { ignore = true }
-  }, [currentPage, itemsPerPage, sortBy, sortDirection, type, refreshKey])
+    const timer = setTimeout(() => {
+      loadTechnicians()
+    }, 500)
+    return () => { 
+      ignore = true 
+      clearTimeout(timer)
+    }
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, type, refreshKey, searchQuery])
 
   const handleSort = (field: string) => {
     if (sortBy === field) {

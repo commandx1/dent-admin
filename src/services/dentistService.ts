@@ -12,14 +12,15 @@ interface DentistListResponse {
 }
 
 export const dentistService = {
-  getAll: async (page = 0, size = 10, sortBy = 'lastLogin', sortDirection = 'DESC', searchTerm = '') => {
+  getAll: async (page = 0, size = 10, sortBy = 'lastLogin', sortDirection = 'DESC', searchTerm = '', dentistHaveSub?: number) => {
     const response = await api.get<DentistListResponse>('/api/v1/dentists', {
       params: { 
         page, 
         size, 
         sortBy, 
         sortDirection,
-        ...(searchTerm ? { searchTerm } : {})
+        ...(searchTerm ? { searchTerm } : {}),
+        ...(dentistHaveSub !== undefined ? { dentistHaveSub } : {})
       }
     });
     return response.data;
