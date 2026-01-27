@@ -58,10 +58,11 @@ export const vendorService = {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('file', file);
-    const response = await api.post('/api/user-products/import-xlsx', formData, {
+    const response = await api.post('/api/import-xlsx', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      withCredentials: false
     });
     return response.data;
   },
