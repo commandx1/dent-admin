@@ -14,15 +14,19 @@ interface ProductRowProps {
 }
 
 const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
+  const [isError, setIsError] = useState(false)
   return (
     <tr key={product.id} className="hover:bg-dark-elevated/30 transition-all">
       <td className="py-4 px-6">
         <div className="flex items-center gap-3">
           <div className="min-w-12 h-12 bg-dark-border rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-            {product.coverPhotoPath ? (
+            {product.coverPhotoPath && !isError ? (
               <img
                 src={product.coverPhotoPath}
-                alt={product.productName}
+                onError={() => {
+                  setIsError(true)
+                }}
+                alt='no cover photo'
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -87,12 +91,13 @@ export const VendorDetails = () => {
     if (!id) return
     try {
       setIsLoading(true)
-      const data = await vendorService.getVendorProducts(id, currentPage, itemsPerPage, sortBy, sortDirection)
-      setProducts(data.content)
-      setTotalElements(data.totalElements)
-      setTotalPages(data.totalPages)
+      const productsData = await vendorService.getVendorProducts(id, currentPage, itemsPerPage, sortBy, sortDirection)
+      
+      setProducts(productsData.content)
+      setTotalElements(productsData.totalElements)
+      setTotalPages(productsData.totalPages)
     } catch (error) {
-      console.error('Failed to fetch vendor products:', error)
+      console.error('Failed to fetch vendor data:', error)
     } finally {
       setIsLoading(false)
     }
