@@ -37,7 +37,7 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
       if (response.accessToken && response.refreshToken) {
         // Construct User object from response or vendor data
         const userObj: User = {
-          id: response.id || (response as any).userId || vendor.id,
+          id: response.id || (response as { userId: string }).userId || vendor.id,
           name: response.name || vendor.name,
           surname: response.surname || vendor.surname,
           email: response.email || vendor.email,
