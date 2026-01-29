@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { DentistDetails } from './DentistDetails'
 import { dentistService } from '@/services/dentistService'
 import { technicianService } from '@/services/technicianService'
-import { useAppStore } from '@/store/useAppStore'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 // Mock services
@@ -41,11 +40,13 @@ const mockDentist = {
   country: 'USA',
   lastLogin: '2026-01-20T10:00:00Z',
   createdAt: '2026-01-01T10:00:00Z',
+  profilePhotoData: null,
   locationCount: 3,
   appointmentStats: {
     scheduleCount: 50,
     emergencyCallCount: 5,
     remoteAssistanceCount: 10,
+    totalCount: 65,
   },
 }
 

@@ -4,6 +4,7 @@ import { DentistManagement } from './DentistManagement'
 import { dentistService } from '@/services/dentistService'
 import { useAppStore } from '@/store/useAppStore'
 import { MemoryRouter } from 'react-router-dom'
+import type { Dentist } from './types'
 
 // Mock services
 vi.mock('@/services/dentistService', () => ({
@@ -20,7 +21,7 @@ vi.mock('@/store/useAppStore', () => ({
 
 // Mock components that might be complex or have many dependencies
 vi.mock('./DentistRow', () => ({
-  DentistRow: ({ dentist }: any) => (
+  DentistRow: ({ dentist }: { dentist: Dentist }) => (
     <tr data-testid="dentist-row">
       <td>{dentist.firstName}</td>
       <td>{dentist.lastName}</td>
@@ -44,6 +45,8 @@ const mockDentists = {
       companyName: 'Clinic A',
       lastLogin: '2026-01-20T10:00:00',
       createdAt: '2026-01-01T10:00:00',
+      locationCount: 1,
+      profilePhotoData: null,
     },
     {
       userId: '2',
@@ -54,10 +57,16 @@ const mockDentists = {
       companyName: 'Clinic B',
       lastLogin: '2026-01-21T10:00:00',
       createdAt: '2026-01-02T10:00:00',
+      locationCount: 2,
+      profilePhotoData: null,
     },
   ],
+  page: 0,
+  size: 10,
   totalElements: 2,
   totalPages: 1,
+  hasNext: false,
+  hasPrevious: false,
 }
 
 describe('DentistManagement Component', () => {
@@ -145,7 +154,15 @@ describe('DentistManagement Component', () => {
   })
 
   it('displays empty state when no dentists found', async () => {
-    vi.mocked(dentistService.getAll).mockResolvedValue({ content: [], totalElements: 0, totalPages: 0 })
+    vi.mocked(dentistService.getAll).mockResolvedValue({ 
+      content: [], 
+      page: 0, 
+      size: 10, 
+      totalElements: 0, 
+      totalPages: 0, 
+      hasNext: false, 
+      hasPrevious: false 
+    })
     
     render(
       <MemoryRouter>

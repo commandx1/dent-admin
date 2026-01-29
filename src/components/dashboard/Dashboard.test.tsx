@@ -53,9 +53,15 @@ vi.mock('lucide-react', () => ({
 const mockAppointmentStats = {
   totalScheduleAppointments: 10,
   completedScheduleAppointments: 5,
+  pendingScheduleAppointments: 2,
+  cancelledScheduleAppointments: 3,
   totalEmergencyCallAppointments: 3,
+  completedEmergencyCallAppointments: 2,
+  expiredEmergencyCallAppointments: 1,
+  cancelledEmergencyCallAppointments: 0,
   averageResponseTimeMinutes: 15.5,
   totalRemoteAssistanceAppointments: 2,
+  completedRemoteAssistanceAppointments: 2,
   averageDurationMinutes: 20.2,
 }
 
@@ -66,6 +72,9 @@ const mockInvoiceStats = {
   approvedTotalAmount: 5000,
   rejectedCount: 1,
   rejectedTotalAmount: 200,
+  totalCount: 14,
+  grandTotalAmount: 6700,
+  daysPeriod: 30,
 }
 
 const mockScheduledAppointments = {
@@ -79,7 +88,8 @@ const mockScheduledAppointments = {
       createdAt: '2026-01-20T10:00:00',
       organizerName: 'Dr. Smith',
       serviceProviderName: 'Tech 1',
-      appointmentStatus: 'APPROVED',
+      serviceProviderId: 't1',
+      appointmentStatus: 'APPROVED' as const,
     },
     {
       appointmentId: '2',
@@ -90,21 +100,86 @@ const mockScheduledAppointments = {
       createdAt: '2026-01-21T10:00:00',
       organizerName: 'Dr. Jones',
       serviceProviderName: 'Tech 2',
-      appointmentStatus: 'PENDING',
+      serviceProviderId: 't2',
+      appointmentStatus: 'PENDING' as const,
     },
   ],
+  page: 0,
+  size: 10,
+  totalElements: 2,
+  totalPages: 1,
+  hasNext: false,
+  hasPrevious: false,
 }
 
 const mockTechnicians = {
   content: [
     {
-      companyType: 'corporate',
+      companyId: 'c1',
+      companyCode: 'CODE1',
+      companyName: 'Corporate Tech',
+      companyType: 'corporate' as const,
+      companyCreatedAt: '2026-01-01',
+      ownerCapabilityIds: [],
+      ownerUserId: 'o1',
+      ownerFirstName: 'Owner',
+      ownerLastName: 'One',
+      ownerFullName: 'Owner One',
+      ownerEmail: 'owner@test.com',
+      ownerTelephoneNumber: '123',
+      companyRating: { averageRating: 5, totalRatingCount: 10 },
+      companyJobStats: { totalCompletedJobs: 100, last30DaysCompletedJobs: 10 },
+      status: 'ACTIVE',
+      deleted: 'False' as const,
+      ownerAccountStatus: 'ACTIVE' as const,
       employees: [
-        { userId: 't1', fullName: 'Tech 1', accountStatus: 'ACTIVE' },
-        { userId: 't2', fullName: 'Tech 2', accountStatus: 'ACTIVE' },
+        { 
+          userId: 't1', 
+          fullName: 'Tech 1', 
+          accountStatus: 'ACTIVE' as const,
+          technicianId: 1,
+          technicianCode: 'T1',
+          firstName: 'Tech',
+          lastName: '1',
+          email: 't1@test.com',
+          ownerCapabilityIds: [],
+          telephoneNumber: '123',
+          isHeadquarters: false,
+          deleted: 'False' as const,
+          createdAt: '2026-01-01',
+          rating: { averageRating: 5, totalRatingCount: 10 },
+          jobStats: { totalCompletedJobs: 50, last30DaysCompletedJobs: 5 },
+          status: 'ACTIVE',
+          ownerAccountStatus: 'ACTIVE' as const,
+        },
+        { 
+          userId: 't2', 
+          fullName: 'Tech 2', 
+          accountStatus: 'ACTIVE' as const,
+          technicianId: 2,
+          technicianCode: 'T2',
+          firstName: 'Tech',
+          lastName: '2',
+          email: 't2@test.com',
+          ownerCapabilityIds: [],
+          telephoneNumber: '456',
+          isHeadquarters: false,
+          deleted: 'False' as const,
+          createdAt: '2026-01-01',
+          rating: { averageRating: 4, totalRatingCount: 8 },
+          jobStats: { totalCompletedJobs: 40, last30DaysCompletedJobs: 4 },
+          status: 'ACTIVE',
+          ownerAccountStatus: 'ACTIVE' as const,
+        },
       ],
     },
   ],
+  page: 0,
+  size: 10,
+  totalElements: 1,
+  totalPages: 1,
+  hasNext: false,
+  hasPrevious: false,
 }
 
 describe('Dashboard Component', () => {
@@ -116,7 +191,15 @@ describe('Dashboard Component', () => {
     vi.mocked(invoiceService.getStatistics).mockResolvedValue(mockInvoiceStats)
     vi.mocked(appointmentService.getScheduled).mockResolvedValue(mockScheduledAppointments)
     vi.mocked(technicianService.getAll).mockResolvedValue(mockTechnicians)
-    vi.mocked(invoiceService.getAll).mockResolvedValue({ content: [] })
+    vi.mocked(invoiceService.getAll).mockResolvedValue({ 
+      content: [], 
+      page: 0, 
+      size: 10, 
+      totalElements: 0, 
+      totalPages: 0, 
+      hasNext: false, 
+      hasPrevious: false 
+    })
   })
 
   it('fetches and displays statistics correctly', async () => {
