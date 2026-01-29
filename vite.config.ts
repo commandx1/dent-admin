@@ -16,6 +16,7 @@ export default defineConfig({
     environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
   },
+  base: '/', // Update this if deploying to a subdirectory, e.g., '/admin/'
   server: {
     proxy: {
       '/api/google-maps': {
