@@ -302,7 +302,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
               'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all border w-fit whitespace-nowrap',
               isDeleting 
                 ? 'bg-slate-100 text-slate-400 border-slate-200' 
-                : (company ? company.deleted === 'True' : employee?.deleted)
+                : (company ? company.deleted === 'True' : employee?.deleted === 'True')
                   ? 'bg-accent-danger/10 text-accent-danger border-accent-danger/30 hover:bg-accent-danger/20'
                   : 'bg-accent-success/10 text-accent-success border-accent-success/30 hover:bg-accent-success/20'
             )}
@@ -313,7 +313,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 <span className="sr-only">Processing</span>
               </>
             ) : (
-              (company ? company.deleted === 'True' : employee?.deleted) ? 'Deleted' : 'Active'
+              (company ? company.deleted === 'True' : employee?.deleted === 'True') ? 'Deleted' : 'Active'
             )}
           </div>
         </td>
