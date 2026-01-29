@@ -1,10 +1,11 @@
 import React,{ useState,useEffect } from 'react'
 import { CAPABILITIES,type Company,type Employee } from './types'
-import { Star,ChevronRight,ChevronDown,Building,User,UserPlus } from 'lucide-react'
+import { Star,ChevronRight,ChevronDown,Building,User,UserPlus,Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import { technicianService } from '@/services/technicianService'
 import { Select } from '@/components/ui/select'
+import { toast } from 'sonner'
 
 interface TechnicianRowProps {
   item: Company | Employee
@@ -20,6 +21,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
   const [pendingStatus,setPendingStatus] = useState<string | null>(null)
   const [photo,setPhoto] = useState<string | null>(null)
   const [isPhotoLoading,setIsPhotoLoading] = useState(false)
+  const [isDeleting,setIsDeleting] = useState(false)
 
   // Type guards
   const isCompany = (obj: unknown): obj is Company => !!obj && typeof obj === 'object' && 'companyType' in obj
@@ -125,6 +127,29 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     } finally {
       setIsConfirmOpen(false)
       setPendingStatus(null)
+    }
+  }
+
+  const handleSoftDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const techId = company ? company.ownerTechnicianId : employee?.technicianId
+    if (!techId) {
+      toast.error('Technician ID not found')
+      return
+    }
+
+    const isCurrentlyDeleted = company ? company.deleted === 'True' : employee?.deleted === 'True'
+    
+    try {
+      setIsDeleting(true)
+      await technicianService.updateSoftDeleteStatus(techId, isCurrentlyDeleted) // isCurrentlyDeleted true means we want to set isActive=1 (restore)
+      toast.success(isCurrentlyDeleted ? 'Technician restored' : 'Technician deleted')
+      onRefresh?.()
+    } catch (error) {
+      console.error('Soft delete failed:', error)
+      toast.error('Action failed')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -268,6 +293,28 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
               <span className='text-slate-800 font-semibold text-sm'>{rating?.toFixed(1) || '0.0'}</span>
               <span className='text-[11px] text-slate-500 font-medium'>({ratingCount || 0} reviews)</span>
             </div>
+          </div>
+        </td>
+        <td className='py-4 px-4'>
+          <div 
+            onClick={handleSoftDelete}
+            className={cn(
+              'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all border w-fit whitespace-nowrap',
+              isDeleting 
+                ? 'bg-slate-100 text-slate-400 border-slate-200' 
+                : (company ? company.deleted === 'True' : employee?.deleted)
+                  ? 'bg-accent-danger/10 text-accent-danger border-accent-danger/30 hover:bg-accent-danger/20'
+                  : 'bg-accent-success/10 text-accent-success border-accent-success/30 hover:bg-accent-success/20'
+            )}
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className='h-3 w-3 animate-spin' />
+                <span className="sr-only">Processing</span>
+              </>
+            ) : (
+              (company ? company.deleted === 'True' : employee?.deleted) ? 'Deleted' : 'Active'
+            )}
           </div>
         </td>
         <td className='py-4 px-4'>

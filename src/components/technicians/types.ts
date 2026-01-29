@@ -19,7 +19,7 @@ export interface Employee {
   ownerCapabilityIds: number[];
   telephoneNumber: string;
   isHeadquarters: boolean;
-  deleted: boolean;
+  deleted: 'True' | 'False';
   createdAt: string;
   rating: Rating;
   jobStats: JobStats;

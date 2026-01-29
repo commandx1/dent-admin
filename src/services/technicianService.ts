@@ -40,6 +40,13 @@ export const technicianService = {
       params: { status }
     });
     return response.data;
+  },
+
+  updateSoftDeleteStatus: async (technicianId: number | string, isActive: boolean) => {
+    const response = await api.patch(`/api/v1/technicians/${technicianId}/status`, null, {
+      params: { isActive: isActive ? 1 : 0 }
+    });
+    return response.data;
   }
 };
 
