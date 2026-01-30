@@ -41,7 +41,6 @@ const TechnicianRowSkeleton = () => (
         <div className='h-4 w-20 bg-slate-200 rounded' />
       </div>
     </td>
-    <td className='py-4 px-4'><div className='h-4 w-24 bg-slate-200 rounded-full' /></td>
     <td className='py-4 px-4'><div className='h-8 w-24 bg-slate-200 rounded-full' /></td>
   </tr>
 )
@@ -158,7 +157,6 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
                     onClick={() => handleSort('averageRating')}
                   />
                 </th>
-                <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Deleted</th>
                 <th className='py-4 px-4 text-sm font-semibold text-slate-700 text-left'>Status</th>
               </tr>
             </thead>
@@ -167,7 +165,7 @@ const TechnicianList: React.FC<TechnicianListProps> = ({ type, title, icon: Icon
                 [...Array(3)].map((_, i) => <TechnicianRowSkeleton key={i} />)
               ) : technicians.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className='py-20 text-center text-slate-500'>
+                  <td colSpan={8} className='py-20 text-center text-slate-500'>
                     No {type} technicians found
                   </td>
                 </tr>

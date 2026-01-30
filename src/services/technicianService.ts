@@ -42,10 +42,8 @@ export const technicianService = {
     return response.data;
   },
 
-  updateSoftDeleteStatus: async (technicianId: number | string, isActive: boolean) => {
-    const response = await api.patch(`/api/v1/technicians/${technicianId}/status`, null, {
-      params: { isActive: isActive ? 1 : 0 }
-    });
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/api/v1/technicians/users/${userId}/delete`);
     return response.data;
   }
 };

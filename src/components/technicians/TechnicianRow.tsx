@@ -1,6 +1,6 @@
 import React,{ useState,useEffect } from 'react'
 import { CAPABILITIES,type Company,type Employee } from './types'
-import { Star,ChevronRight,ChevronDown,Building,User,UserPlus,Loader2 } from 'lucide-react'
+import { Star,ChevronRight,ChevronDown,Building,User,UserPlus,Loader2,Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import { technicianService } from '@/services/technicianService'
@@ -22,6 +22,7 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
   const [photo,setPhoto] = useState<string | null>(null)
   const [isPhotoLoading,setIsPhotoLoading] = useState(false)
   const [isDeleting,setIsDeleting] = useState(false)
+  const [isDeleteUserConfirmOpen,setIsDeleteUserConfirmOpen] = useState(false)
 
   // Type guards
   const isCompany = (obj: unknown): obj is Company => !!obj && typeof obj === 'object' && 'companyType' in obj
@@ -130,24 +131,21 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     }
   }
 
-  const handleSoftDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const techId = company ? company.ownerTechnicianId : employee?.technicianId
-    if (!techId) {
-      toast.error('Technician ID not found')
+  const handleDeleteUser = async () => {
+    if (!userId) {
+      toast.error('User ID not found')
       return
     }
 
-    const isCurrentlyDeleted = company ? company.deleted === 'True' : employee?.deleted === 'True'
-    
     try {
       setIsDeleting(true)
-      await technicianService.updateSoftDeleteStatus(techId, isCurrentlyDeleted) // isCurrentlyDeleted true means we want to set isActive=1 (restore)
-      toast.success(isCurrentlyDeleted ? 'Technician restored' : 'Technician deleted')
+      await technicianService.deleteUser(userId)
+      toast.success('Technician user deleted permanently')
+      setIsDeleteUserConfirmOpen(false)
       onRefresh?.()
     } catch (error) {
-      console.error('Soft delete failed:', error)
-      toast.error('Action failed')
+      console.error('Delete user failed:', error)
+      toast.error('Failed to delete user')
     } finally {
       setIsDeleting(false)
     }
@@ -296,28 +294,6 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
           </div>
         </td>
         <td className='py-4 px-4'>
-          <div 
-            onClick={handleSoftDelete}
-            className={cn(
-              'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all border w-fit whitespace-nowrap',
-              isDeleting 
-                ? 'bg-slate-100 text-slate-400 border-slate-200' 
-                : (company ? company.deleted === 'True' : employee?.deleted === 'True')
-                  ? 'bg-accent-danger/10 text-accent-danger border-accent-danger/30 hover:bg-accent-danger/20'
-                  : 'bg-accent-success/10 text-accent-success border-accent-success/30 hover:bg-accent-success/20'
-            )}
-          >
-            {isDeleting ? (
-              <>
-                <Loader2 className='h-3 w-3 animate-spin' />
-                <span className="sr-only">Processing</span>
-              </>
-            ) : (
-              (company ? company.deleted === 'True' : employee?.deleted === 'True') ? 'Deleted' : 'Active'
-            )}
-          </div>
-        </td>
-        <td className='py-4 px-4'>
           <div className='flex items-center gap-4'>
             {isPending ? (
               <div className='px-3 py-1 rounded-full text-xs font-medium bg-accent-warning/20 text-accent-warning border border-accent-warning/30 min-w-[85px] text-center'>
@@ -350,6 +326,16 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 <UserPlus size={18} />
               </button>
             )}
+            <button
+              onClick={e => {
+                e.stopPropagation()
+                setIsDeleteUserConfirmOpen(true)
+              }}
+              className='p-2 hover:bg-accent-danger/10 text-slate-400 hover:text-accent-danger rounded-lg transition-colors group relative'
+              title='Delete Technician User'
+            >
+              <Trash2 size={18} />
+            </button>
           </div>
         </td>
       </tr>
@@ -393,6 +379,39 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 className="px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
               >
                 Yes, Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete User Confirmation Modal */}
+      {isDeleteUserConfirmOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4 text-accent-danger">
+                <Trash2 className="h-6 w-6" />
+                <h3 className="text-xl font-bold text-slate-900">Permanent Delete</h3>
+              </div>
+              <p className="text-slate-500">
+                Are you sure you want to permanently delete <strong>{name}</strong>? This action cannot be undone and will remove all associated user data.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+              <button
+                onClick={() => setIsDeleteUserConfirmOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-accent-danger text-white rounded-lg hover:bg-accent-danger/90 transition-colors shadow-lg shadow-accent-danger/20 disabled:opacity-50"
+                disabled={isDeleting}
+              >
+                {isDeleting && <Loader2 className="h-3 w-3 animate-spin" />}
+                Yes, Delete Permanently
               </button>
             </div>
           </div>
