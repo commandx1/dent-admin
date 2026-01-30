@@ -34,5 +34,10 @@ export const dentistService = {
   getRoleStatistics: async () => {
     const response = await api.get<{ dentistAdminCount: number; dentistManagerCount: number }>('/api/v1/dentists/role-statistics');
     return response.data;
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/api/v1/dentists/users/${userId}/delete`);
+    return response.data;
   }
 };

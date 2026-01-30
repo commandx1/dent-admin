@@ -192,7 +192,7 @@ export const DentistManagement = () => {
                   </tr>
                 ) : (
                   dentists.map(dentist => (
-                    <DentistRow key={dentist.userId} dentist={dentist} />
+                    <DentistRow key={dentist.userId} dentist={dentist} onRefresh={fetchDentists} />
                   ))
                 )}
               </tbody>
