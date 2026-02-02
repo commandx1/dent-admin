@@ -130,6 +130,29 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
                 </div>
               </div>
 
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    let token = '';
+                    try {
+                      const url = new URL(result.signupLink);
+                      token = url.searchParams.get('token') || url.searchParams.get('refreshToken') || '';
+                    } catch {
+                      // Fallback if it's just a relative path or token
+                      const match = result.signupLink.match(/[?&](?:token|refreshToken)=([^&]+)/);
+                      token = match ? match[1] : result.signupLink;
+                    }
+                    
+                    const b2bUrl = import.meta.env.VITE_B2B_URL;
+                    window.open(`${b2bUrl}/auth/setup-vendor?refreshToken=${token}`, '_blank');
+                  }}
+                  className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
+                >
+                  <LinkIcon size={20} />
+                  Setup Account Now
+                </button>
+              </div>
+
               <button
                 onClick={resetAndClose}
                 className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all"
