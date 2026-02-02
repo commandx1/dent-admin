@@ -29,7 +29,7 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
 
       if (refreshToken) {
         const b2bUrl = import.meta.env.VITE_B2B_URL;
-        window.open(`${b2bUrl}/login?refreshToken=${refreshToken}`, '_blank');
+        window.open(`${b2bUrl}/vendor-dashboard?refreshToken=${refreshToken}`, '_blank');
       } else {
         toast.error('Could not retrieve refreshToken for impersonation');
       }
