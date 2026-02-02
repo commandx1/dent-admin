@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import type { VendorAPIItem } from './types';
 import { Store, UserCircle } from 'lucide-react';
 import { authService } from '@/services/authService';
-import { useAuthStore } from '@/store/useAuthStore';
-import type { User } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 
 interface VendorRowProps {
@@ -13,7 +11,6 @@ interface VendorRowProps {
 
 export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
   const navigate = useNavigate();
-  const { setImpersonation } = useAuthStore();
   const [isImpersonating, setIsImpersonating] = useState(false);
 
   const handleViewDetails = () => {
@@ -28,7 +25,7 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
       setIsImpersonating(true);
       const response = await authService.impersonate(vendor.email);
       
-      const refreshToken = response.refreshToken || response.data?.refreshToken; // Assuming response might have it in body or data
+      const refreshToken = response.refreshToken;
 
       if (refreshToken) {
         const b2bUrl = import.meta.env.VITE_B2B_URL;

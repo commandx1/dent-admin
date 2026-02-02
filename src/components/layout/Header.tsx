@@ -5,8 +5,6 @@ import { ArrowLeft, Download, Search, UserCircle } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { vendorService } from '@/services/vendorService'
 import { authService } from '@/services/authService'
-import { useAuthStore } from '@/store/useAuthStore'
-import type { User } from '@/store/useAuthStore'
 import { toast } from 'sonner'
 
 export const Header = () => {
@@ -14,7 +12,6 @@ export const Header = () => {
   const navigate = useNavigate()
   const pathname = location.pathname
   const { searchQuery, setSearchQuery, selectedDentist, selectedVendor } = useAppStore()
-  const { setImpersonation } = useAuthStore()
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
   const isVendorDetails = matchPath('/vendors/:id', pathname)
@@ -87,7 +84,7 @@ export const Header = () => {
         if (!selectedVendor) return;
         try {
           const response = await authService.impersonate(selectedVendor.email);
-          const refreshToken = response.refreshToken || (response as any).data?.refreshToken;
+          const refreshToken = response.refreshToken;
 
           if (refreshToken) {
             const b2bUrl = import.meta.env.VITE_B2B_URL;
@@ -200,7 +197,7 @@ export const Header = () => {
       ),
       right: showSearch ? searchInput : null
     }
-  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist])
+  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor])
 
   return (
     <header className='h-[88px] bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>
