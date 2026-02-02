@@ -86,36 +86,14 @@ export const Header = () => {
       const handleImpersonate = async () => {
         if (!selectedVendor) return;
         try {
-          let response = await authService.impersonate(selectedVendor.email);
-          
-          // If accessToken is missing but refreshToken is present, try to refresh the token
-          if (!response.accessToken && response.refreshToken) {
-            const refreshResponse = await authService.refreshToken(response.refreshToken);
-            response = { ...response, ...refreshResponse };
-          }
+          const response = await authService.impersonate(selectedVendor.email);
+          const refreshToken = response.refreshToken || (response as any).data?.refreshToken;
 
-          if (response.accessToken && response.refreshToken) {
-            const userObj: User = {
-              id: response.id || (response as any).userId || selectedVendor.id,
-              name: response.name || selectedVendor.name,
-              surname: response.surname || selectedVendor.surname,
-              email: response.email || selectedVendor.email,
-              phoneNumber: response.phoneNumber || '', // Default or from response
-              emailConfirmed: response.emailConfirmed ?? true,
-              phoneNumberConfirmed: response.phoneNumberConfirmed ?? true,
-              roleName: response.roleName || 'Vendor',
-              twoFactorEnabled: response.twoFactorEnabled ?? false,
-              createdDate: response.createdDate,
-              lockoutEnd: response.lockoutEnd,
-            };
-
-            setImpersonation(userObj, response.accessToken, response.refreshToken);
-            toast.success(`Logged in as ${selectedVendor.fullName || selectedVendor.name}`);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 500);
+          if (refreshToken) {
+            const b2bUrl = import.meta.env.VITE_B2B_URL;
+            window.open(`${b2bUrl}?refreshToken=${refreshToken}`,'_blank');
           } else {
-            toast.error('Could not retrieve login credentials (accessToken)');
+            toast.error('Could not retrieve refreshToken for impersonation');
           }
         } catch (error) {
           console.error('Impersonation failed:', error);

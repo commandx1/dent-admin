@@ -112,6 +112,6 @@ export const authService = {
   },
 
   setRefreshTokenCookie: (token: string) => {
-    document.cookie = `refreshToken=${token}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `refreshToken=${token}; Path=/; SameSite=Lax`;
   }
 };

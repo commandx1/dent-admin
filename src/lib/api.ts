@@ -15,8 +15,13 @@ api.interceptors.request.use(
   (config) => {
     const state = useAuthStore.getState();
     const token = state.token;
+
+     // Auth token'ı refresh-token ve dentypro endpoint'leri için GÖNDERME
+     const skipAuthUrls = ['/api/auth/refresh-token', '/api/dentypro'];
+     const shouldSkipAuth = skipAuthUrls.some(url => config.url?.includes(url));
+
     // Don't add auth token for dentypro API calls as they might be handled differently
-    if (token && !config.url?.includes('/api/dentypro')) {
+    if (token && !shouldSkipAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
