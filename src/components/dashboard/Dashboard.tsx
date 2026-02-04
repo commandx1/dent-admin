@@ -2,8 +2,8 @@ import { useState,useEffect,useCallback,useMemo } from 'react'
 import { StatCard } from './StatCard'
 import { AppointmentCard } from './AppointmentCard'
 import { InvoiceTable } from './InvoiceTable'
-import { CalendarCheck,PhoneCall,Video,CheckCircle2,Clock } from 'lucide-react'
-import { appointmentService,type AppointmentStatistics,type ScheduledAppointment } from '@/services/appointmentService'
+import { CalendarCheck,PhoneCall,Video,CheckCircle2,Clock,History } from 'lucide-react'
+import { appointmentService,type AppointmentStatistics,type ScheduledAppointment,type IncompleteAppointment } from '@/services/appointmentService'
 import { invoiceService } from '@/services/invoiceService'
 import { technicianService } from '@/services/technicianService'
 import type { InvoiceStatistics } from '../invoices/types'
@@ -56,6 +56,7 @@ export const Dashboard = () => {
   const [appointmentStats,setAppointmentStats] = useState<AppointmentStatistics | null>(null)
   const [invoiceStats,setInvoiceStats] = useState<InvoiceStatistics | null>(null)
   const [scheduledAppointments,setScheduledAppointments] = useState<ScheduledAppointment[]>([])
+  const [incompleteAppointments,setIncompleteAppointments] = useState<IncompleteAppointment[]>([])
   const [technicians,setTechnicians] = useState<Array<{ id: string,name: string }>>([])
   const [isLoadingStats,setIsLoadingStats] = useState(true)
   const [isLoadingAppointments,setIsLoadingAppointments] = useState(true)
@@ -67,7 +68,7 @@ export const Dashboard = () => {
     setter(parseInt(numericValue) || 0)
   }
 
-  const [activeTab,setActiveTab] = useState<'approved' | 'pending'>('approved')
+  const [activeTab,setActiveTab] = useState<'approved' | 'pending' | 'incomplete'>('approved')
 
   const fetchStats = useCallback(async () => {
     try {
@@ -96,6 +97,18 @@ export const Dashboard = () => {
       setIsLoadingAppointments(false)
     }
   },[daysFromNow])
+
+  const fetchIncomplete = useCallback(async () => {
+    try {
+      setIsLoadingAppointments(true)
+      const data = await appointmentService.getIncomplete(0,50)
+      setIncompleteAppointments(data.content)
+    } catch (error) {
+      console.error('Failed to fetch incomplete appointments:',error)
+    } finally {
+      setIsLoadingAppointments(false)
+    }
+  },[])
 
   const fetchTechniciansList = useCallback(async () => {
     try {
@@ -139,10 +152,26 @@ export const Dashboard = () => {
     try {
       await appointmentService.changeTechnician(appointmentId,newTechnicianId)
       toast.success('Technician updated successfully')
-      fetchScheduled() // Refresh the list
+      if (activeTab === 'incomplete') {
+        fetchIncomplete()
+      } else {
+        fetchScheduled()
+      }
     } catch (error) {
       console.error('Failed to update technician:',error)
       toast.error('Failed to update technician')
+    }
+  }
+
+  const handleUndoComplete = async (appointmentId: string) => {
+    try {
+      await appointmentService.markNotCompleted(appointmentId)
+      toast.success('Appointment successfully undone')
+      fetchIncomplete()
+      fetchScheduled()
+    } catch (error) {
+      console.error('Failed to undo completion:',error)
+      toast.error('Operation failed')
     }
   }
 
@@ -165,10 +194,14 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchScheduled()
+      if (activeTab === 'incomplete') {
+        fetchIncomplete()
+      } else {
+        fetchScheduled()
+      }
     },500)
     return () => clearTimeout(timer)
-  },[fetchScheduled])
+  },[fetchScheduled,fetchIncomplete,activeTab])
 
   useEffect(() => {
     fetchTechniciansList()
@@ -293,24 +326,6 @@ export const Dashboard = () => {
             {/* Tabs Trigger */}
             <div className='flex p-1 bg-dark-elevated rounded-lg self-start md:self-center'>
               <button
-                onClick={() => setActiveTab('approved')}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
-                  activeTab === 'approved'
-                    ? 'bg-white text-accent-success shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                )}
-              >
-                <CheckCircle2 className='w-4 h-4' />
-                Approved
-                <span className={cn(
-                  'ml-1 px-1.5 py-0.5 rounded-full text-[10px]',
-                  activeTab === 'approved' ? 'bg-accent-success/10 text-accent-success' : 'bg-slate-200 text-slate-500'
-                )}>
-                  {isLoadingAppointments ? '...' : approvedAppointments.length}
-                </span>
-              </button>
-              <button
                 onClick={() => setActiveTab('pending')}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
@@ -321,12 +336,30 @@ export const Dashboard = () => {
               >
                 <Clock className='w-4 h-4' />
                 Pending
-                <span className={cn(
-                  'ml-1 px-1.5 py-0.5 rounded-full text-[10px]',
-                  activeTab === 'pending' ? 'bg-accent-warning/10 text-accent-warning' : 'bg-slate-200 text-slate-500'
-                )}>
-                  {isLoadingAppointments ? '...' : pendingAppointments.length}
-                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('approved')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                  activeTab === 'approved'
+                    ? 'bg-white text-accent-success shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                <CheckCircle2 className='w-4 h-4' />
+                Approved
+              </button>
+              <button
+                onClick={() => setActiveTab('incomplete')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                  activeTab === 'incomplete'
+                    ? 'bg-white text-accent-danger shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                <History className='w-4 h-4' />
+                In Complete
               </button>
             </div>
           </div>
@@ -338,14 +371,17 @@ export const Dashboard = () => {
                 <AppointmentCardSkeleton />
                 <AppointmentCardSkeleton />
               </div>
-            ) : (activeTab === 'approved' ? approvedAppointments : pendingAppointments).length === 0 ? (
+            ) : (activeTab === 'approved' ? approvedAppointments : activeTab === 'pending' ? pendingAppointments : incompleteAppointments).length === 0 ? (
               <div className='py-20 text-center text-slate-500 bg-dark-surface/50 rounded-xl border border-dark-border border-dashed'>
-                No {activeTab} appointments found for the next {daysFromNow} days.
+                No {activeTab} appointments found.
               </div>
             ) : (
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                {(activeTab === 'approved' ? approvedAppointments : pendingAppointments).map(appointment => {
-                  const appointmentDate = new Date(`${appointment.scheduledDate}T${appointment.scheduledTime}Z`)
+                {(activeTab === 'approved' ? approvedAppointments : activeTab === 'pending' ? pendingAppointments : incompleteAppointments).map(appointment => {
+                  const appointmentDate = new Date(activeTab === 'incomplete'
+                    ? (appointment as IncompleteAppointment).workStartDatetime
+                    : `${(appointment as ScheduledAppointment).scheduledDate}T${(appointment as ScheduledAppointment).scheduledTime}Z`)
+
                   const nyTime = appointmentDate.toLocaleTimeString('en-US',{
                     timeZone: 'America/New_York',
                     hour: 'numeric',
@@ -372,17 +408,18 @@ export const Dashboard = () => {
                     <AppointmentCard
                       id={appointment.appointmentId}
                       key={appointment.appointmentId}
-                      title={appointment.description || 'No Description'}
+                      title={(appointment as ScheduledAppointment).description || (appointment as IncompleteAppointment).appointmentType || 'No Description'}
                       description={appointment.locationAddress}
                       date={nyDate}
                       time={nyTime}
                       createdAt={nyCreatedAt}
                       dentist={appointment.organizerName}
                       technician={appointment.serviceProviderName}
-                      technicianId={appointment.serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
-                      variant={activeTab === 'approved' ? 'success' : 'warning'}
+                      technicianId={(appointment as ScheduledAppointment).serviceProviderId || technicians.find(t => t.name === appointment.serviceProviderName || (t as { companyName?: string }).companyName === appointment.serviceProviderName)?.id}
+                      variant={activeTab === 'approved' ? 'success' : activeTab === 'pending' ? 'warning' : 'danger'}
                       technicianOptions={technicians}
                       onTechnicianChange={handleTechnicianChange}
+                      onUndoComplete={activeTab === 'incomplete' ? handleUndoComplete : undefined}
                     />
                   )
                 })}

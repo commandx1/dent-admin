@@ -25,7 +25,33 @@ export interface ScheduledAppointment {
   serviceProviderName: string;
   serviceProviderId: string;
   locationAddress: string;
-  appointmentStatus: 'PENDING' | 'APPROVED';
+  appointmentStatus: 'PENDING' | 'APPROVED' | 'COMPLETED';
+}
+
+export interface IncompleteAppointment {
+  appointmentId: string;
+  organizerName: string;
+  serviceProviderName: string;
+  locationAddress: string;
+  appointmentStatus: string;
+  appointmentType: string;
+  description: string | null;
+  scheduleDate: string | null;
+  scheduleTime: string | null;
+  workStartDatetime: string;
+  workFinishDatetime: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IncompleteAppointmentResponse {
+  content: IncompleteAppointment[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface ScheduledAppointmentResponse {
@@ -53,6 +79,24 @@ export const appointmentService = {
         sortDirection,
       },
     });
+    return response.data;
+  },
+
+  getIncomplete: async (page = 0, size = 10, searchTerm = '', sortBy = 'schedule_date', sortDirection = 'DESC') => {
+    const response = await api.get<IncompleteAppointmentResponse>('/api/v1/appointments/incompleted', {
+      params: {
+        page,
+        size,
+        searchTerm,
+        sortBy,
+        sortDirection,
+      },
+    });
+    return response.data;
+  },
+
+  markNotCompleted: async (appointmentId: string) => {
+    const response = await api.patch(`/api/v1/appointments/${appointmentId}/mark-not-completed`);
     return response.data;
   },
 
