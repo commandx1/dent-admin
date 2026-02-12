@@ -412,6 +412,8 @@ export const Dashboard = () => {
                       description={appointment.locationAddress}
                       date={nyDate}
                       time={nyTime}
+                      workStartDatetime={activeTab === 'incomplete' ? (appointment as IncompleteAppointment).workStartDatetime : (appointment as ScheduledAppointment).workStartDatetime}
+                      workEndDatetime={activeTab === 'incomplete' ? (appointment as IncompleteAppointment).workFinishDatetime : (appointment as ScheduledAppointment).workEndDatetime}
                       createdAt={nyCreatedAt}
                       dentist={appointment.organizerName}
                       technician={appointment.serviceProviderName}
@@ -420,6 +422,8 @@ export const Dashboard = () => {
                       technicianOptions={technicians}
                       onTechnicianChange={handleTechnicianChange}
                       onUndoComplete={activeTab === 'incomplete' ? handleUndoComplete : undefined}
+                      onWorkDatetimeUpdate={activeTab === 'incomplete' ? fetchIncomplete : fetchScheduled}
+                      showCreateInvoice={activeTab === 'incomplete'}
                     />
                   )
                 })}

@@ -21,6 +21,8 @@ export interface ScheduledAppointment {
   createdAt: string;
   scheduledDate: string;
   scheduledTime: string;
+  workStartDatetime?: string;
+  workEndDatetime?: string;
   organizerName: string;
   serviceProviderName: string;
   serviceProviderId: string;
@@ -105,6 +107,20 @@ export const appointmentService = {
       appointmentId,
       newTechnicianId,
     });
+    return response.data;
+  },
+
+  updateWorkDatetime: async (
+    appointmentId: string,
+    payload: { workStartDatetime: string; workFinishDatetime: string }
+  ) => {
+    const response = await api.patch<{
+      appointmentId: string;
+      workStartDatetime: string;
+      workFinishDatetime: string;
+      message: string;
+      success: boolean;
+    }>(`/api/v1/appointments/${appointmentId}/work-datetime`, payload);
     return response.data;
   },
 };
