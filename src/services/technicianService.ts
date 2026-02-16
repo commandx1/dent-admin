@@ -40,6 +40,11 @@ export const technicianService = {
       params: { status }
     });
     return response.data;
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/api/v1/technicians/users/${userId}/delete`);
+    return response.data;
   }
 };
 

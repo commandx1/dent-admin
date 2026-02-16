@@ -1,10 +1,11 @@
 import React,{ useState,useEffect } from 'react'
 import { CAPABILITIES,type Company,type Employee } from './types'
-import { Star,ChevronRight,ChevronDown,Building,User,UserPlus } from 'lucide-react'
+import { Star,ChevronRight,ChevronDown,Building,User,UserPlus,Loader2,Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AddEmployeeModal } from './AddEmployeeModal'
 import { technicianService } from '@/services/technicianService'
 import { Select } from '@/components/ui/select'
+import { toast } from 'sonner'
 
 interface TechnicianRowProps {
   item: Company | Employee
@@ -20,6 +21,8 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
   const [pendingStatus,setPendingStatus] = useState<string | null>(null)
   const [photo,setPhoto] = useState<string | null>(null)
   const [isPhotoLoading,setIsPhotoLoading] = useState(false)
+  const [isDeleting,setIsDeleting] = useState(false)
+  const [isDeleteUserConfirmOpen,setIsDeleteUserConfirmOpen] = useState(false)
 
   // Type guards
   const isCompany = (obj: unknown): obj is Company => !!obj && typeof obj === 'object' && 'companyType' in obj
@@ -40,9 +43,6 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
           const reader = new FileReader()
           reader.onloadend = () => {
             const base64String = reader.result as string
-            // Remove the "data:application/octet-stream;base64," or similar prefix if present,
-            // but for <img> src we can use the whole thing if it's already a data URL.
-            // FileReader.readAsDataURL returns a string starting with "data:..."
             setPhoto(base64String)
           }
           reader.readAsDataURL(photoBlob)
@@ -60,9 +60,6 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
   const getInitialStatus = () => {
     if (isSubItem && employee) {
       return employee.accountStatus
-    }
-    if (company?.companyType === 'corporate') {
-      return company.deleted === 'True' ? 'PASSIVE' : 'ACTIVE'
     }
     return item.ownerAccountStatus
   }
@@ -101,12 +98,12 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
         await technicianService.updateTechnicianStatus(employee.userId, newStatus)
         
         // If an employee is being activated but their parent company is inactive, activate the company too
-        if (newStatus === 'ACTIVE' && parentCompany && parentCompany.deleted === 'True') {
+        if (newStatus === 'ACTIVE' && parentCompany && parentCompany.ownerAccountStatus !== 'ACTIVE') {
           await technicianService.updateCompanyStatus(parentCompany.companyId, true)
         }
 
         // If an employee is being deactivated and all other employees are already inactive, deactivate the company too
-        if (newStatus !== 'ACTIVE' && parentCompany && parentCompany.deleted === 'False') {
+        if (newStatus !== 'ACTIVE' && parentCompany && parentCompany.ownerAccountStatus === 'ACTIVE') {
           const otherEmployeesActive = parentCompany.employees?.some(emp => 
             emp.userId !== employee.userId && emp.accountStatus === 'ACTIVE'
           )
@@ -125,6 +122,26 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
     } finally {
       setIsConfirmOpen(false)
       setPendingStatus(null)
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    if (!userId) {
+      toast.error('User ID not found')
+      return
+    }
+
+    try {
+      setIsDeleting(true)
+      await technicianService.deleteUser(userId)
+      toast.success('Technician user deleted permanently')
+      setIsDeleteUserConfirmOpen(false)
+      onRefresh?.()
+    } catch (error) {
+      console.error('Delete user failed:', error)
+      toast.error('Failed to delete user')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -303,54 +320,98 @@ export const TechnicianRow: React.FC<TechnicianRowProps> = ({ item,isSubItem = f
                 <UserPlus size={18} />
               </button>
             )}
+            <button
+              onClick={e => {
+                e.stopPropagation()
+                setIsDeleteUserConfirmOpen(true)
+              }}
+              className='p-2 hover:bg-accent-danger/10 text-slate-400 hover:text-accent-danger rounded-lg transition-colors group relative'
+              title='Delete Technician User'
+            >
+              <Trash2 size={18} />
+            </button>
+
+            {/* Modals placed inside td to maintain valid HTML */}
+            <div onClick={e => e.stopPropagation()}>
+              {company && isCorporate && (
+                <AddEmployeeModal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  companyId={company.companyId}
+                  companyName={company.companyName}
+                  onSuccess={onRefresh}
+                />
+              )}
+
+              {isConfirmOpen && (
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="p-6 text-left">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2">Are you sure?</h3>
+                      <p className="text-slate-500">
+                        Are you sure you want to change this technician's status to <strong>{pendingStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</strong>?
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+                      <button
+                        onClick={() => {
+                          setIsConfirmOpen(false)
+                          setPendingStatus(null)
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmStatusChange}
+                        className="px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
+                      >
+                        Yes, Update
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isDeleteUserConfirmOpen && (
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="p-6 text-left">
+                      <div className="flex items-center gap-3 mb-4 text-accent-danger justify-start">
+                        <Trash2 className="h-6 w-6" />
+                        <h3 className="text-xl font-bold text-slate-900">Permanent Delete</h3>
+                      </div>
+                      <p className="text-slate-500">
+                        Are you sure you want to permanently delete <strong>{name}</strong>? This action cannot be undone and will remove all associated user data.
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+                      <button
+                        onClick={() => setIsDeleteUserConfirmOpen(false)}
+                        className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                        disabled={isDeleting}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDeleteUser}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-accent-danger text-white rounded-lg hover:bg-accent-danger/90 transition-colors shadow-lg shadow-accent-danger/20 disabled:opacity-50"
+                        disabled={isDeleting}
+                      >
+                        {isDeleting && <Loader2 className='h-3 w-3 animate-spin' />}
+                        Yes, Delete Permanently
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </td>
       </tr>
 
       {/* Sub Technicians Rows */}
       {isExpanded && company?.employees?.map(emp => <TechnicianRow key={emp.technicianId} item={emp} isSubItem onRefresh={onRefresh} parentCompany={company} />)}
-
-      {/* Modal for adding company user */}
-      {company && isCorporate && (
-        <AddEmployeeModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          companyId={company.companyId}
-          companyName={company.companyName}
-          onSuccess={onRefresh}
-        />
-      )}
-
-      {/* Confirmation Modal */}
-      {isConfirmOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Are you sure?</h3>
-              <p className="text-slate-500">
-                Are you sure you want to change this technician's status to <strong>{pendingStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</strong>?
-              </p>
-            </div>
-            <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
-              <button
-                onClick={() => {
-                  setIsConfirmOpen(false)
-                  setPendingStatus(null)
-                }}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmStatusChange}
-                className="px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors shadow-lg shadow-accent-primary/20"
-              >
-                Yes, Update
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }

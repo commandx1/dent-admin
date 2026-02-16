@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import type { Dentist, SubDentist } from './types'
-import { ChevronRight, ChevronDown, ExternalLink, Mail, Phone, Calendar } from 'lucide-react'
+import { ChevronRight, ChevronDown, ExternalLink, Mail, Phone, Calendar, Trash2, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { technicianService } from '@/services/technicianService'
+import { dentistService } from '@/services/dentistService'
+import { toast } from 'sonner'
 
 interface DentistRowProps {
   dentist: Dentist | SubDentist
   isSubItem?: boolean
+  onRefresh?: () => void
 }
 
-export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = false }) => {
+export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = false, onRefresh }) => {
   const navigate = useNavigate()
   const [isExpanded, setIsExpanded] = useState(false)
   const [photo, setPhoto] = useState<string | null>(null)
   const [isPhotoLoading, setIsPhotoLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
 
   useEffect(() => {
     const fetchPhoto = async () => {
@@ -97,6 +102,23 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
     }
   }
 
+  const handleDelete = async () => {
+    if (!dentist.userId) return
+
+    try {
+      setIsDeleting(true)
+      await dentistService.deleteUser(dentist.userId)
+      toast.success('Dentist deleted permanently')
+      setIsDeleteConfirmOpen(false)
+      onRefresh?.()
+    } catch (error) {
+      console.error('Delete dentist failed:', error)
+      toast.error('Failed to delete dentist')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <>
       <tr
@@ -175,24 +197,70 @@ export const DentistRow: React.FC<DentistRowProps> = ({ dentist, isSubItem = fal
           </div>
         </td>
         <td className='py-4 px-4'>
-          <Button
-            onClick={e => {
-              e.stopPropagation()
-              navigate(`/dentists/${dentist.userId}`)
-            }}
-            variant='outline'
-            size='sm'
-            className='bg-dark-elevated border-none hover:bg-dark-border text-slate-800 text-xs h-8'
-          >
-            <ExternalLink className='h-3 w-3 mr-1' /> View Details
-          </Button>
+          <div className='flex items-center gap-2'>
+            <Button
+              onClick={e => {
+                e.stopPropagation()
+                navigate(`/dentists/${dentist.userId}`)
+              }}
+              variant='outline'
+              size='sm'
+              className='bg-dark-elevated border-none hover:bg-dark-border text-slate-800 text-xs h-8'
+            >
+              <ExternalLink className='h-3 w-3 mr-1' /> View Details
+            </Button>
+            <button
+              onClick={e => {
+                e.stopPropagation()
+                setIsDeleteConfirmOpen(true)
+              }}
+              className='p-2 hover:bg-accent-danger/10 text-slate-400 hover:text-accent-danger rounded-lg transition-colors group relative'
+              title='Delete Dentist'
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
         </td>
       </tr>
 
       {/* Sub-dentists */}
       {isExpanded &&
         isMainDentist &&
-        mainDentist.subDentists?.map(sub => <DentistRow key={sub.userId} dentist={sub} isSubItem />)}
+        mainDentist.subDentists?.map(sub => <DentistRow key={sub.userId} dentist={sub} isSubItem onRefresh={onRefresh} />)}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4 text-accent-danger">
+                <Trash2 className="h-6 w-6" />
+                <h3 className="text-xl font-bold text-slate-900">Permanent Delete</h3>
+              </div>
+              <p className="text-slate-500">
+                Are you sure you want to permanently delete <strong>{dentist.firstName} {dentist.lastName}</strong>? This action cannot be undone and will remove all associated dentist data.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+              <button
+                onClick={() => setIsDeleteConfirmOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-accent-danger text-white rounded-lg hover:bg-accent-danger/90 transition-colors shadow-lg shadow-accent-danger/20 disabled:opacity-50"
+                disabled={isDeleting}
+              >
+                {isDeleting && <Loader2 className="h-3 w-3 animate-spin" />}
+                Yes, Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import type { VendorAPIItem } from './types';
 import { Store, UserCircle } from 'lucide-react';
 import { authService } from '@/services/authService';
-import { useAuthStore } from '@/store/useAuthStore';
-import type { User } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 
 interface VendorRowProps {
@@ -13,7 +11,6 @@ interface VendorRowProps {
 
 export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
   const navigate = useNavigate();
-  const { setImpersonation } = useAuthStore();
   const [isImpersonating, setIsImpersonating] = useState(false);
 
   const handleViewDetails = () => {
@@ -26,39 +23,15 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
 
     try {
       setIsImpersonating(true);
-      let response = await authService.impersonate(vendor.email);
+      const response = await authService.impersonate(vendor.email);
       
-      // If accessToken is missing but refreshToken is present, try to refresh the token
-      if (!response.accessToken && response.refreshToken) {
-        const refreshResponse = await authService.refreshToken(response.refreshToken);
-        response = { ...response, ...refreshResponse };
-      }
+      const refreshToken = response.refreshToken;
 
-      if (response.accessToken && response.refreshToken) {
-        // Construct User object from response or vendor data
-        const userObj: User = {
-          id: response.id || (response as { userId: string }).userId || vendor.id,
-          name: response.name || vendor.name,
-          surname: response.surname || vendor.surname,
-          email: response.email || vendor.email,
-          phoneNumber: response.phoneNumber || vendor.phoneNumber,
-          emailConfirmed: response.emailConfirmed ?? vendor.emailConfirmed,
-          phoneNumberConfirmed: response.phoneNumberConfirmed ?? vendor.phoneNumberConfirmed,
-          roleName: response.roleName || 'Vendor',
-          twoFactorEnabled: response.twoFactorEnabled ?? vendor.twoFactorEnabled,
-          createdDate: response.createdDate || vendor.createdDate,
-          lockoutEnd: response.lockoutEnd || vendor.lockoutEnd,
-        };
-
-        setImpersonation(userObj, response.accessToken, response.refreshToken);
-        toast.success(`Logged in as ${vendor.fullName}`);
-        
-        // Wait a bit for the toast and state update
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 500);
+      if (refreshToken) {
+        const b2bUrl = import.meta.env.VITE_B2B_URL;
+        window.open(`${b2bUrl}/auth/impersonate?refreshToken=${refreshToken}`, '_blank');
       } else {
-        toast.error('Could not retrieve login credentials (accessToken)');
+        toast.error('Could not retrieve refreshToken for impersonation');
       }
     } catch (error) {
       console.error('Impersonation failed:', error);

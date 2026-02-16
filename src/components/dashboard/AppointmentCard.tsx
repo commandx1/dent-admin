@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { UserRound, Settings, Loader2, Edit2 } from 'lucide-react'
+import { UserRound, Settings, Loader2, Edit2, RotateCcw, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 
 interface TechnicianOption {
@@ -20,6 +20,7 @@ interface AppointmentCardProps {
   variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger'
   technicianOptions?: TechnicianOption[]
   onTechnicianChange?: (appointmentId: string, newTechnicianId: string) => Promise<void>
+  onUndoComplete?: (appointmentId: string) => Promise<void>
 }
 
 const variants = {
@@ -42,11 +43,14 @@ export const AppointmentCard = ({
   technicianId,
   variant,
   technicianOptions = [],
-  onTechnicianChange
+  onTechnicianChange,
+  onUndoComplete
 }: AppointmentCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isUndoModalOpen, setIsUndoModalOpen] = useState(false)
   const [selectedTechId, setSelectedTechId] = useState(technicianId || '')
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isUndoing, setIsUndoing] = useState(false)
 
   const handleUpdate = async () => {
     if (!onTechnicianChange || !selectedTechId || selectedTechId === technicianId) {
@@ -60,6 +64,18 @@ export const AppointmentCard = ({
       setIsModalOpen(false)
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const handleUndo = async () => {
+    if (!onUndoComplete) return
+    
+    try {
+      setIsUndoing(true)
+      await onUndoComplete(id)
+      setIsUndoModalOpen(false)
+    } finally {
+      setIsUndoing(false)
     }
   }
 
@@ -86,16 +102,27 @@ export const AppointmentCard = ({
             <Settings className="h-3 w-3 shrink-0" />
             <span className="truncate">{technician}</span>
           </div>
-          <button
-            onClick={() => {
-              setSelectedTechId(technicianId || '')
-              setIsModalOpen(true)
-            }}
-            className="p-1 hover:bg-white/50 rounded transition-colors text-slate-400 hover:text-accent-primary"
-            title="Update Technician"
-          >
-            <Edit2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {onUndoComplete && (
+              <button
+                onClick={() => setIsUndoModalOpen(true)}
+                className="p-1 hover:bg-white/50 rounded transition-colors text-slate-400 hover:text-accent-danger"
+                title="Undo Completion"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setSelectedTechId(technicianId || '')
+                setIsModalOpen(true)
+              }}
+              className="p-1 hover:bg-white/50 rounded transition-colors text-slate-400 hover:text-accent-primary"
+              title="Update Technician"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
 
         {description && <p className="text-xs text-slate-500 line-clamp-2 mb-3">{description}</p>}
@@ -149,6 +176,41 @@ export const AppointmentCard = ({
               >
                 {isUpdating && <Loader2 className="h-3 w-3 animate-spin" />}
                 {isUpdating ? 'Updating...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Undo Confirmation Modal */}
+      {isUndoModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-accent-danger/10 flex items-center justify-center mb-4">
+                <AlertTriangle className="h-6 w-6 text-accent-danger" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">Mark as Incomplete</h3>
+              <p className="text-sm text-slate-500 mb-4">
+                Are you sure you want to undo the completion of this appointment?
+              </p>
+            </div>
+            
+            <div className="flex items-center justify-end gap-3 p-4 bg-slate-50">
+              <button
+                onClick={() => !isUndoing && setIsUndoModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors disabled:opacity-50"
+                disabled={isUndoing}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUndo}
+                disabled={isUndoing}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-accent-danger text-white rounded-lg hover:bg-accent-danger/90 transition-colors shadow-lg shadow-accent-danger/20 disabled:opacity-50"
+              >
+                {isUndoing && <Loader2 className="h-3 w-3 animate-spin" />}
+                {isUndoing ? 'Processing...' : 'Yes, Undo'}
               </button>
             </div>
           </div>
