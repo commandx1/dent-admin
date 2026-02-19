@@ -239,7 +239,7 @@ export const AppointmentCard = ({
     try {
       setIsInvoiceLoading(true)
       const { data } = await api.post<InvoicePreviewResponse>(
-        '/api/dentypro/payment/invoice',
+        '/api/dentypro/payment/payment/invoice',
         {
           appointment_id: id,
           description,
@@ -259,7 +259,7 @@ export const AppointmentCard = ({
         },
         {
           headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
+            Authorization: `Bearer ${import.meta.env.VITE_INVOICE_ACCESS_TOKEN}`,
             'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
           }
         }
