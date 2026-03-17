@@ -85,9 +85,6 @@ export default function AddressAutocomplete({ onSelect, selectedAddress, error }
 
   return (
     <div ref={wrapperRef} className='relative'>
-      <label htmlFor='addressSearch' className='block text-sm font-medium text-gray-700 mb-2'>
-        Search Address *
-      </label>
       <input
         id='addressSearch'
         type='text'
