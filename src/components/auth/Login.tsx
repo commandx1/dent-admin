@@ -92,7 +92,7 @@ export const Login = () => {
             <img src="/DentyProLogo.png" alt="DentyPro Logo" className="text-white h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">DentyPro Admin</h1>
-          <p className="text-slate-500 mt-1">11Welcome to the management panel</p>
+          <p className="text-slate-500 mt-1">12Welcome to the management panel</p>
         </div>
 
         {error && (
