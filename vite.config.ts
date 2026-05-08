@@ -36,7 +36,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/import-xlsx/, '/api/user-products/import-xlsx'),
       },
       '/api': {
-        target: 'http://51.21.198.138:8080',
+        target: 'http://dt_admin_api:8092',
         changeOrigin: true,
         secure: false,
       },
