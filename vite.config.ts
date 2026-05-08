@@ -36,7 +36,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/import-xlsx/, '/api/user-products/import-xlsx'),
       },
       '/api': {
-        target: 'http://dt_admin_api:8092',
+        target: 'http://qa-92rf.dentypro.com:8092',
         changeOrigin: true,
         secure: false,
       },
