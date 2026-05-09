@@ -37,7 +37,7 @@ export default defineConfig({
       },
       '/api': {
         target: 'http://qa-92rf.dentypro.com:8092',
-        changeOrigin: false,
+        changeOrigin: true,
         secure: false,
       },
     },
