@@ -99,7 +99,7 @@ export const authService = {
       authService.setRefreshTokenCookie(token);
     }
     const response = await api.post<LoginResponse>('/api/auth/refresh-token');
-    
+
     const headers = response.headers;
     const authHeader = headers['authorization'] || headers['Authorization'];
 
