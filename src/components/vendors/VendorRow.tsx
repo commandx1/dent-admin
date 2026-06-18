@@ -84,14 +84,23 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
           >
             Details
           </button>
-          <button 
+          <button
             onClick={handleImpersonate}
             disabled={isImpersonating}
-            className="flex items-center gap-1 text-slate-500 hover:text-amber-600 font-medium text-sm transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 font-medium text-sm transition-colors disabled:opacity-60"
             title="Impersonate as Vendor"
           >
-            <UserCircle className="h-4 w-4" />
-            {isImpersonating ? '...' : 'Impersonate'}
+            {isImpersonating ? (
+              <>
+                <span className="h-4 w-4 rounded-full border-2 border-amber-200 border-t-amber-500 animate-spin" />
+                <span className="text-amber-500">Connecting...</span>
+              </>
+            ) : (
+              <>
+                <UserCircle className="h-4 w-4" />
+                Impersonate
+              </>
+            )}
           </button>
         </div>
       </td>
