@@ -15,7 +15,6 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
     signupLink: string;
     message: string;
     userAlreadyExists: boolean;
-    refreshToken?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -133,12 +132,12 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
 
               <div className="pt-2">
                 <button
-                  disabled={!result.refreshToken}
                   onClick={() => {
                     const b2bUrl = import.meta.env.VITE_B2B_URL;
-                    window.open(`${b2bUrl}/auth/setup-vendor?refreshToken=${result.refreshToken}`, '_blank');
+                    const registerUrl = result.signupLink.replace('https://dentb2b.com', b2bUrl);
+                    window.open(registerUrl, '_blank');
                   }}
-                  className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
                 >
                   <LinkIcon size={20} />
                   Setup Account Now

@@ -38,7 +38,6 @@ export const vendorService = {
       signupLink: string;
       message: string;
       userAlreadyExists: boolean;
-      refreshToken?: string;
     }>('/api/v1/vendors/create-signup-link', { email });
     return response.data;
   },
