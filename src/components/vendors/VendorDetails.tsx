@@ -3,7 +3,7 @@ import {
   Package,
 } from 'lucide-react'
 import { useParams } from 'react-router-dom'
-import { cn } from '@/lib/utils'
+import { cn, getImageUrl } from '@/lib/utils'
 import type { Product } from './types'
 import { vendorService } from '@/services/vendorService'
 import { TablePagination } from '../common/TablePagination'
@@ -22,7 +22,7 @@ const ProductRow: React.FC<ProductRowProps> = ({ product }) => {
           <div className="min-w-12 h-12 bg-dark-border rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
             {product.coverPhotoPath && !isError ? (
               <img
-                src={product.coverPhotoPath}
+                src={getImageUrl(product.coverPhotoPath)}
                 onError={() => {
                   setIsError(true)
                 }}

@@ -164,3 +164,14 @@ export function formatCurrency(amount: number): string {
     currency: 'USD',
   }).format(amount)
 }
+
+// Product images (coverPhotoPath, etc.) are served by ecommerce-api as
+// relative paths like `/uploads/productCoverPhoto/...`, not by dt-admin-api.
+export function getImageUrl(path: string | null | undefined): string {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+
+  const ecommerceApiUrl = import.meta.env.VITE_ECOMMERCE_API_URL || ''
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  return `${ecommerceApiUrl}${normalizedPath}`
+}
