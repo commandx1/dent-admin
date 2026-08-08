@@ -1,8 +1,8 @@
 import api from '@/lib/api';
 import type {
   ApproveProductReviewResponse,
+  PendingProductDetailsResponse,
   PendingProductReviewListResponse,
-  ProductDetail,
   RejectProductReviewResponse,
 } from '@/components/vendors/types';
 
@@ -49,21 +49,18 @@ export const productReviewService = {
   },
 
   /**
-   * Fetches full product details from ecommerce-api (GET /api/products/{id}/admin).
-   * Uses the admin-only variant since products pending review are not yet `active`,
-   * and the regular GET /api/products/{id} only returns active products.
-   * The endpoint requires an Admin/Vendor JWT (@PreAuthorize on the controller),
-   * so this uses the shared `api` instance to attach the Authorization header via
-   * its request interceptor. The URL is absolute, so axios ignores `api`'s own
-   * baseURL (dt-admin-api) and hits ecommerce-api directly. `withCredentials` is
-   * disabled for this call since ecommerce-api's CORS config uses allowedOrigins
-   * "*" with allowCredentials(false), which rejects credentialed requests.
+   * Fetches full product details from dt-admin-api's own `dentb2b` datasource
+   * (GET /api/v1/vendors/getPendingProductDetails/{productId}/{userId}), which
+   * works for products pending review even though they aren't `active` yet.
+   * `userId` identifies the vendor's UserProduct listing for this product.
    */
-  getProductDetail: async (productId: string): Promise<ProductDetail> => {
-    const baseUrl = import.meta.env.VITE_ECOMMERCE_API_URL || '';
-    const response = await api.get<ProductDetail>(`${baseUrl}/api/products/${productId}/admin`, {
-      withCredentials: false,
-    });
+  getProductDetail: async (
+    productId: string,
+    userId: string,
+  ): Promise<PendingProductDetailsResponse> => {
+    const response = await api.get<PendingProductDetailsResponse>(
+      `/api/v1/vendors/getPendingProductDetails/${productId}/${userId}`,
+    );
     return response.data;
   },
 };

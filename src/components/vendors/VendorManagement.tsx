@@ -9,7 +9,8 @@ import {
   Eye,
   FileText,
   Users,
-  ClipboardList
+  ClipboardList,
+  FileBadge2
 } from 'lucide-react'
 import { VendorRow } from './VendorRow'
 import type { VendorAPIItem, VendorStatistics } from './types'
@@ -23,10 +24,11 @@ import { CreateSignupLinkModal } from './CreateSignupLinkModal'
 import { ImportProductsModal } from './ImportProductsModal'
 import { VendorDocuments } from './VendorDocuments'
 import { PendingProductReviews } from './PendingProductReviews'
+import { VendorLicenses } from './VendorLicenses'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
-type ActiveTab = 'vendors' | 'documents' | 'reviews'
+type ActiveTab = 'vendors' | 'documents' | 'reviews' | 'licenses'
 
 const VendorRowSkeleton = () => (
   <tr className='animate-pulse border-b border-dark-border'>
@@ -181,12 +183,27 @@ export const VendorManagement = () => {
           <ClipboardList size={15} />
           Product Reviews
         </button>
+        <button
+          type='button'
+          onClick={() => setActiveTab('licenses')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+            activeTab === 'licenses'
+              ? 'border-accent-primary text-accent-primary'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          )}
+        >
+          <FileBadge2 size={15} />
+          Licenses
+        </button>
       </div>
 
       {activeTab === 'documents' ? (
         <VendorDocuments />
       ) : activeTab === 'reviews' ? (
         <PendingProductReviews />
+      ) : activeTab === 'licenses' ? (
+        <VendorLicenses />
       ) : (
         <>
           {/* Stats Cards */}

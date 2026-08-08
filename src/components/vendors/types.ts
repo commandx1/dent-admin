@@ -173,16 +173,61 @@ export interface RejectProductReviewResponse {
   message: string;
 }
 
-/** Response of ecommerce-api GET /api/products/{id} (ProductResponseDto) */
+export type VendorLicenseType = 'DEA' | 'STATE_DENTAL';
+
+export interface VendorLicense {
+  id: string;
+  userId: string;
+  licenseType: VendorLicenseType;
+  stateOfLicense: string | null;
+  licenseNumber: string;
+  year: number;
+  month: number;
+  day: number;
+  /** Null: pending review, true: approved, false: rejected. */
+  approved: boolean | null;
+  rejectDescription: string | null;
+  createdDate: string;
+  updatedDate: string;
+  lastReviewedByAdminId: string | null;
+  lastReviewedByAdminName: string | null;
+  lastReviewedByAdminSurname: string | null;
+  /** Owner name - company name if a company, otherwise user name. */
+  name: string;
+  ownerId: string;
+  deleted: boolean;
+}
+
+export interface VendorLicenseListResponse {
+  content: VendorLicense[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface ApproveVendorLicenseResponse {
+  licenseId: string;
+  success: boolean;
+  message: string;
+  timestamp: number;
+}
+
+export interface RejectVendorLicenseResponse {
+  licenseId: string;
+  success: boolean;
+  message: string;
+  timestamp: number;
+}
+
+/** `product` field of dt-admin-api's PendingProductDetailsResponseDto */
 export interface ProductDetail {
   id: string;
   name: string;
-  detailedName: string | null;
   aboutProduct: string | null;
-  subCategoriesId: string | null;
-  reviewCount: number;
-  vendorsCount: number;
-  overallStar: number;
+  userProductId: string | null;
   barcode: number | null;
   barcodeFormats: string | null;
   active: boolean;
@@ -194,10 +239,6 @@ export interface ProductDetail {
   manufacturerCode: string | null;
   manufacturer: string | null;
   brand: string | null;
-  packaging: string | null;
-  primaryMarket: string | null;
-  scent: string | null;
-  size: string | null;
   type: string | null;
   sds: string | null;
   exampleVariationsProductId: string | null;
@@ -208,12 +249,37 @@ export interface ProductDetail {
   categoryLevel5: string | null;
   manufacturerSiteProductPage: string | null;
   dentalLicenseRequired: string | null;
-  reorderId: string | null;
-  referanceNumber: string | null;
   height: number;
   length: number;
   width: number;
   distanceUnit: string | null;
   weight: number;
   massUnit: string | null;
+}
+
+/** Nested shape of dt-admin-api's PendingProductDetailsResponseDto */
+export interface PendingProductDetailsResponse {
+  product: ProductDetail;
+  attributes: Array<{
+    id: string;
+    productId: string;
+    attributeName: string;
+    attributeValue: string;
+  }>;
+  userProduct: {
+    id: string;
+    userId: string;
+    productId: string;
+    skuCode: string | null;
+    oldPrice: number;
+    price: number;
+    discount: number;
+    stock: number;
+    active: boolean;
+    sellCount: number;
+    shipmentFee: number;
+    heavyShippingSurcharge: number | null;
+    exportPackaging: boolean | null;
+    fulfillmentPolicy: string | null;
+  };
 }

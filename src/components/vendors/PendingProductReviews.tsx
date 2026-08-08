@@ -33,7 +33,7 @@ export const PendingProductReviews: React.FC = () => {
   const [sortBy, setSortBy] = useState<ProductReviewSortBy>('createdDate')
   const [sortDirection, setSortDirection] = useState<SortDirection>('DESC')
   const [rejectModal, setRejectModal] = useState<{ productId: string; productName: string } | null>(null)
-  const [detailModal, setDetailModal] = useState<{ productId: string; productName: string } | null>(null)
+  const [detailModal, setDetailModal] = useState<{ productId: string; productName: string; userId: string } | null>(null)
   const [approvingIds, setApprovingIds] = useState<Set<string>>(new Set())
 
   const fetchReviews = useCallback(async () => {
@@ -135,7 +135,7 @@ export const PendingProductReviews: React.FC = () => {
                     isApproving={approvingIds.has(review.productId)}
                     onApprove={() => void handleApprove(review.productId)}
                     onReject={() => setRejectModal({ productId: review.productId, productName: review.productName })}
-                    onShowDetails={() => setDetailModal({ productId: review.productId, productName: review.productName })}
+                    onShowDetails={() => setDetailModal({ productId: review.productId, productName: review.productName, userId: review.userId })}
                     formatDate={formatDate}
                   />
                 ))
@@ -158,6 +158,7 @@ export const PendingProductReviews: React.FC = () => {
       {detailModal && (
         <ProductDetailModal
           productId={detailModal.productId}
+          userId={detailModal.userId}
           productName={detailModal.productName}
           isApproving={approvingIds.has(detailModal.productId)}
           onApprove={async () => {

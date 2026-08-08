@@ -6,13 +6,10 @@ import {
   XCircle,
   FileText,
   Search,
-  AlertCircle,
-  Clock,
   RefreshCw,
 } from 'lucide-react'
 import {
   vendorDocumentService,
-  type GetVendorDocumentsParams,
   type DocumentSortBy,
   type SortDirection,
 } from '@/services/vendorDocumentService'
@@ -22,29 +19,6 @@ import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
 import { useAppStore } from '@/store/useAppStore'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-
-type StatusFilter = 'all' | 'pending' | 'approved' | 'revision'
-
-const STATUS_OPTIONS: { label: string; value: StatusFilter }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Revision Requested', value: 'revision' },
-]
-
-function statusFilterToParams(filter: StatusFilter): Pick<GetVendorDocumentsParams, 'approved' | 'revisionRequested'> {
-  switch (filter) {
-    case 'approved':
-      return { approved: true, revisionRequested: null }
-    case 'revision':
-      return { approved: null, revisionRequested: true }
-    case 'pending':
-      return { approved: false, revisionRequested: false }
-    default:
-      return { approved: null, revisionRequested: null }
-  }
-}
 
 // Vendor submitted a revision but auto-approval failed (system validation error)
 function isRevisionAutoFailed(doc: AdminVendorDocument): boolean {
@@ -56,62 +30,6 @@ function isRevisionAutoFailed(doc: AdminVendorDocument): boolean {
   )
 }
 
-function DocumentStatusBadge({ doc }: { doc: AdminVendorDocument }) {
-  if (doc.approved) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-accent-success/10 px-2.5 py-0.5 text-xs font-semibold text-accent-success">
-        <CheckCircle2 size={11} className="shrink-0" />
-        Approved
-      </span>
-    )
-  }
-  if (isRevisionAutoFailed(doc)) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-accent-danger/10 px-2.5 py-0.5 text-xs font-semibold text-accent-danger">
-        <AlertCircle size={11} className="shrink-0" />
-        Revision Failed
-      </span>
-    )
-  }
-  if (doc.revisionRequested && doc.revisedFilePath) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-accent-primary/10 px-2.5 py-0.5 text-xs font-semibold text-accent-primary">
-        <Clock size={11} className="shrink-0" />
-        Revision Uploaded
-      </span>
-    )
-  }
-  if (doc.revisionRequested) {
-    return (
-      <span className="inline-flex whitespace-nowrap items-center gap-1 rounded-full bg-accent-warning/10 px-2.5 py-0.5 text-xs font-semibold text-accent-warning">
-        <XCircle size={11} className="shrink-0" />
-        Revision Requested
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
-      <FileText size={11} className="shrink-0" />
-      Pending
-    </span>
-  )
-}
-
-function SystemRejectedBadge({ systemRejected }: { systemRejected: boolean }) {
-  if (systemRejected) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-accent-danger/10 px-2.5 py-0.5 text-xs font-semibold text-accent-danger">
-        <XCircle size={11} className="shrink-0" />
-        Rejected
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
-      No
-    </span>
-  )
-}
 
 function Tooltip({ content, children }: { content: string; children: React.ReactNode }) {
   const [visible, setVisible] = useState(false)
@@ -157,7 +75,7 @@ function Tooltip({ content, children }: { content: string; children: React.React
 
 const DocumentRowSkeleton = () => (
   <tr className="animate-pulse border-b border-dark-border">
-    {Array.from({ length: 7 }).map((_, i) => (
+    {Array.from({ length: 6 }).map((_, i) => (
       <td key={i} className="py-4 px-4">
         <div className="h-4 bg-slate-200 rounded" style={{ width: `${60 + (i % 3) * 20}%` }} />
       </td>
@@ -174,7 +92,6 @@ export const VendorDocuments: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0)
   const [sortBy, setSortBy] = useState<DocumentSortBy>('createdDate')
   const [sortDirection, setSortDirection] = useState<SortDirection>('DESC')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [localSearch, setLocalSearch] = useState('')
   const [rejectModal, setRejectModal] = useState<{ docId: string; vendorName: string } | null>(null)
   const [approvingIds, setApprovingIds] = useState<Set<string>>(new Set())
@@ -186,14 +103,14 @@ export const VendorDocuments: React.FC = () => {
   const fetchDocuments = useCallback(async () => {
     try {
       setIsLoading(true)
-      const statusParams = statusFilterToParams(statusFilter)
       const data = await vendorDocumentService.getDocuments({
         page: currentPage,
         size: itemsPerPage,
         sortBy,
         sortDirection,
         isDeleted: false,
-        ...statusParams,
+        approved: null,
+        revisionRequested: null,
         ...(effectiveSearch ? { searchTerm: effectiveSearch } : {}),
       })
       setDocuments(data.content)
@@ -205,11 +122,11 @@ export const VendorDocuments: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [currentPage, itemsPerPage, sortBy, sortDirection, statusFilter, effectiveSearch])
+  }, [currentPage, itemsPerPage, sortBy, sortDirection, effectiveSearch])
 
   useEffect(() => {
     setCurrentPage(0)
-  }, [statusFilter, effectiveSearch])
+  }, [effectiveSearch])
 
   useEffect(() => {
     const timer = setTimeout(() => { void fetchDocuments() }, 300)
@@ -236,9 +153,6 @@ export const VendorDocuments: React.FC = () => {
             ? `Imported ${result.importedCount}, failed ${result.failedCount}`
             : `${result.importedCount} products imported successfully`
         toast.success(msg)
-        if (result.invalidRecordsFilePath) {
-          toast.info('Invalid records file available — download from the document row')
-        }
       } else {
         toast.error(result.message)
       }
@@ -283,34 +197,15 @@ export const VendorDocuments: React.FC = () => {
     <div className="space-y-6">
       {/* Filters */}
       <div className="bg-dark-surface border border-dark-border rounded-xl p-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search by vendor name..."
-              value={localSearch}
-              onChange={(e) => { setLocalSearch(e.target.value); setCurrentPage(0) }}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-dark-elevated border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
-            />
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {STATUS_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setStatusFilter(opt.value)}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border',
-                  statusFilter === opt.value
-                    ? 'bg-accent-primary text-white border-accent-primary'
-                    : 'bg-dark-elevated text-slate-600 border-dark-border hover:bg-dark-border',
-                )}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+        <div className="relative max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+          <input
+            type="text"
+            placeholder="Search by vendor name..."
+            value={localSearch}
+            onChange={(e) => { setLocalSearch(e.target.value); setCurrentPage(0) }}
+            className="w-full pl-9 pr-4 py-2 text-sm bg-dark-elevated border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
+          />
         </div>
       </div>
 
@@ -324,8 +219,6 @@ export const VendorDocuments: React.FC = () => {
                   <SortButton label="Vendor" onClick={() => {}} isActive={false} direction="ASC" />
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">File</th>
-                <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
-                <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">System Rejected</th>
                 <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Requested Edits</th>
                 <th className="py-3 px-4 text-left">
                   <SortButton
@@ -353,7 +246,7 @@ export const VendorDocuments: React.FC = () => {
                 ))
               ) : documents.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-slate-500">
+                  <td colSpan={6} className="py-16 text-center text-slate-500">
                     <FileText className="mx-auto mb-3 h-10 w-10 text-slate-300" />
                     <p className="font-medium">No documents found</p>
                     <p className="text-sm text-slate-400 mt-1">Try adjusting your search or filters</p>
@@ -368,54 +261,16 @@ export const VendorDocuments: React.FC = () => {
                     </td>
 
                     <td className="py-3 px-4">
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          disabled={downloadingId === `${doc.id}-original`}
-                          onClick={() => handleDownload(doc, 'original')}
-                          className="flex items-center gap-1 text-xs text-accent-primary hover:underline disabled:opacity-50"
-                          title={vendorDocumentService.extractFileName(doc.filePath)}
-                        >
-                          <Download size={12} />
-                          Original
-                        </button>
-                        {doc.revisedFilePath && (
-                          <>
-                            <span className="text-slate-300">·</span>
-                            <button
-                              type="button"
-                              disabled={downloadingId === `${doc.id}-revised`}
-                              onClick={() => handleDownload(doc, 'revised')}
-                              className="flex items-center gap-1 text-xs text-accent-secondary hover:underline disabled:opacity-50"
-                            >
-                              <Download size={12} />
-                              Revised
-                            </button>
-                          </>
-                        )}
-                        {doc.invalidRecordsFilePath && (
-                          <>
-                            <span className="text-slate-300">·</span>
-                            <button
-                              type="button"
-                              disabled={downloadingId === `${doc.id}-invalid`}
-                              onClick={() => handleDownload(doc, 'invalid')}
-                              className="flex items-center gap-1 text-xs text-accent-danger hover:underline disabled:opacity-50"
-                            >
-                              <Download size={12} />
-                              Invalid
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <DocumentStatusBadge doc={doc} />
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <SystemRejectedBadge systemRejected={doc.systemRejected} />
+                      <button
+                        type="button"
+                        disabled={downloadingId === `${doc.id}-original`}
+                        onClick={() => handleDownload(doc, 'original')}
+                        className="flex items-center gap-1 text-xs text-accent-primary hover:underline disabled:opacity-50"
+                        title={vendorDocumentService.extractFileName(doc.filePath)}
+                      >
+                        <Download size={12} />
+                        Original
+                      </button>
                     </td>
 
                     <td className="py-3 px-4 max-w-48">

@@ -5,22 +5,21 @@ import {
   Package,
   CheckCircle2,
   XCircle,
-  Star,
-  Users,
-  MessageSquare,
   Ruler,
   Weight,
   ExternalLink,
   ChevronRight,
   ScanBarcode,
   RefreshCw,
+  Tag,
 } from 'lucide-react';
 import { productReviewService } from '@/services/productReviewService';
-import type { ProductDetail } from './types';
+import type { PendingProductDetailsResponse } from './types';
 import { getImageUrl } from '@/lib/utils';
 
 interface ProductDetailModalProps {
   productId: string;
+  userId: string;
   productName: string;
   isApproving: boolean;
   onApprove: () => void | Promise<void>;
@@ -30,13 +29,14 @@ interface ProductDetailModalProps {
 
 export function ProductDetailModal({
   productId,
+  userId,
   productName,
   isApproving,
   onApprove,
   onReject,
   onClose,
 }: ProductDetailModalProps) {
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [detail, setDetail] = useState<PendingProductDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
@@ -45,11 +45,11 @@ export function ProductDetailModal({
   useEffect(() => {
     let cancelled = false;
     productReviewService
-      .getProductDetail(productId)
+      .getProductDetail(productId, userId)
       .then((data) => {
         if (cancelled) return;
-        setProduct(data);
-        setActivePhoto(data.coverPhotoPath || data.photoPhats?.[0] || null);
+        setDetail(data);
+        setActivePhoto(data.product.coverPhotoPath || data.product.photoPhats?.[0] || null);
       })
       .catch(() => {
         if (!cancelled) setHasError(true);
@@ -60,7 +60,11 @@ export function ProductDetailModal({
     return () => {
       cancelled = true;
     };
-  }, [productId, reloadKey]);
+  }, [productId, userId, reloadKey]);
+
+  const product = detail?.product ?? null;
+  const attributes = detail?.attributes ?? [];
+  const userProduct = detail?.userProduct ?? null;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -106,9 +110,6 @@ export function ProductDetailModal({
             <h2 className="mt-0.5 truncate text-lg font-semibold text-slate-800">
               {product?.name || productName}
             </h2>
-            {product?.detailedName && (
-              <p className="mt-0.5 truncate text-xs text-slate-500">{product.detailedName}</p>
-            )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {product && (
@@ -142,7 +143,7 @@ export function ProductDetailModal({
               <Package className="mx-auto mb-3 h-10 w-10 text-slate-300" />
               <p className="font-medium text-slate-600">Failed to load product details</p>
               <p className="mt-1 text-sm text-slate-400">
-                Please check that the ecommerce API is reachable
+                Please check that the admin API is reachable
               </p>
               <button
                 type="button"
@@ -216,24 +217,6 @@ export function ProductDetailModal({
                     </div>
                   )}
 
-                  <div className="grid grid-cols-3 gap-2">
-                    <StatCard
-                      icon={<Star size={14} className="text-amber-500" />}
-                      label="Rating"
-                      value={product.overallStar ? product.overallStar.toFixed(1) : '—'}
-                    />
-                    <StatCard
-                      icon={<MessageSquare size={14} className="text-accent-primary" />}
-                      label="Reviews"
-                      value={String(product.reviewCount ?? 0)}
-                    />
-                    <StatCard
-                      icon={<Users size={14} className="text-accent-success" />}
-                      label="Vendors"
-                      value={String(product.vendorsCount ?? 0)}
-                    />
-                  </div>
-
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                     <SpecItem label="Brand" value={product.brand} />
                     <SpecItem label="Manufacturer" value={product.manufacturer} />
@@ -244,14 +227,15 @@ export function ProductDetailModal({
                       mono
                       icon={<ScanBarcode size={12} className="text-slate-400" />}
                     />
-                    <SpecItem label="Packaging" value={product.packaging} />
-                    <SpecItem label="Size" value={product.size} />
+                    <SpecItem label="Barcode format" value={product.barcodeFormats} />
                     <SpecItem label="Type" value={product.type} />
-                    <SpecItem label="Scent" value={product.scent} />
-                    <SpecItem label="Primary market" value={product.primaryMarket} />
+                    <SpecItem label="SDS" value={product.sds} />
                     <SpecItem label="License required" value={product.dentalLicenseRequired} />
-                    <SpecItem label="Reorder ID" value={product.reorderId} mono />
-                    <SpecItem label="Reference no." value={product.referanceNumber} mono />
+                    <SpecItem
+                      label="Example variations product ID"
+                      value={product.exampleVariationsProductId}
+                      mono
+                    />
                   </dl>
                 </div>
               </div>
@@ -274,6 +258,74 @@ export function ProductDetailModal({
                     </Section>
                   )}
                 </div>
+              )}
+
+              {/* Attributes */}
+              {attributes.length > 0 && (
+                <Section title="Attributes">
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                    {attributes.map((attr) => (
+                      <SpecItem
+                        key={attr.id}
+                        label={attr.attributeName}
+                        value={attr.attributeValue}
+                        icon={<Tag size={12} className="text-slate-400" />}
+                      />
+                    ))}
+                  </dl>
+                </Section>
+              )}
+
+              {/* Vendor listing */}
+              {userProduct && (
+                <Section title="Vendor listing">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <MetricCard
+                      icon={<Tag size={14} />}
+                      label="Price"
+                      value={formatCurrency(userProduct.price)}
+                    />
+                    <MetricCard
+                      icon={<Tag size={14} />}
+                      label="Old price"
+                      value={formatCurrency(userProduct.oldPrice)}
+                    />
+                    <MetricCard
+                      icon={<Tag size={14} />}
+                      label="Discount"
+                      value={userProduct.discount ? `${userProduct.discount}%` : '—'}
+                    />
+                    <MetricCard icon={<Package size={14} />} label="Stock" value={String(userProduct.stock)} />
+                    <MetricCard
+                      icon={<Package size={14} />}
+                      label="Sell count"
+                      value={String(userProduct.sellCount)}
+                    />
+                    <MetricCard
+                      icon={<Tag size={14} />}
+                      label="Shipment fee"
+                      value={formatCurrency(userProduct.shipmentFee)}
+                    />
+                    <MetricCard
+                      icon={<Tag size={14} />}
+                      label="Heavy shipping fee"
+                      value={
+                        userProduct.heavyShippingSurcharge != null
+                          ? formatCurrency(userProduct.heavyShippingSurcharge)
+                          : '—'
+                      }
+                    />
+                    <MetricCard
+                      icon={<Package size={14} />}
+                      label="Export packaging"
+                      value={userProduct.exportPackaging == null ? '—' : userProduct.exportPackaging ? 'Yes' : 'No'}
+                    />
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+                    <SpecItem label="SKU code" value={userProduct.skuCode} mono />
+                    <SpecItem label="Fulfillment policy" value={userProduct.fulfillmentPolicy} />
+                  </dl>
+                </Section>
               )}
 
               {/* Shipping */}
@@ -303,20 +355,28 @@ export function ProductDetailModal({
               </Section>
 
               {/* Links & meta */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-dark-border pt-4">
-                <div className="text-[11px] text-slate-400">
-                  <span className="font-medium text-slate-500">Product ID:</span>{' '}
-                  <span className="font-mono">{product.id}</span>
+              <div className="flex flex-wrap items-end justify-between gap-3 border-t border-dark-border pt-4">
+                <div className="space-y-1 text-[11px] text-slate-400">
+                  <div>
+                    <span className="font-medium text-slate-500">Product ID:</span>{' '}
+                    <span className="font-mono">{product.id}</span>
+                    {product.userProductId && (
+                      <>
+                        {' · '}
+                        <span className="font-medium text-slate-500">User product ID:</span>{' '}
+                        <span className="font-mono">{product.userProductId}</span>
+                      </>
+                    )}
+                  </div>
                   {product.createdDate && (
-                    <>
-                      {' · '}
+                    <div>
                       <span className="font-medium text-slate-500">Created:</span>{' '}
                       {new Date(product.createdDate).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}
-                    </>
+                    </div>
                   )}
                 </div>
                 {manufacturerPageUrl && (
@@ -382,24 +442,6 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </div>
 );
 
-const StatCard = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) => (
-  <div className="rounded-xl border border-dark-border bg-dark-elevated/60 px-3 py-2.5">
-    <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-      {icon}
-      {label}
-    </div>
-    <p className="mt-1 text-base font-semibold text-slate-800">{value}</p>
-  </div>
-);
-
 const SpecItem = ({
   label,
   value,
@@ -445,6 +487,9 @@ const MetricCard = ({
 
 const formatMetric = (value: number, unit: string | null): string =>
   value ? `${value} ${unit ?? ''}`.trim() : '—';
+
+const formatCurrency = (value: number): string =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 
 const DetailSkeleton = () => (
   <div className="animate-pulse space-y-6">
