@@ -163,6 +163,29 @@ export interface PendingProductReviewListResponse {
   hasPrevious: boolean;
 }
 
+export interface PendingProductVendor {
+  userId: string;
+  name: string;
+  surname: string;
+  companyId: string | null;
+  companyName: string | null;
+  ownerName: string;
+  ownerId: string;
+  pendingProductCount: number;
+  latestProductCreatedDate: string | null;
+  latestReviewUpdatedDate: string | null;
+}
+
+export interface PendingProductVendorListResponse {
+  content: PendingProductVendor[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface ApproveProductReviewResponse {
   success: boolean;
   message: string;

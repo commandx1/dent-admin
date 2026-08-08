@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Package, CheckCircle2, XCircle, ClipboardList, Eye } from 'lucide-react'
+import { Package, CheckCircle2, XCircle, ClipboardList, Eye, ChevronRight, ChevronDown, Store } from 'lucide-react'
 import {
   productReviewService,
-  type ProductReviewSortBy,
+  type ProductVendorSortBy,
   type SortDirection,
 } from '@/services/productReviewService'
-import type { PendingProductReview } from './types'
+import type { PendingProductReview, PendingProductVendor } from './types'
 import { RejectProductReviewModal } from './RejectProductReviewModal'
 import { ProductDetailModal } from './ProductDetailModal'
 import { TablePagination } from '../common/TablePagination'
 import { SortButton } from '../common/SortButton'
 import { toast } from 'sonner'
-import { getImageUrl } from '@/lib/utils'
+import { getImageUrl, cn } from '@/lib/utils'
 
-const ReviewRowSkeleton = () => (
+const VendorRowSkeleton = () => (
   <tr className="animate-pulse border-b border-dark-border">
     {Array.from({ length: 4 }).map((_, i) => (
       <td key={i} className="py-4 px-4">
@@ -23,33 +23,46 @@ const ReviewRowSkeleton = () => (
   </tr>
 )
 
+const ReviewRowSkeleton = () => (
+  <tr className="animate-pulse border-b border-dark-border">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <td key={i} className="py-3 px-3">
+        <div className="h-4 bg-slate-200 rounded" style={{ width: `${60 + (i % 3) * 20}%` }} />
+      </td>
+    ))}
+  </tr>
+)
+
 export const PendingProductReviews: React.FC = () => {
-  const [reviews, setReviews] = useState<PendingProductReview[]>([])
+  const [vendors, setVendors] = useState<PendingProductVendor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalElements, setTotalElements] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
-  const [sortBy, setSortBy] = useState<ProductReviewSortBy>('createdDate')
+  const [sortBy, setSortBy] = useState<ProductVendorSortBy>('pendingProductCount')
   const [sortDirection, setSortDirection] = useState<SortDirection>('DESC')
+  const [expandedVendorId, setExpandedVendorId] = useState<string | null>(null)
+  const [refreshToken, setRefreshToken] = useState(0)
+
   const [rejectModal, setRejectModal] = useState<{ productId: string; productName: string } | null>(null)
   const [detailModal, setDetailModal] = useState<{ productId: string; productName: string; userId: string } | null>(null)
   const [approvingIds, setApprovingIds] = useState<Set<string>>(new Set())
 
-  const fetchReviews = useCallback(async () => {
+  const fetchVendors = useCallback(async () => {
     try {
       setIsLoading(true)
-      const data = await productReviewService.getPendingReviews({
+      const data = await productReviewService.getPendingVendors({
         page: currentPage,
         size: itemsPerPage,
         sortBy,
         sortDirection,
       })
-      setReviews(data.content)
+      setVendors(data.content)
       setTotalElements(data.totalElements)
       setTotalPages(data.totalPages)
     } catch (error) {
-      console.error('Failed to fetch pending product reviews:', error)
+      console.error('Failed to fetch pending product vendors:', error)
       toast.error('Failed to load pending product reviews')
     } finally {
       setIsLoading(false)
@@ -57,16 +70,16 @@ export const PendingProductReviews: React.FC = () => {
   }, [currentPage, itemsPerPage, sortBy, sortDirection])
 
   useEffect(() => {
-    const timer = setTimeout(() => { void fetchReviews() }, 300)
+    const timer = setTimeout(() => { void fetchVendors() }, 300)
     return () => clearTimeout(timer)
-  }, [fetchReviews])
+  }, [fetchVendors, refreshToken])
 
-  const handleSort = (field: ProductReviewSortBy) => {
+  const handleSort = (field: ProductVendorSortBy) => {
     if (sortBy === field) {
       setSortDirection((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'))
     } else {
       setSortBy(field)
-      setSortDirection('ASC')
+      setSortDirection('DESC')
     }
     setCurrentPage(0)
   }
@@ -80,7 +93,7 @@ export const PendingProductReviews: React.FC = () => {
       } else {
         toast.error(result.message || 'Failed to approve product')
       }
-      void fetchReviews()
+      setRefreshToken((t) => t + 1)
       return result.success
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } }
@@ -91,8 +104,8 @@ export const PendingProductReviews: React.FC = () => {
     }
   }
 
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  const formatDate = (iso: string | null) =>
+    iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '--'
 
   return (
     <div className="space-y-6">
@@ -101,25 +114,32 @@ export const PendingProductReviews: React.FC = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-border bg-dark-elevated">
-                <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Product</th>
+                <th className="py-3 px-4 w-10" />
                 <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Vendor</th>
                 <th className="py-3 px-4 text-left">
                   <SortButton
-                    label="Submitted"
+                    label="Pending Products"
+                    onClick={() => handleSort('pendingProductCount')}
+                    isActive={sortBy === 'pendingProductCount'}
+                    direction={sortDirection.toLowerCase() as 'asc' | 'desc'}
+                  />
+                </th>
+                <th className="py-3 px-4 text-left">
+                  <SortButton
+                    label="Latest Submission"
                     onClick={() => handleSort('createdDate')}
                     isActive={sortBy === 'createdDate'}
                     direction={sortDirection.toLowerCase() as 'asc' | 'desc'}
                   />
                 </th>
-                <th className="py-3 px-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array.from({ length: itemsPerPage > 5 ? 5 : itemsPerPage }).map((_, i) => (
-                  <ReviewRowSkeleton key={i} />
+                  <VendorRowSkeleton key={i} />
                 ))
-              ) : reviews.length === 0 ? (
+              ) : vendors.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="py-16 text-center text-slate-500">
                     <ClipboardList className="mx-auto mb-3 h-10 w-10 text-slate-300" />
@@ -128,14 +148,19 @@ export const PendingProductReviews: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                reviews.map((review) => (
-                  <ReviewRow
-                    key={review.productId}
-                    review={review}
-                    isApproving={approvingIds.has(review.productId)}
-                    onApprove={() => void handleApprove(review.productId)}
-                    onReject={() => setRejectModal({ productId: review.productId, productName: review.productName })}
-                    onShowDetails={() => setDetailModal({ productId: review.productId, productName: review.productName, userId: review.userId })}
+                vendors.map((vendor) => (
+                  <VendorReviewGroup
+                    key={vendor.userId}
+                    vendor={vendor}
+                    isExpanded={expandedVendorId === vendor.userId}
+                    onToggle={() =>
+                      setExpandedVendorId((prev) => (prev === vendor.userId ? null : vendor.userId))
+                    }
+                    refreshToken={refreshToken}
+                    approvingIds={approvingIds}
+                    onApprove={(productId) => void handleApprove(productId)}
+                    onReject={(productId, productName) => setRejectModal({ productId, productName })}
+                    onShowDetails={(productId, productName, userId) => setDetailModal({ productId, productName, userId })}
                     formatDate={formatDate}
                   />
                 ))
@@ -151,7 +176,7 @@ export const PendingProductReviews: React.FC = () => {
           itemsPerPage={itemsPerPage}
           onPageChange={(page) => setCurrentPage(page - 1)}
           onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(0) }}
-          itemName="reviews"
+          itemName="vendors"
         />
       </div>
 
@@ -178,11 +203,151 @@ export const PendingProductReviews: React.FC = () => {
           onSuccess={() => {
             setRejectModal(null)
             setDetailModal(null)
-            void fetchReviews()
+            setRefreshToken((t) => t + 1)
           }}
         />
       )}
     </div>
+  )
+}
+
+interface VendorReviewGroupProps {
+  vendor: PendingProductVendor
+  isExpanded: boolean
+  onToggle: () => void
+  refreshToken: number
+  approvingIds: Set<string>
+  onApprove: (productId: string) => void
+  onReject: (productId: string, productName: string) => void
+  onShowDetails: (productId: string, productName: string, userId: string) => void
+  formatDate: (iso: string | null) => string
+}
+
+const VendorReviewGroup: React.FC<VendorReviewGroupProps> = ({
+  vendor,
+  isExpanded,
+  onToggle,
+  refreshToken,
+  approvingIds,
+  onApprove,
+  onReject,
+  onShowDetails,
+  formatDate,
+}) => {
+  const [products, setProducts] = useState<PendingProductReview[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [page, setPage] = useState(0)
+  const [size, setSize] = useState(5)
+  const [totalElements, setTotalElements] = useState(vendor.pendingProductCount)
+  const [totalPages, setTotalPages] = useState(0)
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const data = await productReviewService.getPendingReviews({
+        userId: vendor.userId,
+        page,
+        size,
+        sortBy: 'createdDate',
+        sortDirection: 'DESC',
+      })
+      setProducts(data.content)
+      setTotalElements(data.totalElements)
+      setTotalPages(data.totalPages)
+    } catch (error) {
+      console.error('Failed to fetch vendor pending products:', error)
+      toast.error('Failed to load vendor pending products')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [vendor.userId, page, size])
+
+  useEffect(() => {
+    if (isExpanded) void fetchProducts()
+  }, [isExpanded, fetchProducts, refreshToken])
+
+  return (
+    <>
+      <tr
+        className={cn(
+          'border-b border-dark-border transition-colors cursor-pointer hover:bg-dark-elevated/50',
+          isExpanded && 'bg-dark-elevated/30',
+        )}
+        onClick={onToggle}
+      >
+        <td className="py-4 px-4">
+          <button type="button" className="text-slate-500 hover:text-slate-900 transition-colors">
+            {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+          </button>
+        </td>
+        <td className="py-3 px-4">
+          <div className="flex items-center gap-3">
+            <div className="min-w-9 h-9 bg-dark-elevated rounded-lg flex items-center justify-center shrink-0">
+              <Store className="text-slate-400 h-4 w-4" />
+            </div>
+            <p className="text-sm font-medium text-slate-800">{vendor.ownerName}</p>
+          </div>
+        </td>
+        <td className="py-3 px-4">
+          <span className="inline-flex items-center rounded-full bg-accent-primary/10 text-accent-primary text-xs font-semibold px-2.5 py-1">
+            {vendor.pendingProductCount}
+          </span>
+        </td>
+        <td className="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">{formatDate(vendor.latestProductCreatedDate)}</td>
+      </tr>
+
+      {isExpanded && (
+        <tr className="border-b border-dark-border bg-dark-elevated/10">
+          <td colSpan={4} className="p-0">
+            <div className="px-4 py-3">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-dark-border">
+                    <th className="py-2 px-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Product</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Vendor</th>
+                    <th className="py-2 px-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Submitted</th>
+                    <th className="py-2 px-3 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => <ReviewRowSkeleton key={i} />)
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-sm text-slate-400">
+                        No pending products for this vendor
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((review) => (
+                      <ReviewRow
+                        key={review.productId}
+                        review={review}
+                        isApproving={approvingIds.has(review.productId)}
+                        onApprove={() => onApprove(review.productId)}
+                        onReject={() => onReject(review.productId, review.productName)}
+                        onShowDetails={() => onShowDetails(review.productId, review.productName, review.userId)}
+                        formatDate={formatDate}
+                      />
+                    ))
+                  )}
+                </tbody>
+              </table>
+
+              <TablePagination
+                currentPage={page + 1}
+                totalPages={totalPages}
+                totalItems={totalElements}
+                itemsPerPage={size}
+                onPageChange={(p) => setPage(p - 1)}
+                onItemsPerPageChange={(n) => { setSize(n); setPage(0) }}
+                itemName="products"
+              />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   )
 }
 
@@ -192,14 +357,14 @@ interface ReviewRowProps {
   onApprove: () => void
   onReject: () => void
   onShowDetails: () => void
-  formatDate: (iso: string) => string
+  formatDate: (iso: string | null) => string
 }
 
 const ReviewRow: React.FC<ReviewRowProps> = ({ review, isApproving, onApprove, onReject, onShowDetails, formatDate }) => {
   const [isImageError, setIsImageError] = useState(false)
   return (
     <tr className="border-b border-dark-border hover:bg-dark-elevated/50 transition-colors">
-      <td className="py-3 px-4">
+      <td className="py-3 px-3">
         <div className="flex items-center gap-3">
           <div className="min-w-10 h-10 bg-dark-border rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
             {review.coverPhotoPath && !isImageError ? (
@@ -216,9 +381,9 @@ const ReviewRow: React.FC<ReviewRowProps> = ({ review, isApproving, onApprove, o
           <p className="text-sm font-medium text-slate-800">{review.productName}</p>
         </div>
       </td>
-      <td className="py-3 px-4 text-sm text-slate-700">{review.ownerName}</td>
-      <td className="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">{formatDate(review.createdDate)}</td>
-      <td className="py-3 px-4">
+      <td className="py-3 px-3 text-sm text-slate-700">{review.ownerName}</td>
+      <td className="py-3 px-3 text-xs text-slate-500 whitespace-nowrap">{formatDate(review.createdDate)}</td>
+      <td className="py-3 px-3">
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
