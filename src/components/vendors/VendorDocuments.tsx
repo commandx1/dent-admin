@@ -269,7 +269,7 @@ export const VendorDocuments: React.FC = () => {
                         title={vendorDocumentService.extractFileName(doc.filePath)}
                       >
                         <Download size={12} />
-                        Original
+                        File
                       </button>
                     </td>
 
