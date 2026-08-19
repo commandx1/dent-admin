@@ -301,7 +301,7 @@ export function ProductDetailModal({
                     <MetricCard icon={<Package size={14} />} label="Stock" value={String(userProduct.stock)} />
                     <MetricCard
                       icon={<Package size={14} />}
-                      label="Sell count"
+                      label="Sales count"
                       value={String(userProduct.sellCount)}
                     />
                     <MetricCard
