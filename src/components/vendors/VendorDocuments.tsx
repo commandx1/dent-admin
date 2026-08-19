@@ -216,7 +216,7 @@ export const VendorDocuments: React.FC = () => {
             <thead>
               <tr className="border-b border-dark-border bg-dark-elevated">
                 <th className="py-3 px-4 text-left">
-                  <SortButton label="Vendor" onClick={() => {}} isActive={false} direction="ASC" />
+                  <SortButton label="Vendor" onClick={() => {}} isActive={false} direction="asc" />
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">File</th>
                 <th className="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Requested Edits</th>
