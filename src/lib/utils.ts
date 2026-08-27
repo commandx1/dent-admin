@@ -53,7 +53,7 @@ export async function searchPlaces(query: string): Promise<GooglePlacePrediction
   }
 
   const response = await fetch(
-    `/api/google-maps/place/autocomplete/json?input=${encodeURIComponent(query)}&key=${apiKey}&types=address`
+    `/api/google-maps/place/autocomplete/json?input=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}&types=address`
   )
 
   if (!response.ok) {
@@ -75,7 +75,7 @@ export async function getPlaceDetails(placeId: string): Promise<ParsedAddress> {
   }
 
   const response = await fetch(
-    `/api/google-maps/place/details/json?place_id=${encodeURIComponent(placeId)}&key=${apiKey}`
+    `/api/google-maps/place/details/json?place_id=${encodeURIComponent(placeId)}&key=${encodeURIComponent(apiKey)}`
   )
 
   if (!response.ok) {

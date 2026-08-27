@@ -2,7 +2,8 @@
 set -eu
 
 js_escape() {
-  printf '%s' "${1:-}" | sed \
+  # trim leading/trailing whitespace then escape for JS string literals
+  printf '%s' "${1:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
     -e 's/\\/\\\\/g' \
     -e 's/"/\\"/g' \
     -e 's/'"'"'/\\'"'"'/g' \

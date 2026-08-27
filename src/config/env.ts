@@ -10,10 +10,10 @@ declare global {
 export function getEnv(key: string): string {
   const runtime = typeof window !== 'undefined' ? window.__ENV__?.[key] : undefined
   if (runtime != null && runtime !== '') {
-    return runtime
+    return runtime.trim()
   }
   const buildTime = import.meta.env[key]
-  return typeof buildTime === 'string' ? buildTime : ''
+  return typeof buildTime === 'string' ? buildTime.trim() : ''
 }
 
 export const env = {
