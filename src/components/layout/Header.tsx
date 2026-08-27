@@ -84,13 +84,12 @@ export const Header = () => {
         if (!selectedVendor) return;
         try {
           const response = await authService.impersonate(selectedVendor.email);
-          const refreshToken = response.refreshToken;
+          const impersonateLink = response.impersonateLink;
 
-          if (refreshToken) {
-            const b2bUrl = import.meta.env.VITE_B2B_URL;
-            window.open(`${b2bUrl}/auth/impersonate?refreshToken=${refreshToken}`, '_blank');
+          if (impersonateLink) {
+            window.open(impersonateLink, '_blank');
           } else {
-            toast.error('Could not retrieve refreshToken for impersonation');
+            toast.error('Could not retrieve impersonate link');
           }
         } catch (error) {
           console.error('Impersonation failed:', error);

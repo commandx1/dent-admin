@@ -27,6 +27,7 @@ interface LoginResponse {
   // Tokens (standard expected)
   accessToken?: string;
   refreshToken?: string;
+  impersonateLink?: string;
 }
 
 interface Verify2FARequest {
