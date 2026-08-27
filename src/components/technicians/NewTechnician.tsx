@@ -25,6 +25,7 @@ import type { ParsedAddress } from '@/lib/utils'
 import { type CompanyMember, CAPABILITIES } from './types'
 import { technicianService } from '@/services/technicianService'
 import api from '@/lib/api'
+import { env } from '@/config/env'
 
 type TechnicianType = 'technician_company_admin' | 'technician_individual'
 
@@ -293,8 +294,8 @@ const NewTechnician: React.FC = () => {
                 },
                 {
                   headers: {
-                    Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-                    'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                    Authorization: `Bearer ${env.technicianAccessToken()}`,
+                    'X-Refresh-Token': env.technicianRefreshToken()
                   }
                 }
               )
@@ -311,8 +312,8 @@ const NewTechnician: React.FC = () => {
                     },
                     {
                       headers: {
-                        Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-                        'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                        Authorization: `Bearer ${env.technicianAccessToken()}`,
+                        'X-Refresh-Token': env.technicianRefreshToken()
                       }
                     }
                   )
@@ -337,8 +338,8 @@ const NewTechnician: React.FC = () => {
               },
               {
                 headers: {
-                  Authorization: `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-                  'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                  Authorization: `Bearer ${env.technicianAccessToken()}`,
+                  'X-Refresh-Token': env.technicianRefreshToken()
                 }
               }
             )

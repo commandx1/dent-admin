@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { env } from '@/config/env'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -46,7 +47,7 @@ export interface ParsedAddress {
 }
 
 export async function searchPlaces(query: string): Promise<GooglePlacePrediction[]> {
-  const apiKey = import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_API_KEY
+  const apiKey = env.googleMapsApiKey()
   if (!apiKey) {
     throw new Error('Google Maps API key is not configured')
   }
@@ -68,7 +69,7 @@ export async function searchPlaces(query: string): Promise<GooglePlacePrediction
 }
 
 export async function getPlaceDetails(placeId: string): Promise<ParsedAddress> {
-  const apiKey = import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_API_KEY
+  const apiKey = env.googleMapsApiKey()
   if (!apiKey) {
     throw new Error('Google Maps API key is not configured')
   }
@@ -171,7 +172,7 @@ export function getImageUrl(path: string | null | undefined): string {
   if (!path) return ''
   if (path.startsWith('http://') || path.startsWith('https://')) return path
 
-  const ecommerceApiUrl = import.meta.env.VITE_ECOMMERCE_API_URL || ''
+  const ecommerceApiUrl = env.ecommerceApiUrl()
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
   return `${ecommerceApiUrl}${normalizedPath}`
 }

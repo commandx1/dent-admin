@@ -24,7 +24,6 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
     try {
       setIsImpersonating(true);
       const response = await authService.impersonate(vendor.email);
-      
       const impersonateLink = response.impersonateLink;
 
       if (impersonateLink) {

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import api from '@/lib/api'
 import { appointmentService } from '@/services/appointmentService'
 import { toast } from 'sonner'
+import { env } from '@/config/env'
 
 interface TechnicianOption {
   id: string
@@ -259,8 +260,8 @@ export const AppointmentCard = ({
         },
         {
           headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_INVOICE_ACCESS_TOKEN}`,
-            'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+            Authorization: `Bearer ${env.invoiceAccessToken()}`,
+            'X-Refresh-Token': env.technicianRefreshToken()
           }
         }
       )

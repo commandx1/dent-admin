@@ -6,6 +6,7 @@ import AddressAutocomplete from './AddressAutocomplete';
 import type { ParsedAddress } from '@/lib/utils';
 import { type CompanyMember, CAPABILITIES } from './types';
 import { cn } from '@/lib/utils';
+import { env } from '@/config/env';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -91,8 +92,8 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     try {
       const response = await api.post('/api/dentypro/technician/technician', payload, {
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-          'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+          'Authorization': `Bearer ${env.technicianAccessToken()}`,
+          'X-Refresh-Token': env.technicianRefreshToken()
         }
       });
 
@@ -106,8 +107,8 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
               user_id: userId
             }, {
               headers: {
-                'Authorization': `Bearer ${import.meta.env.VITE_TECHNICIAN_USER_ACCESS_TOKEN}`,
-                'X-Refresh-Token': import.meta.env.VITE_TECHNICIAN_USER_REFRESH_TOKEN
+                'Authorization': `Bearer ${env.technicianAccessToken()}`,
+                'X-Refresh-Token': env.technicianRefreshToken()
               }
             });
           } catch (capError) {
