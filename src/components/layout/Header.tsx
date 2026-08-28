@@ -199,7 +199,7 @@ export const Header = () => {
   }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor])
 
   return (
-    <header className='h-[88px] bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>
+    <header className='h-22 bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>
       <div className='px-6 w-full'>
         <div className='flex items-center justify-between'>
           {headerContent.left}
