@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Mail, Link as LinkIcon, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import { vendorService } from '@/services/vendorService';
+import { env } from '@/config/env';
 
 interface CreateSignupLinkModalProps {
   isOpen: boolean;
@@ -133,7 +134,7 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
               <div className="pt-2">
                 <button
                   onClick={() => {
-                    const b2bUrl = import.meta.env.VITE_B2B_URL;
+                    const b2bUrl = env.b2bUrl();
                     const registerUrl = result.signupLink.replace('https://dentb2b.com', b2bUrl);
                     window.open(registerUrl, '_blank');
                   }}

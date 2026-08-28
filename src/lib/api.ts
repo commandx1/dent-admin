@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
+import { env } from '@/config/env';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/',
+  baseURL: env.apiUrl() || '/',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
