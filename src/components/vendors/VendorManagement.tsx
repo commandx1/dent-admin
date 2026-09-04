@@ -10,7 +10,8 @@ import {
   FileText,
   Users,
   ClipboardList,
-  FileBadge2
+  FileBadge2,
+  Truck
 } from 'lucide-react'
 import { VendorRow } from './VendorRow'
 import type { VendorAPIItem, VendorStatistics } from './types'
@@ -25,10 +26,11 @@ import { ImportProductsModal } from './ImportProductsModal'
 import { VendorDocuments } from './VendorDocuments'
 import { PendingProductReviews } from './PendingProductReviews'
 import { VendorLicenses } from './VendorLicenses'
+import { LateShipments } from './LateShipments'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
-type ActiveTab = 'vendors' | 'documents' | 'reviews' | 'licenses'
+type ActiveTab = 'vendors' | 'documents' | 'reviews' | 'licenses' | 'lateShipments'
 
 const VendorRowSkeleton = () => (
   <tr className='animate-pulse border-b border-dark-border'>
@@ -196,6 +198,19 @@ export const VendorManagement = () => {
           <FileBadge2 size={15} />
           Licenses
         </button>
+        <button
+          type='button'
+          onClick={() => setActiveTab('lateShipments')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+            activeTab === 'lateShipments'
+              ? 'border-accent-primary text-accent-primary'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          )}
+        >
+          <Truck size={15} />
+          Late Shipments
+        </button>
       </div>
 
       {activeTab === 'documents' ? (
@@ -204,6 +219,8 @@ export const VendorManagement = () => {
         <PendingProductReviews />
       ) : activeTab === 'licenses' ? (
         <VendorLicenses />
+      ) : activeTab === 'lateShipments' ? (
+        <LateShipments />
       ) : (
         <>
           {/* Stats Cards */}

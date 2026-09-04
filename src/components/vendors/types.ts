@@ -306,3 +306,51 @@ export interface PendingProductDetailsResponse {
     fulfillmentPolicy: string | null;
   };
 }
+
+export interface LateShipmentCompany {
+  id: string;
+  name: string;
+  /** May be an empty string when the company has no logo. */
+  companyPhoto: string;
+  lateShipmentCount: number;
+  latestLateOrderItemCreatedDate: string;
+}
+
+export interface LateShipmentCompanyListResponse {
+  content: LateShipmentCompany[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface LateShipmentOrderItem {
+  orderItemId: string;
+  orderId: string;
+  productId: string;
+  productName: string;
+  productCoverPhotoPath: string | null;
+  skuCode: string | null;
+  quantity: number;
+  price: number;
+  status: string;
+  createdDate: string;
+  lateShipment: boolean;
+  deadline: string | null;
+  /** Null while the item has not shipped yet. */
+  shipmentDate: string | null;
+  delayInMinutes: number;
+  notShippedYet: boolean;
+}
+
+export interface LateShipmentOrderItemListResponse {
+  content: LateShipmentOrderItem[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
