@@ -1,4 +1,5 @@
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/useAuthStore';
 import type { User } from '@/store/useAuthStore';
 
 interface LoginRequest {
@@ -82,17 +83,28 @@ export const authService = {
   },
 
   impersonate: async (email: string) => {
-    const response = await api.post<LoginResponse>('/api/v1/vendors/impersonate?email=' + email);
-
-    const headers = response.headers;
-    const authHeader = headers['authorization'] || headers['Authorization'];
-
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '').trim();
-      response.data.accessToken = token;
+    // Safety net: dt-admin-api's dentb2b pool is capped at 2 connections, so only one
+    // impersonation request may be in flight at a time across the whole admin UI.
+    if (useAuthStore.getState().impersonatingEmail !== null) {
+      throw new Error('Another impersonation is already in progress');
     }
 
-    return response.data;
+    useAuthStore.getState().setImpersonatingEmail(email);
+    try {
+      const response = await api.post<LoginResponse>('/api/v1/vendors/impersonate?email=' + email);
+
+      const headers = response.headers;
+      const authHeader = headers['authorization'] || headers['Authorization'];
+
+      if (authHeader) {
+        const token = authHeader.replace('Bearer ', '').trim();
+        response.data.accessToken = token;
+      }
+
+      return response.data;
+    } finally {
+      useAuthStore.getState().setImpersonatingEmail(null);
+    }
   },
 
   refreshToken: async (token?: string) => {

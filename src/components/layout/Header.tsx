@@ -6,12 +6,15 @@ import { useAppStore } from '@/store/useAppStore'
 import { vendorService } from '@/services/vendorService'
 import { authService } from '@/services/authService'
 import { toast } from 'sonner'
+import { toB2bUrl } from '@/config/env'
+import { useAuthStore } from '@/store/useAuthStore'
 
 export const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const pathname = location.pathname
   const { searchQuery, setSearchQuery, selectedDentist, selectedVendor } = useAppStore()
+  const impersonatingEmail = useAuthStore((s) => s.impersonatingEmail)
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
   const isVendorDetails = matchPath('/vendors/:id', pathname)
@@ -81,13 +84,13 @@ export const Header = () => {
       const vendorId = isVendorDetails.params.id || ''
       
       const handleImpersonate = async () => {
-        if (!selectedVendor) return;
+        if (!selectedVendor || impersonatingEmail !== null) return;
         try {
           const response = await authService.impersonate(selectedVendor.email);
           const impersonateLink = response.impersonateLink;
 
           if (impersonateLink) {
-            window.open(impersonateLink, '_blank');
+            window.open(toB2bUrl(impersonateLink), '_blank');
           } else {
             toast.error('Could not retrieve impersonate link');
           }
@@ -124,7 +127,7 @@ export const Header = () => {
               <Button 
                 variant="outline" 
                 onClick={handleImpersonate}
-                disabled={!selectedVendor}
+                disabled={!selectedVendor || impersonatingEmail !== null}
                 className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10 gap-2"
               >
                 <UserCircle className="h-4 w-4" />
@@ -196,7 +199,7 @@ export const Header = () => {
       ),
       right: showSearch ? searchInput : null
     }
-  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor])
+  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor, impersonatingEmail])
 
   return (
     <header className='h-22 bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>

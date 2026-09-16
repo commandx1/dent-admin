@@ -22,9 +22,12 @@ interface AuthState {
   isAuthenticated: boolean
   isImpersonating: boolean
   adminData: { user: User; token: string; refreshToken: string } | null
+  /** Email of the vendor currently being impersonated (request in flight). Not persisted. */
+  impersonatingEmail: string | null
   setAuth: (user: User, token: string, refreshToken: string) => void
   setImpersonation: (user: User, token: string, refreshToken: string) => void
   stopImpersonation: () => void
+  setImpersonatingEmail: (email: string | null) => void
   logout: () => void
 }
 
@@ -37,7 +40,9 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isImpersonating: false,
       adminData: null,
-      setAuth: (user, token, refreshToken) => 
+      impersonatingEmail: null,
+      setImpersonatingEmail: (email) => set({ impersonatingEmail: email }),
+      setAuth: (user, token, refreshToken) =>
         set({ user, token, refreshToken, isAuthenticated: true, isImpersonating: false, adminData: null }),
       setImpersonation: (user, token, refreshToken) => 
         set((state) => ({
@@ -60,6 +65,11 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => {
+        const rest: Partial<AuthState> = { ...state }
+        delete rest.impersonatingEmail
+        return rest
+      },
     }
   )
 )

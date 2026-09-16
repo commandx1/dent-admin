@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { VendorAPIItem } from './types';
 import { Store, UserCircle } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { toast } from 'sonner';
+import { toB2bUrl } from '@/config/env';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface VendorRowProps {
   vendor: VendorAPIItem;
@@ -11,7 +13,8 @@ interface VendorRowProps {
 
 export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
   const navigate = useNavigate();
-  const [isImpersonating, setIsImpersonating] = useState(false);
+  const impersonatingEmail = useAuthStore((s) => s.impersonatingEmail);
+  const isImpersonating = impersonatingEmail === vendor.email;
 
   const handleViewDetails = () => {
     navigate(`/vendors/${vendor.id}`);
@@ -19,23 +22,20 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
 
   const handleImpersonate = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isImpersonating) return;
+    if (impersonatingEmail !== null) return;
 
     try {
-      setIsImpersonating(true);
       const response = await authService.impersonate(vendor.email);
       const impersonateLink = response.impersonateLink;
 
       if (impersonateLink) {
-        window.open(impersonateLink, '_blank');
+        window.open(toB2bUrl(impersonateLink), '_blank');
       } else {
         toast.error('Could not retrieve impersonate link');
       }
     } catch (error) {
       console.error('Impersonation failed:', error);
       toast.error('Impersonation process failed');
-    } finally {
-      setIsImpersonating(false);
     }
   };
 
@@ -84,7 +84,7 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
           </button>
           <button
             onClick={handleImpersonate}
-            disabled={isImpersonating}
+            disabled={impersonatingEmail !== null}
             className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 font-medium text-sm transition-colors disabled:opacity-60"
             title="Impersonate as Vendor"
           >
