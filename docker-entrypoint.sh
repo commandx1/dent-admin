@@ -1,6 +1,31 @@
 #!/bin/sh
 set -eu
 
+# Backend address for the nginx proxy (default keeps the docker-compose service name)
+: "${BACKEND_URL:=http://dt-admin-api:8080}"
+# trim whitespace and trailing slashes (a trailing "/" in proxy_pass would strip the /api/ prefix)
+BACKEND_URL="$(printf '%s' "$BACKEND_URL" | sed -e 's/[[:space:]]*$//' -e 's#/*$##')"
+case "$BACKEND_URL" in
+  *[[:space:]]*) invalid=1 ;;
+  *) printf '%s' "$BACKEND_URL" | grep -Eq '^https?://([A-Za-z0-9._-]+|\[[0-9A-Fa-f:]+\])(:[0-9]+)?$' && invalid=0 || invalid=1 ;;
+esac
+if [ "$invalid" = 1 ]; then
+  echo "docker-entrypoint: BACKEND_URL must be scheme://host[:port] without a path, got: $BACKEND_URL" >&2
+  exit 1
+fi
+export BACKEND_URL
+
+# DNS resolver for nginx (runtime upstream resolution): env override, else /etc/resolv.conf
+if [ -z "${NGINX_RESOLVER:-}" ]; then
+  NGINX_RESOLVER="$(awk '$1 == "nameserver" { if ($2 ~ /:/) printf "%s[%s]", sep, $2; else printf "%s%s", sep, $2; sep = " " }' /etc/resolv.conf)"
+fi
+if [ -z "$NGINX_RESOLVER" ]; then
+  echo "docker-entrypoint: no nameserver found in /etc/resolv.conf and NGINX_RESOLVER is not set" >&2
+  exit 1
+fi
+export NGINX_RESOLVER
+envsubst '${BACKEND_URL} ${NGINX_RESOLVER}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+
 js_escape() {
   # trim leading/trailing whitespace then escape for JS string literals
   printf '%s' "${1:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
