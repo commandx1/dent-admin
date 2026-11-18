@@ -1,6 +1,13 @@
 #!/bin/sh
 set -eu
 
+# Backend address for the nginx proxy (default keeps the docker-compose service name)
+: "${BACKEND_URL:=http://dt-admin-api:8080}"
+# trim whitespace and trailing slashes (a trailing "/" in proxy_pass would strip the /api/ prefix)
+BACKEND_URL="$(printf '%s' "$BACKEND_URL" | sed -e 's/[[:space:]]*$//' -e 's#/*$##')"
+export BACKEND_URL
+envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+
 js_escape() {
   # trim leading/trailing whitespace then escape for JS string literals
   printf '%s' "${1:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
