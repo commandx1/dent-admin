@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Download, Search, UserCircle } from 'lucide-react'
+import { ArrowLeft, Download, Loader2, Search, UserCircle } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { vendorService } from '@/services/vendorService'
 import { authService } from '@/services/authService'
@@ -15,6 +15,7 @@ export const Header = () => {
   const pathname = location.pathname
   const { searchQuery, setSearchQuery, selectedDentist, selectedVendor } = useAppStore()
   const impersonatingEmail = useAuthStore((s) => s.impersonatingEmail)
+  const [isExporting, setIsExporting] = useState(false)
 
   const isDentistDetails = matchPath('/dentists/:id', pathname)
   const isVendorDetails = matchPath('/vendors/:id', pathname)
@@ -26,6 +27,8 @@ export const Header = () => {
 
   const headerContent = useMemo(() => {
     const handleVendorProductExport = async (vendorId: string) => {
+      if (isExporting) return;
+      setIsExporting(true);
       try {
         const blob = await vendorService.exportVendorProducts(vendorId, 'oldprice', 'DESC', searchQuery);
         const url = window.URL.createObjectURL(new Blob([blob]));
@@ -37,6 +40,8 @@ export const Header = () => {
         link.parentNode?.removeChild(link);
       } catch (error) {
         console.error('Failed to export vendor products:', error);
+      } finally {
+        setIsExporting(false);
       }
     }
 
@@ -82,11 +87,14 @@ export const Header = () => {
 
     if (isVendorDetails) {
       const vendorId = isVendorDetails.params.id || ''
-      
+      // ponytail: store isn't persisted, so after a page refresh the button stays disabled; add GET /api/v1/vendors/{id} if that matters
+      const vendor = selectedVendor?.id === vendorId ? selectedVendor : null
+      const isImpersonating = !!vendor && impersonatingEmail === vendor.email
+
       const handleImpersonate = async () => {
-        if (!selectedVendor || impersonatingEmail !== null) return;
+        if (!vendor || impersonatingEmail !== null) return;
         try {
-          const response = await authService.impersonate(selectedVendor.email);
+          const response = await authService.impersonate(vendor.email);
           const impersonateLink = response.impersonateLink;
 
           if (impersonateLink) {
@@ -113,10 +121,10 @@ export const Header = () => {
             </Button>
             <div>
               <h3 className='text-xl font-bold text-slate-900'>
-                {selectedVendor ? selectedVendor.fullName || selectedVendor.name : 'Vendor Details'}
+                {vendor ? vendor.fullName || vendor.name : 'Vendor Details'}
               </h3>
-              {selectedVendor && (
-                <p className="text-sm text-slate-500">{selectedVendor.email}</p>
+              {vendor && (
+                <p className="text-sm text-slate-500">{vendor.email}</p>
               )}
             </div>
           </div>
@@ -127,17 +135,29 @@ export const Header = () => {
               <Button 
                 variant="outline" 
                 onClick={handleImpersonate}
-                disabled={!selectedVendor || impersonatingEmail !== null}
+                disabled={!vendor || impersonatingEmail !== null}
+                aria-busy={isImpersonating}
                 className="bg-dark-elevated border-none hover:bg-dark-border text-slate-800 h-10 gap-2"
               >
-                <UserCircle className="h-4 w-4" />
-                Impersonate
+                {isImpersonating ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+                ) : (
+                  <UserCircle className="h-4 w-4" />
+                )}
+                {isImpersonating ? 'Connecting...' : 'Impersonate'}
               </Button>
-              <Button 
+              <Button
                 onClick={() => handleVendorProductExport(vendorId)}
+                disabled={isExporting}
+                aria-busy={isExporting}
                 className="bg-accent-primary hover:bg-accent-primary/80 text-white h-10"
               >
-                <Download className="h-4 w-4 mr-2" /> Export
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                {isExporting ? 'Exporting...' : 'Export'}
               </Button>
             </div>
           </div>
@@ -199,7 +219,7 @@ export const Header = () => {
       ),
       right: showSearch ? searchInput : null
     }
-  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor, impersonatingEmail])
+  }, [pathname, isDentistDetails, isVendorDetails, navigate, searchQuery, setSearchQuery, showSearch, isDentistsPage, isTechniciansPage, isVendorsPage, selectedDentist, selectedVendor, impersonatingEmail, isExporting])
 
   return (
     <header className='h-22 bg-dark-surface border-b border-dark-elevated shrink-0 flex items-center'>

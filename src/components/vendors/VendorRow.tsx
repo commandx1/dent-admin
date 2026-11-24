@@ -6,6 +6,7 @@ import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { toB2bUrl } from '@/config/env';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useAppStore } from '@/store/useAppStore';
 
 interface VendorRowProps {
   vendor: VendorAPIItem;
@@ -17,6 +18,7 @@ export const VendorRow: React.FC<VendorRowProps> = ({ vendor }) => {
   const isImpersonating = impersonatingEmail === vendor.email;
 
   const handleViewDetails = () => {
+    useAppStore.getState().setSelectedVendor(vendor);
     navigate(`/vendors/${vendor.id}`);
   };
 
