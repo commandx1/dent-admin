@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Mail, Link as LinkIcon, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import { vendorService } from '@/services/vendorService';
-import { toB2bUrl } from '@/config/env';
 
 interface CreateSignupLinkModalProps {
   isOpen: boolean;
@@ -129,18 +128,6 @@ export const CreateSignupLinkModal: React.FC<CreateSignupLinkModalProps> = ({ is
                     {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
                   </button>
                 </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={() => {
-                    window.open(toB2bUrl(result.signupLink), '_blank');
-                  }}
-                  className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
-                >
-                  <LinkIcon size={20} />
-                  Setup Account Now
-                </button>
               </div>
 
               <button
